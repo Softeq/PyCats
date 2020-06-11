@@ -15,6 +15,8 @@ class BaseRemoteServer:
     def __init__(self, address, port):
         self.address = address
         self.port = port
+        self.platform_name = platform.system()
+        self.is_linux = self.platform_name in ("Darwin", "Linux")
 
     def stop_server(self):
         """
@@ -22,13 +24,10 @@ class BaseRemoteServer:
         """
         log.info(f"stop webdriver server on {self.address}:{self.port}")
         if not self._get_current_sessions():
-            platform_name = platform.system()
-            if platform_name in ("Darwin", "Linux"):
+            if self.is_linux:
                 cmd = f"lsof -ti:{self.port} | xargs kill"
-            elif platform_name == "Windows":
-                cmd = f"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr \":{self.port}\"') do taskkill /F /PID %a"
             else:
-                raise EnvironmentError("unknown os")
+                cmd = f"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr \":{self.port}\"') do taskkill /F /PID %a"
             subprocess_send_command(cmd)
 
     def _get_current_sessions(self):
@@ -76,6 +75,9 @@ class SeleniumServer(BaseRemoteServer):
         """
         Try to get process info and return True if port now used.
         """
-        cmd = f"lsof -i -n -P | grep {self.port}"
+        if self.is_linux:
+            cmd = f"lsof -i -n -P | grep {self.port}"
+        else:
+            cmd = f"netstat -na | find \"{self.port}\""
         out, err, rc = subprocess_send_command(cmd)
-        return True if out[0] and 'java' in out[0] else False
+        return True if out[0] and ('LISTENING' or 'java') in out[0] else False
