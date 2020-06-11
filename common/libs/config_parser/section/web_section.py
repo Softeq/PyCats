@@ -1,0 +1,74 @@
+import os
+
+from common.libs.config_parser.section.base_section import ConfigSection
+from common.libs.config_parser.config_error import ConfigError
+
+WEB_SECTION = "web"
+
+BROWSER_SETTINGS_MAPPING = {"chrome": "chrome_driver_name",
+                            "firefox": "firefox_driver_name"}
+
+ALLOWED_BROWSER_LIST = ["chrome", "firefox"]
+
+
+class WebSection(ConfigSection):
+    """Class responsible for ui section parsing."""
+
+    def __init__(self, config, custom_args):
+        """Basic initialization."""
+        self.app_url = None
+        self.webdriver_folder = None
+        self.webdriver_default_wait_time = 20
+        self.webdriver_implicit_wait_time = 60
+        self.selenium_server_executable = None
+        self.chrome_driver_name = None
+        self.firefox_driver_name = None
+        self.browser = 'chrome'
+        self.config = config
+        self.custom_args = custom_args
+
+        super().__init__(config, WEB_SECTION, custom_args=custom_args)
+
+    def _configure_section(self):
+        """Divide settings according to their types.
+        Set mandatory,comma separated list, space separated list, str,
+        bool, int, list of nodes fields if it is necessary.
+        """
+
+        self._mandatory_fields = ['app_url', 'webdriver_folder', 'chrome_driver_name']
+        self._str_fields = ['app_url', 'webdriver_folder', 'selenium_server_executable', 'chrome_driver_name',
+                            'firefox_driver_name', 'browser']
+        self._int_fields = ['webdriver_default_wait_time', 'webdriver_implicit_wait_time']
+        self._settings = self._str_fields + self._int_fields
+
+    def to_dict(self):
+        """Convert to dictionary."""
+        return {field: getattr(self, field, None) for field in self._settings}
+
+    def _perform_custom_tunings(self):
+        """Perform custom tunings for obtained settings."""
+        for setting in self._settings:
+            if setting in self._untuned_settings:
+                setattr(self, setting, self._untuned_settings[setting])
+
+        if self.custom_args is not None:
+            self._tune_custom_args()
+
+    def _check_settings(self):
+        """Check if webdriver settings are valid."""
+        if self.browser not in ALLOWED_BROWSER_LIST:
+            raise ConfigError(f"Unexpected browser provided {self.browser}, "
+                              f"possible types: {ALLOWED_BROWSER_LIST}")
+        if not os.path.exists(self.selenium_server_executable):
+            raise ConfigError(f"Unable to find selenium server executable file in provided path: "
+                              f"{self.selenium_server_executable}")
+
+        if not os.path.exists(self.get_driver_path()):
+            raise ConfigError(f"Unable to find {self.browser} driver file in provided path: "
+                              f"{self.get_driver_path()}")
+
+    def get_driver_path(self):
+        driver_variable = BROWSER_SETTINGS_MAPPING[self.browser]
+        driver_path = os.path.join(self.webdriver_folder, getattr(self, driver_variable))
+        return driver_path
+

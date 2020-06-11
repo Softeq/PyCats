@@ -1,0 +1,5 @@
+requests
+pytest
+scp
+selenium
+paramiko
