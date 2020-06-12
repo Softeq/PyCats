@@ -33,7 +33,7 @@ class WebDriver:
 
 
 def start_webui():
-    WebDriver().web_driver.fullscreen_window()
+    WebDriver().web_driver.maximize_window()
 
 
 def stop_webui():

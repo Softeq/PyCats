@@ -1,6 +1,9 @@
 from common.scaf_facade import SCAFFacade
 
-from _pytest.config.argparsing import Parser
+try:
+    from _pytest.config.argparsing import Parser
+except ImportError:
+    from _pytest.config import Parser
 
 API_URL = '--api_url'
 
