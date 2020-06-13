@@ -397,7 +397,7 @@ class ResponseConverterMixin:
         response_container.status_code = response_container.raw_response.status_code
 
 
-@scaf_dataclass(repr=True, eq=False, init=False)
+@scaf_dataclass(repr=True, eq=False)
 class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclass=ABCMeta):
     """Abstract Base class for HTTP Response model description.
 
