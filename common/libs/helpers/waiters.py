@@ -1,9 +1,10 @@
 from functools import wraps
 from operator import eq, lt, ne, gt
 from time import sleep
-import logging
 
-logger = logging.getLogger(__name__)
+from common.scaf import get_logger
+
+logger = get_logger(__name__)
 
 
 def wait_for_return_value(

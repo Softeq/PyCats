@@ -3,8 +3,6 @@ import os
 from common.libs.config_parser.section.base_section import ConfigSection
 from common.libs.config_parser.config_error import ConfigError
 
-WEB_SECTION = "web"
-
 BROWSER_SETTINGS_MAPPING = {"chrome": "chrome_driver_name",
                             "firefox": "firefox_driver_name"}
 
@@ -13,6 +11,8 @@ ALLOWED_BROWSER_LIST = ["chrome", "firefox"]
 
 class WebSection(ConfigSection):
     """Class responsible for ui section parsing."""
+
+    SECTION_NAME = "web"
 
     def __init__(self, config, custom_args):
         """Basic initialization."""
@@ -27,7 +27,7 @@ class WebSection(ConfigSection):
         self.config = config
         self.custom_args = custom_args
 
-        super().__init__(config, WEB_SECTION, custom_args=custom_args)
+        super().__init__(config, self.SECTION_NAME, custom_args=custom_args)
 
     def _configure_section(self):
         """Divide settings according to their types.

@@ -1,19 +1,25 @@
-from common.libs.config_parser.section.base_section import ConfigSection
+from typing import Optional
 
-API_SECTION = "api"
+from common.libs.config_parser.section.base_section import ConfigSection
+from common.libs.config_parser.section.api_validation_section import APIValidationSection
 
 
 class APISection(ConfigSection):
     """Class responsible for api section parsing."""
 
+    SECTION_NAME = 'api'
+
     def __init__(self, config, custom_args):
         """Basic initialization."""
 
         self.api_url = None
+        self.api_validation_settings: Optional[APIValidationSection] = None
         self.config = config
         self.custom_args = custom_args
 
-        super().__init__(config, API_SECTION, custom_args=custom_args)
+        super().__init__(config, self.SECTION_NAME, custom_args=custom_args)
+
+        self._tune_api_validations()
 
     def _configure_section(self):
         """Divide settings according to their types.
@@ -38,6 +44,10 @@ class APISection(ConfigSection):
 
         if self.custom_args is not None:
             self._tune_custom_args()
+
+    def _tune_api_validations(self):
+        setattr(self, f"{APIValidationSection.SECTION_NAME}_settings", APIValidationSection(self.config,
+                                                                                            self.custom_args))
 
     def _check_settings(self):
         pass

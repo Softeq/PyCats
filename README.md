@@ -43,6 +43,12 @@ sections = api web
 [api]
 api_url = http://api.openweathermap.org/data/2.5/
 
+[api_validation]
+validate_status_code = True
+validate_headers = True
+validate_body = True
+fail_if_field_is_missing = True
+
 [web]
 app_url = https://openweathermap.org/
 webdriver_folder = /home/test/web/webdrivers/
@@ -81,7 +87,14 @@ for `global` section:
 for `web` section:
 
 - `webdriver_default_wait_time = 20` - Time to wait until element appears on the page (default is 20)
-- `webdriver_implicit_wait_time = 60` -Webdriver implicit wait time (default is 60)
+- `webdriver_implicit_wait_time = 60` - Webdriver implicit wait time (default is 60)
+
+for `api` the `api_validation` section is optional with the following optional parameters:
+
+- `validate_status_code = True` - Should the API validator verify response status code (default is True)
+- `validate_headers = True` - Should the API validator verify response headers (default is True)
+- `validate_body = True` - Should the API validator verify response body (default is True)
+- `fail_if_field_is_missing = True` - Should the API validator raise exception if some field from model is absent in response (default is True)
 
 #### Access Facade API
 

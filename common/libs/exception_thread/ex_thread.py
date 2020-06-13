@@ -2,10 +2,10 @@ import threading
 import traceback
 import queue
 from multiprocessing import TimeoutError
-import logging
 
-logger = logging.getLogger("thread")
-logger.setLevel("WARNING")
+from common.scaf import get_logger
+
+logger = get_logger(__name__)
 
 
 def run_commands_in_thread(commands, args=()):

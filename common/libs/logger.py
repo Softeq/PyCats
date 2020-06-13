@@ -85,11 +85,14 @@ class SCAFLogger:
 
         self.reset_counters()
 
+    def debug(self, message: str):
+        self.logger.debug(message)
+
     def info(self, message: str):
         self.logger.info(message)
 
-    def debug(self, message: str):
-        self.logger.debug(message)
+    def warning(self, message: str):
+        self.logger.warning(message)
 
     def exception(self, message:str):
         self.logger.exception(message)
