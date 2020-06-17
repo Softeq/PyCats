@@ -8,11 +8,11 @@ from common import scaf
 from common.rest_qa_api import default_exclude_list, method_exclude_lists
 from common.rest_qa_api.rest_checkers import BaseRESTCheckers
 from common.rest_qa_api.rest_exceptions import MethodNotSupportedByEndpoint, DataclassNameError, \
-    RestResponseValidationError
+    RestResponseValidationError, MissingDecoratorError
 from common.rest_qa_api.rest_utils import scaf_dataclass, make_request_url, dict_to_obj, obj_to_dict
 from common.rest_qa_api.rest_utils import SKIP
 
-from requests import Response, request
+import requests
 
 logger = scaf.get_logger(__name__)
 
@@ -91,10 +91,10 @@ class ResponseValidatorMixin:
         # Verify basic validation rules and perform response validation
         if self._check_status_code:
             self._validate_structure('status_code', self.status_code, model.status_code)
-        if self._check_body:
-            self._validate_structure(property_name, body_to_verify, model_data)
         if self._check_headers:
             self._validate_structure('headers', self.headers, model.headers)
+        if self._check_body:
+            self._validate_structure(property_name, body_to_verify, model_data)
         if self.custom_checkers:
             self._run_checkers()
         if self.errors["default"] or self.errors["custom"]:
@@ -137,6 +137,7 @@ class ResponseValidatorMixin:
                             self.field_nesting.append(key)
                             self.errors["default"].append((copy(self.field_nesting), model_to_verify[key],
                                                            "field does not present in response"))
+                            self.field_nesting.pop()
                         else:
                             logger.warning(f"The field {key} is not present in response. Please verify your model")
             else:
@@ -148,8 +149,12 @@ class ResponseValidatorMixin:
                 for number, item in enumerate(model_to_verify):
                     # add element position in list
                     self.field_nesting.append(number)
-                    self._validate_structure(field_name, data_to_verify[number], model_to_verify[number], number)
-                    self.field_nesting.pop()
+                    try:
+                        self._validate_structure(field_name, data_to_verify[number], model_to_verify[number], number)
+                        self.field_nesting.pop()
+                    except IndexError:
+                        # if there is no element in list
+                        self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
             else:
                 self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
         else:
@@ -214,6 +219,21 @@ class BaseRequestModel(metaclass=ABCMeta):
             params = "_format=json"
             allowed_methods = ("get",)
     """
+    def __new__(cls, *args, **kwargs):
+        """Overrides __new__ to verify child class named as private
+
+        Returns:
+            object: BaseRequestModel object
+
+        Raises:
+            DataclassNameError if child class not started with '_'
+        """
+        if not cls.__name__.startswith("_"):
+            raise DataclassNameError(cls.__name__)
+        if not cls.__dict__.get("__annotations__"):
+            raise MissingDecoratorError(cls.__name__)
+        return super().__new__(cls)
+
     _resource: str = None
     _headers: Any = None
     _post_data: Any = None
@@ -478,6 +498,8 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
         """
         if not cls.__name__.startswith("_"):
             raise DataclassNameError(cls.__name__)
+        if not cls.__dict__.get("__annotations__"):
+            raise MissingDecoratorError(cls.__name__)
         return super().__new__(cls)
 
     _status_code: int = None
@@ -490,7 +512,7 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
     _headers: Dict = None
     _custom_checkers = []
     # Used to keep original requests.Response() object
-    raw_response: Response = None
+    raw_response: requests.Response = None
 
     @property
     @abstractmethod
@@ -504,7 +526,7 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
 
     @status_code.setter
     @abstractmethod
-    def status_code(self, status_code) -> None:
+    def status_code(self, status_code: int) -> None:
         self._status_code = status_code
 
     @property
@@ -684,7 +706,7 @@ class BaseEndpoint:
         self.response_model = response_model
         self.make_url_method = make_url_method
         # Dummy container to prepare request fields
-        self._request = type("Jon_Golt", (object,), dict())()
+        self._request = type("Jon_Galt", (object,), dict())()
 
     def __getattr__(self, item):
         """Verifies if the called method presents in self.request_model.allowed_methods
@@ -708,7 +730,7 @@ class BaseEndpoint:
         if method == "get":
             return value
         # JSON supports 2 formats - dict and list
-        if isinstance(value[f"{method}_data"], dict) or isinstance(f"{method}_data", list):
+        if isinstance(value[f"{method}_data"], dict) or isinstance(value[f"{method}_data"], list):
             value["json"] = value.pop(f"{method}_data")
         else:
             value["data"] = value.pop(f"{method}_data")
@@ -729,7 +751,7 @@ class BaseEndpoint:
         """
         dict_to_obj(self._request, method=method, base_url=self.base_url, **obj_to_dict(self.request_model))
         self.make_url_method(self._request)
-        result = request(**self.__request_builder(method))
+        result = requests.request(**self.__request_builder(method))
         response = self.response_model.convert_raw_response(result)
         if base_validation and not response == self.response_model:
             raise RestResponseValidationError(response)

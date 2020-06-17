@@ -16,6 +16,15 @@ class DataclassNameError(Exception):
         return self.message
 
 
+class MissingDecoratorError(Exception):
+    def __init__(self, class_name):
+        self.message = f"Child dataclass {class_name} should have @scaf_dataclass decorator"
+        super().__init__(self, self.message)
+
+    def __str__(self):
+        return self.message
+
+
 class RestResponseValidationError(Exception):
     def __init__(self, response):
         self.message = ""
