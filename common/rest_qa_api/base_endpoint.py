@@ -1,193 +1,19 @@
-import json
-import inspect
-from copy import deepcopy, copy
 from abc import ABCMeta, abstractmethod
+from dataclasses import InitVar
 from typing import Any, Dict, Union, Optional, Tuple, Callable, List, Type
 
 from common import scaf
+from common.libs.config_manager import ConfigManager
 from common.rest_qa_api import default_exclude_list, method_exclude_lists
-from common.rest_qa_api.rest_checkers import BaseRESTCheckers
+from common.rest_qa_api.response_converter import ResponseConverterMixin
+from common.rest_qa_api.response_validator import ResponseValidatorMixin
 from common.rest_qa_api.rest_exceptions import MethodNotSupportedByEndpoint, DataclassNameError, \
     RestResponseValidationError, MissingDecoratorError
 from common.rest_qa_api.rest_utils import scaf_dataclass, make_request_url, dict_to_obj, obj_to_dict
-from common.rest_qa_api.rest_utils import SKIP
 
 import requests
 
 logger = scaf.get_logger(__name__)
-
-
-class ResponseValidatorMixin:
-    """
-    Mixin to provide a mechanism to compare the response model with the actual response.
-    Validation is archived using the __eq__ method override.
-
-    Because self contains the response in BaseResponseModel format we compare it with the provided model.
-    During the verification, all errors are saved in self.errors.
-    2 types of validations are supported: default validation according to the model and custom user checkers.
-
-    The default validation rulse are initialized based on the config values. It is possible to override them for each
-    endpoint separately.
-    It is also possible to provide additional custom checkers by adding them to the custom_checkers list.
-    """
-
-    _check_status_code = scaf.config.api_settings.api_validation_settings.validate_status_code
-    _check_headers = scaf.config.api_settings.api_validation_settings.validate_headers
-    _check_body = scaf.config.api_settings.api_validation_settings.validate_body
-    _fail_if_field_is_missing = scaf.config.api_settings.api_validation_settings.fail_if_field_is_missing
-
-    @classmethod
-    def configure_validator(cls, validate_status_code=True, validate_headers=True, validate_body=True,
-                            fail_if_field_is_missing=True):
-        """Performs default validators setup for endpoint if default values should be override.
-
-        Args:
-            validate_status_code (bool): Performs status code validation if True
-            validate_headers (bool): Performs headers validation if True
-            validate_body (bool): Performs body validation if True
-            fail_if_field_is_missing (bool): Fail validation if some field from model is absent in response.
-            Added for cases when response may contain only part of model's values and it is expected.
-
-        """
-        cls._check_status_code = validate_status_code
-        cls._check_headers = validate_headers
-        cls._check_body = validate_body
-        cls._fail_if_field_is_missing = fail_if_field_is_missing
-
-    def __eq__(self: Union['BaseResponseModel', 'ResponseConverterMixin', 'ResponseValidatorMixin'], model):
-        """Performs object fields comparison.
-
-        Validates:
-            1) response status code
-            2) headers
-            3) body
-
-        Method extracts HTTP method used in Request and use the appropriate field from response and model for validation
-        Recursively validates all fields in JSON structure.
-        Calls functions/objects from the custom_checker list if provided.
-        For each fail case appends error in self.errors list.
-
-        Args:
-            model (BaseResponseModel): BaseResponseModel instance with model for validation
-
-        Returns:
-            True if validation passed, otherwise returns False
-
-        """
-        self.errors = {"default": [], "custom": []}
-        # Need to keep recursion depth and store the json fields
-        self.field_nesting = []
-
-        if not isinstance(self, model.__class__):
-            return False
-
-        if not self.raw_response.ok:
-            property_name = "error_data"
-        else:
-            property_name = f'{self.raw_response.request.method.lower()}_data'
-        body_to_verify = getattr(self, f'{property_name}')
-        model_data = getattr(model, property_name)
-
-        # Verify basic validation rules and perform response validation
-        if self._check_status_code:
-            self._validate_structure('status_code', self.status_code, model.status_code)
-        if self._check_headers:
-            self._validate_structure('headers', self.headers, model.headers)
-        if self._check_body:
-            self._validate_structure(property_name, body_to_verify, model_data)
-        if self.custom_checkers:
-            self._run_checkers()
-        if self.errors["default"] or self.errors["custom"]:
-            return False
-        return True
-
-    def _validate_structure(self, field_name, data_to_verify, model_to_verify, list_position=None):
-        """Recursively validates provided data_to_verify based on the model_to_verify
-
-        If value is SKIP - exits from function
-        If value is instance of dict - calls itself for each key
-        If value is instance of list - calls itself for each element in list
-        If value is custom object or primitive data type - asserts data with model using native __eq__
-
-        In case if assertion fails - append error with field name to self.errors["default"] list
-
-        Args:
-            field_name (str): Field name to validated
-            data_to_verify (Any): Data to verify
-            model_to_verify (Any): Model to verify the data
-        """
-        if list_position is None:
-            self.field_nesting.append(field_name)
-
-        if model_to_verify == SKIP:
-            if list_position is None:
-                self.field_nesting.pop()
-            return
-
-        if isinstance(data_to_verify, dict):
-            # if for cases when model or data is empty dict
-            if model_to_verify and data_to_verify:
-                for key, value in model_to_verify.items():
-                    try:
-                        self._validate_structure(key, data_to_verify[key], model_to_verify[key])
-                    except KeyError:
-                        # for case when key is absent in response. If _fail_if_field_is_missing is False
-                        # logs warning message
-                        if self._fail_if_field_is_missing:
-                            self.field_nesting.append(key)
-                            self.errors["default"].append((copy(self.field_nesting), model_to_verify[key],
-                                                           "field does not present in response"))
-                            self.field_nesting.pop()
-                        else:
-                            logger.warning(f"The field {key} is not present in response. Please verify your model")
-            else:
-                self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
-
-        elif isinstance(data_to_verify, list):
-            # if for cases when model or data is empty list
-            if model_to_verify and data_to_verify:
-                for number, item in enumerate(model_to_verify):
-                    # add element position in list
-                    self.field_nesting.append(number)
-                    try:
-                        self._validate_structure(field_name, data_to_verify[number], model_to_verify[number], number)
-                        self.field_nesting.pop()
-                    except IndexError:
-                        # if there is no element in list
-                        self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
-            else:
-                self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
-        else:
-            if not model_to_verify == data_to_verify:
-                self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
-        if list_position is None:
-            self.field_nesting.pop()
-
-    def _run_checkers(self: Union['BaseResponseModel', 'ResponseValidatorMixin']):
-        """Executes all provided checkers in loop
-
-        Supports 2 types of checkers - class inherited from BaseRESTCheckers class and functions.
-        In case of custom check errors adds them to self.errors["custom"]
-        """
-        for checker in self.custom_checkers:
-            logger.info(f"run checker: {checker.__name__}: ")
-            try:
-                if inspect.isfunction(checker):
-                    checker(self)
-                elif isinstance(checker(), BaseRESTCheckers):
-                    errors = checker.execute(self)
-                    self.errors["custom"] = errors
-                else:
-                    raise TypeError(f'{checker} has unsupported type. Supported are functions and '
-                                    f'BaseRESTCheckers instances')
-            except AssertionError as err:
-                self.errors["custom"].append((checker, err))
-            except Exception as err:
-                logger.info("fail")
-                logger.exception(err)
-                raise
-            else:
-                logger.info(f"{checker.__name__} validation passed")
 
 
 @scaf_dataclass(repr=True, eq=True)
@@ -368,55 +194,6 @@ class BaseRequestModel(metaclass=ABCMeta):
         self._allowed_methods = allowed_methods
 
 
-class ResponseConverterMixin:
-    """Mixin to convert :requests.Response() object to SCAF response model
-
-    Converts status_code, headers, body to the model format
-    Assigns response object to self.raw_response field
-
-    If HTTP response status is not ok - populates error_data field by response data
-    """
-
-    def convert_raw_response(self: Union['BaseResponseModel', 'ResponseConverterMixin', 'ResponseValidatorMixin'],
-                             response):
-        response_container = deepcopy(self)
-        response_container.raw_response = response
-        self._convert_status(response_container)
-        self._convert_header(response_container)
-        self._convert_body(response_container)
-        return response_container
-
-    def _convert_body(self, response_container):
-        if not response_container.raw_response.ok:
-            # set model body to model.error_data
-            self._set_body_value('error_data', response_container)
-        else:
-            # set model body based on the request method
-            self._set_body_value(f'{response_container.raw_response.request.method.lower()}_data', response_container)
-
-    @staticmethod
-    def _set_body_value(field, response_container):
-        # get response body (text field)
-        response_body = response_container.raw_response.text
-        # determine data format in response to convert it to dict ot use raw text
-        response_content_type = response_container.raw_response.headers.get('Content-Type')
-        if response_content_type and 'application/json' in response_content_type:
-            try:
-                setattr(response_container, field, json.loads(response_body))
-            except json.JSONDecodeError:
-                raise TypeError(f'Incorrect json format: {response_body}')
-        else:
-            setattr(response_container, field, response_body)
-
-    @staticmethod
-    def _convert_header(response_container):
-        response_container.headers = dict(response_container.raw_response.headers)
-
-    @staticmethod
-    def _convert_status(response_container):
-        response_container.status_code = response_container.raw_response.status_code
-
-
 @scaf_dataclass(repr=True, eq=False)
 class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclass=ABCMeta):
     """Abstract Base class for HTTP Response model description.
@@ -502,6 +279,7 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
             raise MissingDecoratorError(cls.__name__)
         return super().__new__(cls)
 
+    config: InitVar[ConfigManager]
     _status_code: int = None
     _get_data: Any = None
     _post_data: Any = None
@@ -659,6 +437,9 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
     def custom_checkers(self, custom_checkers) -> None:
         self._custom_checkers = custom_checkers
 
+    def __post_init__(self, config: ConfigManager):
+        super().__init__(config.get_api_validations())
+
     def __repr__(self):
         """Override __repr__ to support custom class representation
 
@@ -674,7 +455,7 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
 
 class BaseEndpoint:
     def __init__(self, base_url: str, request_model: BaseRequestModel,
-                 response_model: BaseResponseModel, make_url_method):
+                 response_model: BaseResponseModel, make_url_method, config=ConfigManager()):
         """Class representation for the agent and container for HTTP Request/Response models
 
         Takes request model, parses it and sends to request library,
@@ -707,6 +488,7 @@ class BaseEndpoint:
         self.make_url_method = make_url_method
         # Dummy container to prepare request fields
         self._request = type("Jon_Galt", (object,), dict())()
+        self._config = config
 
     def __getattr__(self, item):
         """Verifies if the called method presents in self.request_model.allowed_methods
@@ -760,7 +542,8 @@ class BaseEndpoint:
 
 def endpoint_factory(base_url: str, class_name: str, request_model: Type[BaseRequestModel],
                      response_model: Type[BaseResponseModel], superclass=BaseEndpoint,
-                     make_url_method=make_request_url) -> Union[Callable[[], BaseEndpoint], BaseEndpoint]:
+                     make_url_method=make_request_url, config: ConfigManager = ConfigManager()) \
+        -> Union[Callable[[], BaseEndpoint], BaseEndpoint]:
     """Factory to create class based on BaseEndpoint
 
     Attributes:
@@ -776,7 +559,7 @@ def endpoint_factory(base_url: str, class_name: str, request_model: Type[BaseReq
         :obj lambda with class which 'class_name' is inherited from 'superclass'
     """
     dummy_class = type(class_name, (superclass,), dict(request_model=request_model,
-                                                       response_model=response_model,
+                                                       response_model=response_model(config=config),
                                                        base_url=base_url,
                                                        make_url_method=make_url_method))
-    return lambda: dummy_class(base_url, request_model(), response_model(), make_url_method)
+    return lambda: dummy_class(base_url, request_model(), response_model(config=config), make_url_method)
