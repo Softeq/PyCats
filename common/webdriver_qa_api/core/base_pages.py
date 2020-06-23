@@ -1,10 +1,10 @@
 import time
+import logging
 
 from common.webdriver_qa_api.core.utils import assert_should_be_equal
 from common.webdriver_qa_api.core.base_elements import BaseElement
-from common import scaf
 
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class BasePage:

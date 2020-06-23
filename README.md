@@ -101,13 +101,11 @@ for `api` the `api_validation` section is optional with the following optional p
 To access Facade API you can use shortcut from scaf.py
 
 ```python
-from common.scaf import config, logger, get_logger
+from common.scaf import config, logger
 ```
 
 - `config` -  shortcut to access scaf.config_manager.config object from Facade
 - `logger` -  shortcut to access scaf.logger object from Facade
-- `get_logger` - function to initailize new logger for core modules or utils.
-
 
 ## Writing UI tests
 TBU

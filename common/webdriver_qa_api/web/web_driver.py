@@ -1,9 +1,11 @@
+import logging
+
 from selenium.webdriver import Remote, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from common.scaf import  get_logger, config
+from common.scaf import  config
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class WebDriver:

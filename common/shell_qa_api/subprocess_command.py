@@ -1,8 +1,7 @@
+import logging
 import subprocess
 
-from common import scaf
-
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def _post_send_command_actions(command, exp_rc, out, err, rc):

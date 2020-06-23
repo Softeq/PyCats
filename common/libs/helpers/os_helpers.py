@@ -103,6 +103,3 @@ def generate_temp_execution_dirname(dirname):
     dirname = '_'.join(
         [dirname, get_system_hostname(), get_timestamp(), '/'])
     return dirname
-
-
-TEMPDIR = generate_temp_execution_dirname('execution')

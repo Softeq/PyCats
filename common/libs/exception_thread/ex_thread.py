@@ -4,8 +4,7 @@ import queue
 from multiprocessing import TimeoutError
 import logging
 
-logger = logging.getLogger("thread")
-logger.setLevel("WARNING")
+logger = logging.getLogger(__name__)
 
 
 def run_commands_in_thread(commands, args=()):
@@ -147,8 +146,7 @@ class ExThread(threading.Thread):
         """
         e, trace = self.wait_for_exc_info()
         if e is None:
-            logger.debug('Got %s from %s %s' % (
-                self.result, self.name, self.target))
+            logger.debug(f'Got {self.result} from {self.name} {self.target}')
         else:
             logger.error(trace)
             raise e
@@ -170,8 +168,7 @@ class ExThread(threading.Thread):
                 block until the thread terminates.
                 """
         if timeout is not None:
-            logger.debug(
-                f'Waiting for {self.name} thread {self.target} target for {timeout} seconds...')
+            logger.debug(f'Waiting for {self.name} thread {self.target} target for {timeout} seconds...')
         else:
             logger.warning(f'WARNING: joining {self.name} thread without timeout')
 

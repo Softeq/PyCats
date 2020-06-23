@@ -1,7 +1,7 @@
 import imaplib
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class GmailManager:
@@ -20,17 +20,17 @@ class GmailManager:
 
     def get_emails(self, subject):
         emails = []
-        log.info(f"Getting messages from inbox with subject '{subject}'")
+        logger.info(f"Getting messages from inbox with subject '{subject}'")
         self.mail.select('inbox')
         result, data = self.mail.search(None, f'(UNSEEN SUBJECT "{subject}")')
-        log.info(f"Result {result}")
+        logger.info(f"Result {result}")
         uids = data[0].split()
         if result == 'OK':
             for uid in uids:
                 result, email = self.mail.fetch(uid, '(RFC822)')
                 email_body = email[0][1].decode('utf-8')
                 emails.append(email_body)
-        log.info(f"Collected {len(emails)} emails")
+        logger.info(f"Collected {len(emails)} emails")
         return emails
 
     def remove_emails(self):
@@ -40,7 +40,7 @@ class GmailManager:
         for uid in uids:
             self.mail.store(uid, '+FLAGS', '\\Deleted')
         self.mail.expunge()
-        log.info(f"Deleting all emails in {self.email}")
+        logger.info(f"Deleting all emails in {self.email}")
 
     def wait_until_email_appears(self, subject="", timeout=20):
         import time

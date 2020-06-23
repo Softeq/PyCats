@@ -1,4 +1,6 @@
 import time
+import logging
+
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -7,9 +9,9 @@ from selenium.common.exceptions import TimeoutException
 from common.webdriver_qa_api.core.utils import assert_should_be_equal, fail_test, assert_should_be_not_equal,\
     assert_should_contain, assert_should_not_contain, assert_should_be_greater_than
 from common.webdriver_qa_api.core.selenium_dynamic_elements import DynamicElement, DynamicElements
-from common.scaf import get_logger, config
+from common.scaf import config
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class BaseElement:

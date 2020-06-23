@@ -1,10 +1,10 @@
 import os
+import logging
 
-from common import scaf
 from common.shell_qa_api.subprocess_command import _post_send_command_actions
 from common.shell_qa_api.paramiko_ssh_channels_pool.ssh_pool import get_ssh_channel
 
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def ssh_send_command_asynchronous(host_ip, user, password, command,
