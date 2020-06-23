@@ -23,10 +23,13 @@ class GlobalSection(ConfigSection, BaseGlobalSection):
     """Class representing a global section of the configuration file.
     """
 
+    SECTION_NAME = 'global'
+
     def __init__(self, config, custom_args=None):
         self.custom_args = custom_args
+        self._settings = []
         BaseGlobalSection.__init__(self)
-        ConfigSection.__init__(self, config, 'global', custom_args=self.custom_args)
+        ConfigSection.__init__(self, config, self.SECTION_NAME, custom_args=self.custom_args)
 
     def to_dict(self):
         """Convert to dictionary."""
