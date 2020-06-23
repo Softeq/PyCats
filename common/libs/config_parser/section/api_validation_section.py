@@ -14,7 +14,7 @@ class APIValidationSection(ConfigSection):
         self.validate_status_code = True
         self.validate_headers = True
         self.validate_body = True
-        self.fail_if_field_is_missing = True
+        self.validate_is_field_missing = True
         self.config: ConfigParser = config
         self.custom_args = custom_args
 
@@ -29,7 +29,7 @@ class APIValidationSection(ConfigSection):
         self._str_fields = []
         self._int_fields = []
         self._bool_fields = ['validate_status_code', 'validate_headers', 'validate_body',
-                             'fail_if_field_is_missing']
+                             'validate_is_field_missing']
         self._settings = self._str_fields + self._int_fields + self._bool_fields
 
     def _load_from_config(self):

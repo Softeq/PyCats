@@ -47,7 +47,7 @@ api_url = http://api.openweathermap.org/data/2.5/
 validate_status_code = True
 validate_headers = True
 validate_body = True
-fail_if_field_is_missing = True
+validate_is_field_missing = True
 
 [web]
 app_url = https://openweathermap.org/
@@ -94,7 +94,7 @@ for `api` the `api_validation` section is optional with the following optional p
 - `validate_status_code = True` - Should the API validator verify response status code (default is True)
 - `validate_headers = True` - Should the API validator verify response headers (default is True)
 - `validate_body = True` - Should the API validator verify response body (default is True)
-- `fail_if_field_is_missing = True` - Should the API validator raise exception if some field from model is absent in response (default is True)
+- `validate_is_field_missing = True` - Should the API validator raise exception if some field from model is absent in response (default is True)
 
 #### Access Facade API
 

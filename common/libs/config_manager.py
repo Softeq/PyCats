@@ -22,4 +22,4 @@ class ConfigManager(metaclass=Singleton):
     def get_api_validations(self) -> APIValidationDTO:
         settings = self.config.api_settings.api_validation_settings
         return APIValidationDTO(settings.validate_status_code, settings.validate_headers,
-                                settings.validate_body, settings.fail_if_field_is_missing)
+                                settings.validate_body, settings.validate_is_field_missing)

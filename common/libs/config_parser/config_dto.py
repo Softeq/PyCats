@@ -6,4 +6,4 @@ class APIValidationDTO:
     check_status_code: bool
     check_headers: bool
     check_body: bool
-    fail_if_field_is_missing: bool
+    check_is_field_missing: bool

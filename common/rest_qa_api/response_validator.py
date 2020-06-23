@@ -32,7 +32,7 @@ class ResponseValidatorMixin:
     _check_status_code = None
     _check_headers = None
     _check_body = None
-    _fail_if_field_is_missing = None
+    _check_is_field_missing = None
 
     def __init__(self, api_validation_section: APIValidationDTO):
         self._check_status_code = self._check_status_code if self._check_status_code \
@@ -41,26 +41,26 @@ class ResponseValidatorMixin:
             else api_validation_section.check_headers
         self._check_body = self._check_body if self._check_body \
             else api_validation_section.check_body
-        self._fail_if_field_is_missing = self._fail_if_field_is_missing if self._fail_if_field_is_missing \
-            else api_validation_section.fail_if_field_is_missing
+        self._check_is_field_missing = self._check_is_field_missing if self._check_is_field_missing \
+            else api_validation_section.check_is_field_missing
 
     @classmethod
     def configure_validator(cls, validate_status_code=True, validate_headers=True, validate_body=True,
-                            fail_if_field_is_missing=True):
+                            validate_is_field_missing=True):
         """Performs default validators setup for endpoint if default values should be override.
 
         Args:
             validate_status_code (bool): Performs status code validation if True
             validate_headers (bool): Performs headers validation if True
             validate_body (bool): Performs body validation if True
-            fail_if_field_is_missing (bool): Fail validation if some field from model is absent in response.
+            validate_is_field_missing (bool): Fail validation if some field from model is absent in response.
             Added for cases when response may contain only part of model's values and it is expected.
 
         """
         cls._check_status_code = validate_status_code
         cls._check_headers = validate_headers
         cls._check_body = validate_body
-        cls._fail_if_field_is_missing = fail_if_field_is_missing
+        cls._check_is_field_missing = validate_is_field_missing
 
     def __eq__(self: Union['BaseResponseModel', 'ResponseConverterMixin', 'ResponseValidatorMixin'], model):
         """Performs object fields comparison.
@@ -140,9 +140,9 @@ class ResponseValidatorMixin:
                     try:
                         self._validate_structure(key, data_to_verify[key], model_to_verify[key])
                     except KeyError:
-                        # for case when key is absent in response. If _fail_if_field_is_missing is False
+                        # for case when key is absent in response. If _check_is_field_missing is False
                         # logs warning message
-                        if self._fail_if_field_is_missing:
+                        if self._check_is_field_missing:
                             self.field_nesting.append(key)
                             self.errors["default"].append((copy(self.field_nesting), model_to_verify[key],
                                                            "field does not present in response"))
