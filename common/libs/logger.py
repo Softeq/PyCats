@@ -4,6 +4,7 @@ from typing import List
 
 from common.libs.helpers.os_helpers import get_timestamp, create_folder
 from common.libs.helpers.singleton import Singleton
+from common.libs.helpers.utils import slugify
 
 
 class Counter(metaclass=Singleton):
@@ -62,6 +63,7 @@ class SCAFLogger:
         self._logger_instances.append(self.logger)
 
     def switch_test(self, filename: str):
+        filename = slugify(filename)
         if not filename.endswith(".log"):
             filename += ".log"
 
@@ -91,7 +93,7 @@ class SCAFLogger:
     def debug(self, message: str):
         self.logger.debug(message)
 
-    def exception(self, message:str):
+    def exception(self, message: str):
         self.logger.exception(message)
 
     def log_step(self, description: str, precondition: bool = False):
