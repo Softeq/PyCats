@@ -14,6 +14,8 @@ ALLOWED_BROWSER_LIST = ["chrome", "firefox"]
 class WebSection(ConfigSection):
     """Class responsible for ui section parsing."""
 
+    SECTION_NAME = 'web'
+
     def __init__(self, config, custom_args):
         """Basic initialization."""
         self.app_url = None
@@ -26,8 +28,9 @@ class WebSection(ConfigSection):
         self.browser = 'chrome'
         self.config = config
         self.custom_args = custom_args
+        self._settings = []
 
-        super().__init__(config, WEB_SECTION, custom_args=custom_args)
+        super().__init__(config, self.SECTION_NAME, custom_args=custom_args)
 
     def _configure_section(self):
         """Divide settings according to their types.
@@ -71,4 +74,3 @@ class WebSection(ConfigSection):
         driver_variable = BROWSER_SETTINGS_MAPPING[self.browser]
         driver_path = os.path.join(self.webdriver_folder, getattr(self, driver_variable))
         return driver_path
-
