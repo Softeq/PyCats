@@ -4,7 +4,6 @@ from typing import Any, Dict, Union, Optional, Tuple, Callable, List, Type
 
 from common import scaf
 from common.libs.config_manager import ConfigManager
-from common.libs.config_parser.config_dto import APIValidationDTO
 from common.rest_qa_api import default_exclude_list, method_exclude_lists
 from common.rest_qa_api.response_converter import ResponseConverterMixin
 from common.rest_qa_api.response_validator import ResponseValidatorMixin

@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from common.rest_qa_api.tests.conftest import facade
 
 import pytest
 import requests
@@ -15,7 +16,7 @@ def test_not_allowed_public_method_call(method):
     with pytest.raises(MethodNotSupportedByEndpoint) as excinfo:
         test_request_obj = TestEndpointBuilder._TestRequestModel()
         test_request_obj.allowed_methods = ()
-        test_response_obj = TestEndpointBuilder._TestResponseModel()
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=facade.config_manager)
         test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, None)
         getattr(test_endpoint, method)
     assert f"This Endpoint does not support '{method}' method" in str(excinfo.value)
@@ -26,7 +27,7 @@ def test_allowed_dunder_method_call(method):
     try:
         test_request_obj = TestEndpointBuilder._TestRequestModel()
         test_request_obj.allowed_methods = ()
-        test_response_obj = TestEndpointBuilder._TestResponseModel()
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=facade.config_manager)
         test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, None)
         getattr(test_endpoint, method)
     except Exception as e:
