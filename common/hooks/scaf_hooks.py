@@ -11,4 +11,3 @@ def pytest_addhooks(pluginmanager):
     facade = SCAFFacade()
     facade.setup_config(None)
     facade.setup_logger(None)
-    facade.rebind_submodules_logger(exclude_packages=["common.scaf"])

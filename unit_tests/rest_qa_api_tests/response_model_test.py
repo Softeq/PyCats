@@ -3,12 +3,12 @@ import pytest
 from common.rest_qa_api.base_endpoint import BaseResponseModel
 from common.rest_qa_api.rest_exceptions import DataclassNameError, MissingDecoratorError
 from common.rest_qa_api.rest_utils import scaf_dataclass
-from common.rest_qa_api.tests.conftest import facade
-
-config = facade.config_manager
+from unit_tests.rest_qa_api_tests.tests_utils import DummyConfigBuilder, DummyApiValidationConfig
 
 response_methods_list = ["status_code", "headers", "get_data", "post_data", "put_data", "patch_data", "delete_data",
                          "error_data", "custom_checkers"]
+
+config = DummyConfigBuilder(DummyApiValidationConfig())
 
 
 @pytest.mark.parametrize("field_name", response_methods_list)

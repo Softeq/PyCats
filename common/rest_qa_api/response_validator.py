@@ -35,13 +35,13 @@ class ResponseValidatorMixin:
     _check_is_field_missing = None
 
     def __init__(self, api_validation_section: APIValidationDTO):
-        self._check_status_code = self._check_status_code if self._check_status_code \
+        self._check_status_code = self._check_status_code if self._check_status_code is not None \
             else api_validation_section.check_status_code
-        self._check_headers = self._check_headers if self._check_headers \
+        self._check_headers = self._check_headers if self._check_headers is not None\
             else api_validation_section.check_headers
-        self._check_body = self._check_body if self._check_body \
+        self._check_body = self._check_body if self._check_body is not None\
             else api_validation_section.check_body
-        self._check_is_field_missing = self._check_is_field_missing if self._check_is_field_missing \
+        self._check_is_field_missing = self._check_is_field_missing if self._check_is_field_missing is not None\
             else api_validation_section.check_is_field_missing
 
     @classmethod
@@ -145,9 +145,12 @@ class ResponseValidatorMixin:
                                                            "field does not present in response"))
                             self.field_nesting.pop()
                         else:
-                            logger.warning(f"The field {key} is not present in response. Please verify your model")
-            else:
+                            logger.warning(f"The field '{key}' is not present in response. Please verify your model")
+            elif self._check_is_field_missing:
                 self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
+            else:
+                logger.warning(f"Expected '{model_to_verify}' in response, but got '{data_to_verify}'. "
+                               f"Please verify your model")
 
         elif isinstance(data_to_verify, list):
             # if for cases when model or data is empty list

@@ -7,5 +7,6 @@ Also it provides shortcuts for the long function or data names
 from common.scaf_facade import SCAFFacade
 
 scaf = SCAFFacade()
-config = scaf.config_manager.config
+config_manager = scaf.config_manager
+raw_config = scaf.config_manager.config
 logger = scaf.logger

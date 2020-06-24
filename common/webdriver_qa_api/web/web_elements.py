@@ -1,4 +1,6 @@
 from selenium.webdriver import ActionChains
+
+from common.libs.config_manager import ConfigManager
 from common.webdriver_qa_api.web.web_driver import WebDriver
 from common.webdriver_qa_api.core.utils import assert_should_be_equal
 from common.webdriver_qa_api.core.base_elements import BaseElement, BaseElements
@@ -14,7 +16,7 @@ class WebElement(BaseElement):
     def __init__(self, locator_type, locator, name=None, parent=None):
         self.driver = WebDriver.web_driver
         super().__init__(locator_type, locator,
-                         driver=WebDriver.web_driver, name=name,
+                         driver=WebDriver.web_driver, config=ConfigManager(), name=name,
                          parent=parent)
         self.ALLOWED_DYNAMIC_METHODS = ["click", "text"]
 

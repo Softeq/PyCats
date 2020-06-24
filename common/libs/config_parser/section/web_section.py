@@ -26,6 +26,7 @@ class WebSection(ConfigSection):
         self.chrome_driver_name = None
         self.firefox_driver_name = None
         self.browser = 'chrome'
+        self.driver_path = None
         self.config = config
         self.custom_args = custom_args
         self._settings = []
@@ -59,6 +60,7 @@ class WebSection(ConfigSection):
 
     def _check_settings(self):
         """Check if webdriver settings are valid."""
+        self.driver_path = self.get_driver_path()
         if self.browser not in ALLOWED_BROWSER_LIST:
             raise ConfigError(f"Unexpected browser provided {self.browser}, "
                               f"possible types: {ALLOWED_BROWSER_LIST}")
@@ -66,9 +68,9 @@ class WebSection(ConfigSection):
             raise ConfigError(f"Unable to find selenium server executable file in provided path: "
                               f"{self.selenium_server_executable}")
 
-        if not os.path.exists(self.get_driver_path()):
+        if not os.path.exists(self.driver_path):
             raise ConfigError(f"Unable to find {self.browser} driver file in provided path: "
-                              f"{self.get_driver_path()}")
+                              f"{self.driver_path}")
 
     def get_driver_path(self):
         driver_variable = BROWSER_SETTINGS_MAPPING[self.browser]

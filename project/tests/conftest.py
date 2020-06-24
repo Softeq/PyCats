@@ -1,6 +1,6 @@
 import pytest
 
-from common.scaf import logger, config
+from common.scaf import logger, raw_config, config_manager
 from common.webdriver_qa_api.web.web_driver import start_webui, stop_webui, navigate_to
 from common.webdriver_qa_api.web.remote_server import SeleniumServer
 from project.test_data.users import valid_user
@@ -11,7 +11,7 @@ from project.web.steps.sign_in import SignInSteps
 
 @pytest.fixture(scope="session", autouse=True)
 def start_remote_server(request):
-    server = SeleniumServer()
+    server = SeleniumServer(config_manager)
 
     def finalizer():
         server.stop_server()
@@ -25,21 +25,21 @@ def open_browser(request):
     def finalizer():
         stop_webui()
     request.addfinalizer(finalizer)
-    start_webui()
+    start_webui(config_manager)
 
 
 @pytest.fixture(scope="function", autouse=False)
 def main_page():
     logger.log_step("Open Main application page", precondition=True)
-    navigate_to(config.web_settings.app_url)
+    navigate_to(raw_config.web_settings.app_url)
 
 
 @pytest.fixture(scope="module", autouse=True)
 def api_token():
     logger.log_step("Retrieve API token from UI", precondition=True)
     try:
-        start_webui()
-        navigate_to(config.web_settings.app_url)
+        start_webui(config_manager)
+        navigate_to(raw_config.web_settings.app_url)
         main_page = MainPageSteps()
         main_page.click_login()
 

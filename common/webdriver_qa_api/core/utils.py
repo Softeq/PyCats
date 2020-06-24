@@ -5,6 +5,8 @@ from datetime import timedelta
 
 import pytz as pytz
 
+from common.libs.config_parser.config_dto import WebDriverSettingsDTO
+
 logger = logging.getLogger(__name__)
 
 
@@ -228,6 +230,12 @@ def wait_in_seconds(seconds):
     """
     logger.info(f"Wait {seconds} seconds")
     time.sleep(seconds)
+
+
+def get_wait_seconds(seconds, webdriver_settings_config: WebDriverSettingsDTO):
+    if seconds:
+        return seconds
+    return webdriver_settings_config.webdriver_default_wait_time
 
 
 def convert_local_date_to_tz(date_object,

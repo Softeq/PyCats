@@ -2,13 +2,13 @@ import json
 import pytest
 
 from common.rest_qa_api.base_endpoint import ResponseConverterMixin
-from common.rest_qa_api.tests.tests_utils import DummyResponseBuilder, TestEndpointBuilder, exclude_fields_from_obj
-from common.rest_qa_api.tests.conftest import facade
+from unit_tests.rest_qa_api_tests.tests_utils import DummyResponseBuilder, TestEndpointBuilder, \
+    exclude_fields_from_obj, DummyConfigBuilder, DummyApiValidationConfig
 
 affected_fields_get = ("raw_response", "status_code", "headers", "get_data")
 affected_fields_error = ("raw_response", "status_code", "headers", "error_data")
 
-config = facade.config_manager
+config = DummyConfigBuilder(DummyApiValidationConfig())
 
 
 def test_status_code_converter():

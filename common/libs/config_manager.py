@@ -1,6 +1,6 @@
 import os
 
-from common.libs.config_parser.config_dto import APIValidationDTO
+from common.libs.config_parser.config_dto import APIValidationDTO, WebDriverSettingsDTO
 from common.libs.config_parser.config_parser import ParseConfig
 from common.libs.helpers.singleton import Singleton
 
@@ -23,3 +23,10 @@ class ConfigManager(metaclass=Singleton):
         settings = self.config.api_settings.api_validation_settings
         return APIValidationDTO(settings.validate_status_code, settings.validate_headers,
                                 settings.validate_body, settings.validate_is_field_missing)
+
+    def get_webdriver_settings(self) -> WebDriverSettingsDTO:
+        settings = self.config.web_settings
+        return WebDriverSettingsDTO(settings.webdriver_folder, settings.webdriver_default_wait_time,
+                                    settings.webdriver_implicit_wait_time, settings.selenium_server_executable,
+                                    settings.chrome_driver_name, settings.firefox_driver_name, settings.browser,
+                                    settings.driver_path)

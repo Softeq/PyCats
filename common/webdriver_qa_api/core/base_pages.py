@@ -8,12 +8,13 @@ logger = logging.getLogger(__name__)
 
 
 class BasePage:
-    def __init__(self, driver, locator_type=None, locator=None,
+    def __init__(self, driver, config, locator_type=None, locator=None,
                  name=None):
         self.driver = driver
         self.locator_type = locator_type
         self.locator = locator
         self.name = locator if name is None else name
+        self._config = config
 
     def assert_page_present(self, second=20, silent=False):
         """
@@ -21,7 +22,7 @@ class BasePage:
         """
         if not silent:
             logger.info(f"Verify is page '{self.name}' opens in {second} seconds")
-        page_element = BaseElement(self.locator_type, self.locator, self.driver)
+        page_element = BaseElement(self.locator_type, self.locator, self.driver, self._config)
         assert_should_be_equal(actual_value=page_element.is_present_without_waiting,
                                expected_value=True, silent=silent, timeout=second)
         if not silent:
@@ -38,7 +39,8 @@ class BasePage:
             time.sleep(0.2)
             present_status = BaseElement(self.locator_type,
                                          self.locator,
-                                         self.driver).is_present_without_waiting()
+                                         self.driver,
+                                         self._config).is_present_without_waiting()
         assert_should_be_equal(actual_value=present_status,
                                expected_value=False, silent=True)
 
@@ -51,7 +53,9 @@ class BasePage:
         present_status = False
         while time.time() < end_time and not present_status:
             present_status = BaseElement(self.locator_type,
-                                         self.locator, self.driver,
+                                         self.locator,
+                                         self.driver,
+                                         self._config,
                                          self.name).is_present_without_waiting()
         return present_status
 

@@ -1,7 +1,7 @@
 import importlib
 import logging
-import pkgutil
 from typing import Union, Optional, Any
+
 from common.libs.config_manager import ConfigManager
 from common.libs.helpers.singleton import Singleton
 from common.libs.logger import SCAFLogger
@@ -54,23 +54,22 @@ class SCAFFacade(metaclass=Singleton):
             SCAFLogger.log_level = self.config_manager.config.global_settings.log_level
             SCAFLogger.enable_libs_logging = self.config_manager.config.global_settings.enable_libs_logging
             self._logger = SCAFLogger(logging.getLogger(__name__))
+            self._replace_submodules_logger(exclude=["common.scaf"])
 
-    def rebind_submodules_logger(self, package="common", exclude_packages=None, recursive=True):
-        """ Import all submodules of a module, recursively, including subpackages and replace built in logger
-        with scaf configured logger"""
-        # TODO - review
+    @staticmethod
+    def _replace_submodules_logger(package="common", exclude=None):
+        """ Import all submodules of a module based on the __all__ variable in __init__.py,
+        including subpackages and replace built in logger with scaf configured logger
+        """
         if isinstance(package, str):
             package = importlib.import_module(package)
-        for loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
-            full_name = package.__name__ + '.' + name
-            if exclude_packages and full_name in exclude_packages:
-                return
-            module = importlib.import_module(full_name)
-            try:
-                getattr(module, "logger")
-            except AttributeError:
-                pass
-            else:
-                module.logger = SCAFLogger(logging.getLogger(full_name))
-            if recursive and is_pkg:
-                self.rebind_submodules_logger(full_name)
+        submodules_names = package.__all__
+        for name in submodules_names:
+            if name not in exclude:
+                module = importlib.import_module(name)
+                try:
+                    getattr(module, "logger")
+                except AttributeError:
+                    pass
+                else:
+                    module.logger = SCAFLogger(logging.getLogger(name))
