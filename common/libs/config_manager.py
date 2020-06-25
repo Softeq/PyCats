@@ -14,6 +14,7 @@ class ConfigManager(metaclass=Singleton):
         self.cli_update = None
 
     def get_config(self):
+
         return self.config
 
     def update_config(self, custom_args):
