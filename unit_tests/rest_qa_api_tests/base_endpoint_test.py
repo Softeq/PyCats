@@ -1,14 +1,14 @@
 from unittest.mock import patch
-from common.rest_qa_api.tests.conftest import facade
 
 import pytest
-import requests
 
-from common.rest_qa_api.tests.conftest import response
 from common.rest_qa_api.base_endpoint import BaseEndpoint
-from common.rest_qa_api.rest_utils import SKIP
-from common.rest_qa_api.tests.tests_utils import TestEndpointBuilder
+from common.rest_qa_api.rest_utils import SKIP, make_request_url
 from common.rest_qa_api.rest_exceptions import MethodNotSupportedByEndpoint, RestResponseValidationError
+from unit_tests.rest_qa_api_tests.conftest import response
+from unit_tests.rest_qa_api_tests.tests_utils import TestEndpointBuilder, DummyApiValidationConfig, DummyConfigBuilder
+
+config = DummyConfigBuilder(DummyApiValidationConfig())
 
 
 @pytest.mark.parametrize("method", ["get"])
@@ -16,7 +16,7 @@ def test_not_allowed_public_method_call(method):
     with pytest.raises(MethodNotSupportedByEndpoint) as excinfo:
         test_request_obj = TestEndpointBuilder._TestRequestModel()
         test_request_obj.allowed_methods = ()
-        test_response_obj = TestEndpointBuilder._TestResponseModel(config=facade.config_manager)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=config)
         test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, None)
         getattr(test_endpoint, method)
     assert f"This Endpoint does not support '{method}' method" in str(excinfo.value)
@@ -27,7 +27,7 @@ def test_allowed_dunder_method_call(method):
     try:
         test_request_obj = TestEndpointBuilder._TestRequestModel()
         test_request_obj.allowed_methods = ()
-        test_response_obj = TestEndpointBuilder._TestResponseModel(config=facade.config_manager)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=config)
         test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, None)
         getattr(test_endpoint, method)
     except Exception as e:
@@ -45,7 +45,6 @@ def test_access_public_fields():
         pytest.fail(f"DID RAISE {e}")
 
 
-@pytest.mark.usefixtures("builder", "builder")
 @patch('requests.request', return_value=response())
 class TestStatusCode:
 
@@ -74,7 +73,6 @@ class TestStatusCode:
             pytest.fail(f"DID RAISE {e}")
 
 
-@pytest.mark.usefixtures("builder", "builder")
 @patch('requests.request', return_value=response())
 class TestHeaders:
 
@@ -141,7 +139,6 @@ class TestHeaders:
                in str(excinfo.value)
 
 
-@pytest.mark.usefixtures("builder", "builder")
 @pytest.mark.parametrize("method", ["get", "post", "put", "delete", "patch"])
 @patch('requests.request', return_value=response())
 class TestBody:
@@ -381,3 +378,202 @@ class TestBody:
         with pytest.raises(RestResponseValidationError) as excinfo:
             getattr(builder.endpoint, method)()
         assert f"Field '{method}_data->1', expected value 'testValue2', but got 'testValue1'" in str(excinfo.value)
+
+
+@patch('requests.request', return_value=response())
+class TestValidateConfigSetup:
+
+    def test_validate_status_code_false_from_config(self, _, response):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=DummyConfigBuilder(
+            DummyApiValidationConfig().status_code()))
+        test_response_obj.status_code = 400
+        response.status_code = 200
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+
+    def test_validate_headers_false_from_config(self, _, response):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=DummyConfigBuilder(
+            DummyApiValidationConfig().headers()))
+        test_response_obj.headers = {"testHeader1": "testValue1", "testHeader2": "testValue2"}
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+
+    def test_validate_body_false_from_config(self, _, response):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=DummyConfigBuilder(
+            DummyApiValidationConfig().body()))
+        test_response_obj.get_data = {"testKey1": "testValue1"}
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+
+    def test_validate_missing_fields_false_for_one_header_from_config(self, _, response, caplog):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=DummyConfigBuilder(
+            DummyApiValidationConfig().is_field_missing()))
+        test_response_obj.headers = {"testKey1": "testValue1", "testKey2": "testValue2"}
+        response.header({"testKey1": "testValue1"})
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+        expected_log_message = 'The field \'testKey2\' is not present in response. Please verify your model'
+        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        assert len(messages) == 1, "Expected message not found in logs"
+
+    def test_validate_missing_fields_false_for_all_body_value_from_config(self, _, response, caplog):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=DummyConfigBuilder(
+            DummyApiValidationConfig().is_field_missing()))
+        test_response_obj.get_data = {"testKey1": "testValue1"}
+        response.body({})
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+        expected_log_message = 'Expected \'{\'testKey1\': \'testValue1\'}\' in response, but got \'{}\'. ' \
+                               'Please verify your model'
+        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        assert len(messages) == 1, "Expected message not found in logs"
+
+    def test_validate_missing_fields_false_for_one_body_value_from_config(self, _, response, builder, caplog):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(config=DummyConfigBuilder(
+            DummyApiValidationConfig().is_field_missing()))
+        test_response_obj.get_data = {"testKey1": "testValue1", "testKey2": "testValue2"}
+        response.body({"testKey1": "testValue1"})
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+        expected_log_message = 'The field \'testKey2\' is not present in response. Please verify your model'
+        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        assert len(messages) == 1, "Expected message not found in logs"
+
+    def test_validate_status_code_false_override(self, _, response, builder):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        TestEndpointBuilder._TestResponseModel.configure_validator(validate_status_code=False)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(
+            config=DummyConfigBuilder(DummyApiValidationConfig()))
+        test_response_obj.status_code = 400
+        response.status_code = 200
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+
+    def test_validate_headers_false_override(self, _, response, builder):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        TestEndpointBuilder._TestResponseModel.configure_validator(validate_headers=False)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(
+            config=DummyConfigBuilder(DummyApiValidationConfig()))
+        test_response_obj.headers = {"testHeader1": "testValue1", "testHeader2": "testValue2"}
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+
+    def test_validate_body_false_override(self, _, response, builder):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        TestEndpointBuilder._TestResponseModel.configure_validator(validate_body=False)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(
+            config=DummyConfigBuilder(DummyApiValidationConfig()))
+        test_response_obj.get_data = {"testKey1": "testValue1"}
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+
+    def test_validate_missing_fields_false_for_all_headers_override(self, _, response, builder, caplog):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        TestEndpointBuilder._TestResponseModel.configure_validator(validate_is_field_missing=False)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(
+            config=DummyConfigBuilder(DummyApiValidationConfig()))
+        test_response_obj.headers = {"testKey1": "testValue1"}
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+        expected_log_message = 'Expected \'{\'testKey1\': \'testValue1\'}\' in response, but got \'{}\'. ' \
+                               'Please verify your model'
+        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        assert len(messages) == 1, "Expected message not found in logs"
+
+    def test_validate_missing_fields_false_for_one_header_override(self, _, response, builder, caplog):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        TestEndpointBuilder._TestResponseModel.configure_validator(validate_is_field_missing=False)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(
+            config=DummyConfigBuilder(DummyApiValidationConfig()))
+        test_response_obj.headers = {"testKey1": "testValue1", "testKey2": "testValue2"}
+        response.header({"testKey1": "testValue1"})
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+        expected_log_message = 'The field \'testKey2\' is not present in response. Please verify your model'
+        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        assert len(messages) == 1, "Expected message not found in logs"
+
+    def test_validate_missing_fields_false_for_all_body_value_override(self, _, response, builder, caplog):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        TestEndpointBuilder._TestResponseModel.configure_validator(validate_is_field_missing=False)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(
+            config=DummyConfigBuilder(DummyApiValidationConfig()))
+        test_response_obj.get_data = {"testKey1": "testValue1"}
+        response.body({})
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+        expected_log_message = 'Expected \'{\'testKey1\': \'testValue1\'}\' in response, but got \'{}\'. ' \
+                               'Please verify your model'
+        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        assert len(messages) == 1, "Expected message not found in logs"
+
+    def test_validate_missing_fields_false_for_one_body_value_override(self, _, response, builder, caplog):
+        test_request_obj = TestEndpointBuilder._TestRequestModel()
+        test_request_obj.allowed_methods = ("get",)
+        TestEndpointBuilder._TestResponseModel.configure_validator(validate_is_field_missing=False)
+        test_response_obj = TestEndpointBuilder._TestResponseModel(
+            config=DummyConfigBuilder(DummyApiValidationConfig()))
+        test_response_obj.get_data = {"testKey1": "testValue1", "testKey2": "testValue2"}
+        response.body({"testKey1": "testValue1"})
+        test_endpoint = BaseEndpoint("", test_request_obj, test_response_obj, make_request_url)
+        try:
+            test_endpoint.get()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+        expected_log_message = "The field 'testKey2' is not present in response. Please verify your model"
+        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        assert len(messages) == 1, "Expected message not found in logs"

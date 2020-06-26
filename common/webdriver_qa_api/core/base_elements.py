@@ -1,21 +1,22 @@
 import time
+import logging
+
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-from common.webdriver_qa_api.core.utils import assert_should_be_equal, fail_test, assert_should_be_not_equal,\
-    assert_should_contain, assert_should_not_contain, assert_should_be_greater_than
+from common.libs.config_manager import ConfigManager
+from common.webdriver_qa_api.core.utils import assert_should_be_equal, fail_test, assert_should_be_not_equal, \
+    assert_should_contain, assert_should_not_contain, assert_should_be_greater_than, get_wait_seconds
 from common.webdriver_qa_api.core.selenium_dynamic_elements import DynamicElement, DynamicElements
-from common.scaf import get_logger, config
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class BaseElement:
-    WAIT_SECONDS = config.web_settings.webdriver_default_wait_time
 
-    def __init__(self, locator_type, locator, driver, name=None, parent=None):
+    def __init__(self, locator_type, locator, driver, config: ConfigManager, name=None, parent=None):
         self.locator_type = locator_type
         self.locator = locator
         self.driver = driver
@@ -26,6 +27,7 @@ class BaseElement:
                                       locator=locator,
                                       driver=driver, name=name,
                                       parent=parent)
+        self._webdriver_settings = config.get_webdriver_settings()
 
     def __getattr__(self, item):
         if self.ALLOWED_DYNAMIC_METHODS is not None:
@@ -134,53 +136,57 @@ class BaseElement:
         except:
             return False
         finally:
-            self.driver.implicitly_wait(config.web_settings.webdriver_implicit_wait_time)
+            self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
 
-    def _wait_element(self, silent=False, second=WAIT_SECONDS):
+    def _wait_element(self, silent=False, second=None):
         """
         wait for element present
 
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will fail if element is absent.
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         if not silent:
             logger.info("Wait for '{0}' in {1} seconds".format(self.name, second))
         wait = WebDriverWait(self.driver, second)
         wait.until(EC.presence_of_element_located((self.locator_type, self.locator)))
         return self
 
-    def wait_element(self, silent=False, second=WAIT_SECONDS):
+    def wait_element(self, silent=False, second=None):
         """
         wait for element present with fail test if element not be found
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will fail if element is absent.
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         try:
             self._wait_element(silent, second)
         except TimeoutException:
             fail_test("The element {} can not be located in {} seconds".format(self.name, second))
         return self
 
-    def try_wait_element(self, silent=False, second=WAIT_SECONDS):
+    def try_wait_element(self, silent=False, second=None):
         """
         wait to see if element becomes present during timeout
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will fail if element is absent.
         :return: true if element becomes present during timeout
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         try:
             self._wait_element(silent, second)
         except TimeoutException:
             return False
         return True
 
-    def wait_element_absent(self, silent=False, second=WAIT_SECONDS):
+    def wait_element_absent(self, silent=False, second=None):
         """
         wait for element absent (if timeout more than 20 second, find element with default timeout,
          else find element every 0.1 seconds)
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will wail if element is absent.
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         present_method = self.is_present if second > 30 else self.is_present_without_waiting
 
         if not silent:
@@ -192,62 +198,68 @@ class BaseElement:
             time.sleep(0.1)
         self.assert_present(is_present=False, with_waiting=False)
 
-    def wait_element_enabled(self, silent=False, second=WAIT_SECONDS):
+    def wait_element_enabled(self, silent=False, second=None):
         """
         wait for element enabled
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will wail if element is enabled.
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         if not silent:
             logger.info("Wait for '{0}' is enabled".format(self.name))
         assert_should_be_equal(actual_value=self.element.is_enabled, expected_value=True,
                                message="Verify is element '{}' enabled".format(self.name),
                                timeout=second, silent=silent)
 
-    def wait_element_disabled(self, silent=False, second=WAIT_SECONDS):
+    def wait_element_disabled(self, silent=False, second=None):
         """
         wait for element disabled
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will wail if element is enabled.
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         if not silent:
             logger.info("Wait for '{0}' is disabled".format(self.name))
         assert_should_be_equal(actual_value=self.element.is_enabled, expected_value=False,
                                message="Verify is element '{}' disabled".format(self.name),
                                timeout=second, silent=silent)
 
-    def wait_element_visible(self, silent=False, second=WAIT_SECONDS):
+    def wait_element_visible(self, silent=False, second=None):
         """
         wait for element visible
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will wail if element is visible.
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         if not silent:
             logger.info("Wait for '{0}' is visible".format(self.name))
         assert_should_be_equal(actual_value=self.element.is_displayed, expected_value=True,
                                message="Verify is element '{}' visible".format(self.name),
                                timeout=second, silent=silent)
 
-    def wait_element_invisible(self, silent=False, second=WAIT_SECONDS):
+    def wait_element_invisible(self, silent=False, second=None):
         """
         wait for element invisible
         :param silent: true - log message isn't displayed, false - log message is displayed
         :param second: number of seconds after which test will wail if element is visible.
         """
+        second = get_wait_seconds(second, self._webdriver_settings)
         if not silent:
             logger.info("Wait for '{0}' is invisible".format(self.name))
         assert_should_be_equal(actual_value=self.element.is_displayed, expected_value=False,
                                message="Verify is element '{}' invisible".format(self.name),
                                timeout=second, silent=silent)
 
-    def wait_element_contains_text(self, expected, second=WAIT_SECONDS):
+    def wait_element_contains_text(self, expected, second=None):
+        second = get_wait_seconds(second, self._webdriver_settings)
         end_time = time.time() + second
         while time.time() < end_time and expected not in \
                 self.element.text:
             pass
         self.assert_element_text(expected)
 
-    def wait_element_does_not_contain_text(self, expected, second=WAIT_SECONDS):
+    def wait_element_does_not_contain_text(self, expected, second=None):
+        second = get_wait_seconds(second, self._webdriver_settings)
         end_time = time.time() + second
         while time.time() < end_time and expected in self.element.text:
             pass
@@ -270,6 +282,7 @@ class BaseElement:
         action.perform()
 
     def wait_element_loaded(self, second=10):
+        second = get_wait_seconds(second, self._webdriver_settings)
         wait = WebDriverWait(self.driver, second)
         try:
             wait.until(EC.staleness_of(self.element()))

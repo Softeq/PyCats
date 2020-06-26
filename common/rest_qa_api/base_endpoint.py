@@ -1,8 +1,8 @@
+import logging
 from abc import ABCMeta, abstractmethod
 from dataclasses import InitVar
 from typing import Any, Dict, Union, Optional, Tuple, Callable, List, Type
 
-from common import scaf
 from common.libs.config_manager import ConfigManager
 from common.rest_qa_api import default_exclude_list, method_exclude_lists
 from common.rest_qa_api.response_converter import ResponseConverterMixin
@@ -13,7 +13,7 @@ from common.rest_qa_api.rest_utils import scaf_dataclass, make_request_url, dict
 
 import requests
 
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @scaf_dataclass(repr=True, eq=True)
@@ -456,7 +456,7 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
 
 class BaseEndpoint:
     def __init__(self, base_url: str, request_model: BaseRequestModel,
-                 response_model: BaseResponseModel, make_url_method, config=ConfigManager()):
+                 response_model: BaseResponseModel, make_url_method):
         """Class representation for the agent and container for HTTP Request/Response models
 
         Takes request model, parses it and sends to request library,
@@ -489,7 +489,6 @@ class BaseEndpoint:
         self.make_url_method = make_url_method
         # Dummy container to prepare request fields
         self._request = type("Jon_Galt", (object,), dict())()
-        self._config = config
 
     def __getattr__(self, item):
         """Verifies if the called method presents in self.request_model.allowed_methods
@@ -559,8 +558,7 @@ def endpoint_factory(base_url: str, class_name: str, request_model: Type[BaseReq
     Returns:
         :obj lambda with class which 'class_name' is inherited from 'superclass'
     """
-    dummy_class = type(class_name, (superclass,), dict(request_model=request_model,
-                                                       response_model=response_model(config=config),
-                                                       base_url=base_url,
-                                                       make_url_method=make_url_method))
-    return lambda: dummy_class(base_url, request_model(), response_model(config=config), make_url_method)
+    dummy_class = type(class_name, (superclass,), dict(request_model=None, response_model=None, base_url=None,
+                                                       make_url_method=None))
+    return lambda: dummy_class(base_url, request_model=request_model(), response_model=response_model(config=config),
+                               make_url_method=make_url_method)

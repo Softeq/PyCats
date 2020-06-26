@@ -1,11 +1,10 @@
 import paramiko
+import logging
 
 from common.libs.helpers.singleton import Singleton
 from threading import Lock
 
-from common import scaf
-
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_ssh_channel(host, user, password, port=22):

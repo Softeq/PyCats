@@ -3,9 +3,7 @@ import copy
 from typing import Any
 from dataclasses import field, dataclass
 
-from common import scaf
-
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class SKIP:

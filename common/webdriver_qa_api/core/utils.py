@@ -1,10 +1,13 @@
 import re
 import time
+import logging
 from datetime import timedelta
-from common import scaf
+
 import pytz as pytz
 
-logger = scaf.get_logger(__name__)
+from common.libs.config_parser.config_dto import WebDriverSettingsDTO
+
+logger = logging.getLogger(__name__)
 
 
 def assert_should_be_equal(actual_value, expected_value, message=None,
@@ -227,6 +230,12 @@ def wait_in_seconds(seconds):
     """
     logger.info(f"Wait {seconds} seconds")
     time.sleep(seconds)
+
+
+def get_wait_seconds(seconds, webdriver_settings_config: WebDriverSettingsDTO):
+    if seconds:
+        return seconds
+    return webdriver_settings_config.webdriver_default_wait_time
 
 
 def convert_local_date_to_tz(date_object,

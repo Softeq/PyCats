@@ -3,3 +3,4 @@ pytest
 scp
 selenium
 paramiko
+pytest-capturelog

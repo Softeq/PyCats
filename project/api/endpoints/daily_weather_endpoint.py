@@ -1,6 +1,6 @@
 from common.rest_qa_api.base_endpoint import BaseRequestModel, BaseResponseModel, endpoint_factory
 from common.rest_qa_api.rest_utils import SKIP, scaf_dataclass
-from common.scaf import config
+from common.scaf import raw_config
 
 
 # TODO - find solution to set dataclass fields properly after initialization
@@ -40,7 +40,7 @@ class DailyWeatherEndpointBuilder:
         error_data = None
         custom_checkers = []
 
-    endpoint = endpoint_factory(config.api_settings.api_url, "DailyWeatherEndpoint",
+    endpoint = endpoint_factory(raw_config.api_settings.api_url, "DailyWeatherEndpoint",
                                 _DailyWeatherRequestModel, _DailyWeatherResponseModel)
 
     def get_weather_details(self, city, token):

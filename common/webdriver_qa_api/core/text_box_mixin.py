@@ -1,7 +1,8 @@
-from common import scaf
+import logging
+
 from selenium.webdriver.common.keys import Keys
 
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class TextBoxActionsMixin:

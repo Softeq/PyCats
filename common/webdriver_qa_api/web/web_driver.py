@@ -1,25 +1,29 @@
+import logging
+
+from common.libs.config_manager import ConfigManager
+
 from selenium.webdriver import Remote, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from common.scaf import  get_logger, config
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class WebDriver:
     web_driver = None
 
-    def __init__(self, driver=Remote):
-        self.driver = driver(**self._get_driver_settings())
-        self.driver.implicitly_wait(config.web_settings.webdriver_implicit_wait_time)
+    def __init__(self, config: ConfigManager, driver=Remote):
+        self._settings = config.get_webdriver_settings()
+        self.driver = driver(**self._get_driver_settings(self._settings))
+        self.driver.implicitly_wait(self._settings.webdriver_implicit_wait_time)
 
         WebDriver.web_driver = self.driver
         self.action_chains = ActionChains(self.driver)
         self.driver_wait = WebDriverWait
 
     @staticmethod
-    def _get_driver_settings():
-        browser = dict(browserName=config.web_settings.browser,
+    def _get_driver_settings(settings):
+        browser = dict(browserName=settings.browser,
                        version='',
                        platform='ANY')
         return dict(command_executor='http://127.0.0.1:4444/wd/hub', desired_capabilities=browser)
@@ -32,8 +36,8 @@ class WebDriver:
             WebDriver.web_driver = None
 
 
-def start_webui():
-    WebDriver().web_driver.maximize_window()
+def start_webui(config: ConfigManager):
+    WebDriver(config).web_driver.maximize_window()
 
 
 def stop_webui():

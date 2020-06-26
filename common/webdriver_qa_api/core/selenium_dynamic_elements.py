@@ -1,8 +1,8 @@
+import logging
+
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 
-from common import scaf
-
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class DynamicElement:

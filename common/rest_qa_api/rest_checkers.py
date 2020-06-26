@@ -1,13 +1,14 @@
 from __future__ import annotations
+
+import logging
 from functools import wraps
 from typing import TYPE_CHECKING
-from common import scaf
 
 if TYPE_CHECKING:
     # to avoid import loop only for annotations
     from common.rest_qa_api.base_endpoint import BaseResponseModel
 
-logger = scaf.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class BaseRESTCheckers:
