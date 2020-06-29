@@ -1,8 +1,8 @@
 import pytest
 
-from common.rest_qa_api.base_endpoint import BaseResponseModel
-from common.rest_qa_api.rest_exceptions import DataclassNameError, MissingDecoratorError
-from common.rest_qa_api.rest_utils import scaf_dataclass
+from common._rest_qa_api.base_endpoint import BaseResponseModel
+from common._rest_qa_api.rest_exceptions import DataclassNameError, MissingDecoratorError
+from common._rest_qa_api.rest_utils import scaf_dataclass
 from unit_tests.rest_qa_api_tests.tests_utils import DummyConfigBuilder, DummyApiValidationConfig
 
 response_methods_list = ["status_code", "headers", "get_data", "post_data", "put_data", "patch_data", "delete_data",

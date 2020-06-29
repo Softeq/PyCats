@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from common.rest_qa_api.base_endpoint import ResponseConverterMixin
+from common._rest_qa_api.base_endpoint import ResponseConverterMixin
 from unit_tests.rest_qa_api_tests.tests_utils import DummyResponseBuilder, TestEndpointBuilder, \
     exclude_fields_from_obj, DummyConfigBuilder, DummyApiValidationConfig
 

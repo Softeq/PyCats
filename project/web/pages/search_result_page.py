@@ -1,6 +1,6 @@
-from common.webdriver_qa_api.web.web_pages import WebPage
+from common._webdriver_qa_api.web.web_pages import WebPage
 from selenium.webdriver.common.by import By
-from common.webdriver_qa_api.web.web_elements import WebElement
+from common._webdriver_qa_api.web.web_elements import WebElement
 
 
 class SearchResult(WebPage):

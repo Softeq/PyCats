@@ -1,6 +1,5 @@
-requests
-pytest
-scp
-selenium
-paramiko
-pytest-capturelog
+requests==2.24.0
+pytest==5.4.3
+scp==0.13.2
+selenium==3.141.0
+paramiko==2.7.1

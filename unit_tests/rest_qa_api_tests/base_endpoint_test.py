@@ -2,13 +2,17 @@ from unittest.mock import patch
 
 import pytest
 
-from common.rest_qa_api.base_endpoint import BaseEndpoint
-from common.rest_qa_api.rest_utils import SKIP, make_request_url
-from common.rest_qa_api.rest_exceptions import MethodNotSupportedByEndpoint, RestResponseValidationError
-from unit_tests.rest_qa_api_tests.conftest import response
-from unit_tests.rest_qa_api_tests.tests_utils import TestEndpointBuilder, DummyApiValidationConfig, DummyConfigBuilder
+from common._rest_qa_api.base_endpoint import BaseEndpoint
+from common._rest_qa_api.rest_utils import SKIP, make_request_url
+from common._rest_qa_api.rest_exceptions import MethodNotSupportedByEndpoint, RestResponseValidationError
+from unit_tests.rest_qa_api_tests.tests_utils import TestEndpointBuilder, DummyApiValidationConfig, DummyConfigBuilder, \
+    DummyResponseBuilder
 
 config = DummyConfigBuilder(DummyApiValidationConfig())
+
+
+def fake_response():
+    return DummyResponseBuilder().method().code().header({}).body()
 
 
 @pytest.mark.parametrize("method", ["get"])
@@ -45,7 +49,7 @@ def test_access_public_fields():
         pytest.fail(f"DID RAISE {e}")
 
 
-@patch('requests.request', return_value=response())
+@patch('requests.request', return_value=fake_response())
 class TestStatusCode:
 
     def test_not_equal_status_code(self, _, response, builder):
@@ -73,7 +77,7 @@ class TestStatusCode:
             pytest.fail(f"DID RAISE {e}")
 
 
-@patch('requests.request', return_value=response())
+@patch('requests.request', return_value=fake_response())
 class TestHeaders:
 
     def test_all_headers_present(self, _, response, builder):
@@ -140,7 +144,7 @@ class TestHeaders:
 
 
 @pytest.mark.parametrize("method", ["get", "post", "put", "delete", "patch"])
-@patch('requests.request', return_value=response())
+@patch('requests.request', return_value=fake_response())
 class TestBody:
 
     def test_json_body(self, _, response, builder, method):
@@ -380,7 +384,7 @@ class TestBody:
         assert f"Field '{method}_data->1', expected value 'testValue2', but got 'testValue1'" in str(excinfo.value)
 
 
-@patch('requests.request', return_value=response())
+@patch('requests.request', return_value=fake_response())
 class TestValidateConfigSetup:
 
     def test_validate_status_code_false_from_config(self, _, response):
@@ -433,7 +437,7 @@ class TestValidateConfigSetup:
         except Exception as e:
             pytest.fail(f"DID RAISE {e}")
         expected_log_message = 'The field \'testKey2\' is not present in response. Please verify your model'
-        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"
 
     def test_validate_missing_fields_false_for_all_body_value_from_config(self, _, response, caplog):
@@ -450,7 +454,7 @@ class TestValidateConfigSetup:
             pytest.fail(f"DID RAISE {e}")
         expected_log_message = 'Expected \'{\'testKey1\': \'testValue1\'}\' in response, but got \'{}\'. ' \
                                'Please verify your model'
-        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"
 
     def test_validate_missing_fields_false_for_one_body_value_from_config(self, _, response, builder, caplog):
@@ -466,7 +470,7 @@ class TestValidateConfigSetup:
         except Exception as e:
             pytest.fail(f"DID RAISE {e}")
         expected_log_message = 'The field \'testKey2\' is not present in response. Please verify your model'
-        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"
 
     def test_validate_status_code_false_override(self, _, response, builder):
@@ -523,7 +527,7 @@ class TestValidateConfigSetup:
             pytest.fail(f"DID RAISE {e}")
         expected_log_message = 'Expected \'{\'testKey1\': \'testValue1\'}\' in response, but got \'{}\'. ' \
                                'Please verify your model'
-        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"
 
     def test_validate_missing_fields_false_for_one_header_override(self, _, response, builder, caplog):
@@ -540,7 +544,7 @@ class TestValidateConfigSetup:
         except Exception as e:
             pytest.fail(f"DID RAISE {e}")
         expected_log_message = 'The field \'testKey2\' is not present in response. Please verify your model'
-        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"
 
     def test_validate_missing_fields_false_for_all_body_value_override(self, _, response, builder, caplog):
@@ -558,7 +562,7 @@ class TestValidateConfigSetup:
             pytest.fail(f"DID RAISE {e}")
         expected_log_message = 'Expected \'{\'testKey1\': \'testValue1\'}\' in response, but got \'{}\'. ' \
                                'Please verify your model'
-        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"
 
     def test_validate_missing_fields_false_for_one_body_value_override(self, _, response, builder, caplog):
@@ -575,5 +579,5 @@ class TestValidateConfigSetup:
         except Exception as e:
             pytest.fail(f"DID RAISE {e}")
         expected_log_message = "The field 'testKey2' is not present in response. Please verify your model"
-        messages = [record for record in caplog.records() if expected_log_message == record.message]
+        messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"

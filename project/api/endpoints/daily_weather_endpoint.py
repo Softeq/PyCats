@@ -1,6 +1,6 @@
-from common.rest_qa_api.base_endpoint import BaseRequestModel, BaseResponseModel, endpoint_factory
-from common.rest_qa_api.rest_utils import SKIP, scaf_dataclass
-from common.scaf import raw_config
+from common.facade.api import BaseRequestModel, BaseResponseModel, endpoint_factory
+from common.facade.api import SKIP, scaf_dataclass
+from common.facade import raw_config
 
 
 # TODO - find solution to set dataclass fields properly after initialization

@@ -1,6 +1,6 @@
 import pytest
 
-from common.scaf import logger
+from common.facade import logger
 from project.api.steps.weather_api_steps import compare_api_weather_with_ui
 from project.web.steps.city_details import CityDetailsSteps
 from project.web.steps.main import MainPageSteps
@@ -23,3 +23,4 @@ def test_weather_api(main_page, api_token,  city):
 
     logger.log_step("Compare UI weather with API weather data")
     compare_api_weather_with_ui(city, api_token, weather_info)
+

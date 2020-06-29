@@ -2,9 +2,9 @@ import importlib
 import logging
 from typing import Union, Optional, Any
 
-from common.libs.config_manager import ConfigManager
-from common.libs.helpers.singleton import Singleton
-from common.libs.logger import SCAFLogger
+from common._libs.config_manager import ConfigManager
+from common._libs.helpers.singleton import Singleton
+from common._libs.logger import SCAFLogger
 
 
 class FacadeError(Exception):
@@ -54,7 +54,7 @@ class SCAFFacade(metaclass=Singleton):
             SCAFLogger.log_level = self.config_manager.config.global_settings.log_level
             SCAFLogger.enable_libs_logging = self.config_manager.config.global_settings.enable_libs_logging
             self._logger = SCAFLogger(logging.getLogger(__name__))
-            self._replace_submodules_logger(exclude=["common.scaf"])
+            self._replace_submodules_logger(exclude=["common.facade"])
 
     @staticmethod
     def _replace_submodules_logger(package="common", exclude=None):

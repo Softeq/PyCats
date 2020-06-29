@@ -1,9 +1,9 @@
 from requests import Response, Request
 
-from common.libs.helpers.singleton import Singleton
-from common.libs.config_parser.config_dto import APIValidationDTO
-from common.rest_qa_api.base_endpoint import BaseRequestModel, BaseResponseModel, endpoint_factory
-from common.rest_qa_api.rest_utils import scaf_dataclass, SKIP
+from common._libs.helpers.singleton import Singleton
+from common._libs.config_parser.config_dto import APIValidationDTO
+from common._rest_qa_api.base_endpoint import BaseRequestModel, BaseResponseModel, endpoint_factory
+from common._rest_qa_api.rest_utils import scaf_dataclass, SKIP
 
 
 class DummyApiValidationConfig:
