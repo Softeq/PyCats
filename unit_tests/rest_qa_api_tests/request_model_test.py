@@ -1,8 +1,8 @@
 import pytest
 
-from common.rest_qa_api.base_endpoint import BaseRequestModel
-from common.rest_qa_api.rest_exceptions import DataclassNameError, MissingDecoratorError
-from common.rest_qa_api.rest_utils import scaf_dataclass
+from common._rest_qa_api.base_endpoint import BaseRequestModel
+from common._rest_qa_api.rest_exceptions import DataclassNameError, MissingDecoratorError
+from common._rest_qa_api.rest_utils import scaf_dataclass
 
 request_methods_list = ["resource", "headers", "post_data", "put_data", "patch_data", "delete_data",
                         "params", "allowed_methods"]
