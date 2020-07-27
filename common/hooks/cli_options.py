@@ -1,4 +1,4 @@
-from common.scaf_facade import SCAFFacade
+from common.pycats_facade import PyCatsFacade
 
 try:
     from _pytest.config.argparsing import Parser
@@ -41,4 +41,4 @@ def get_cli_args(config, args):
 def pytest_configure(config):
     """Update config with value from CLI arguments"""
     args = get_cli_args(config, CLI_ARGS)
-    SCAFFacade().config_manager.update_config(custom_args=args)
+    PyCatsFacade().config_manager.update_config(custom_args=args)

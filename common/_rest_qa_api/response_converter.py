@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class ResponseConverterMixin:
-    """Mixin to convert :requests.Response() object to SCAF response model
+    """Mixin to convert :requests.Response() object to PyCats response model
     Converts status_code, headers, body to the model format
     Assigns response object to self.raw_response field
     If HTTP response status is not ok - populates error_data field by response data

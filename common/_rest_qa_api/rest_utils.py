@@ -15,7 +15,7 @@ class SKIP:
         pass
 
 
-def scaf_dataclass(_cls=None, *, init=True, repr=False, eq=False, order=False, unsafe_hash=None, frozen=False):
+def pycats_dataclass(_cls=None, *, init=True, repr=False, eq=False, order=False, unsafe_hash=None, frozen=False):
     """Wrapper for dataclass decorator. Used to simplify syntax and usage
     by disable __repr__ and  __eq__ methods generation, adds the ability to skip key's type annotations by default
     and automatically wraps mutable fields to support @dataclass protocol.

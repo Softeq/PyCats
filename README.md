@@ -1,5 +1,5 @@
-# SCAF (Softeq Common Automation Framework)
-The SCAF aims to provide the well-structured framework with libraries created based on the popular python solutions intended for testing purposes and to make it universal for testing across different domain areas - Web, Mobile, IoT, Embedded.
+# PyCats (Python Common Automation Test Solution)
+The PyCats aims to provide the well-structured framework with libraries created based on the popular python solutions intended for testing purposes and to make it universal for testing across different domain areas - Web, Mobile, IoT, Embedded.
 
 It uses the [pytest](https://docs.pytest.org/en/latest/ "pytest") library as a test runner, [Selenium Web Driver](https://www.selenium.dev/projects/ "Selenium Web Driver") for Web UI testing, [Appium](http://appium.io/ "Appium") for mobile testing (Coming Soon), contains wrappers over the Web Driver to simplify its usage, provides layered architecture and recommendations how to organize tests.
 
@@ -18,7 +18,7 @@ To enable Web UI testing, need to download Web drivers for your browsers version
 [Microsof Edge](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/ "Microsoft Edge")
 Safari Drivers are delivered together with browser
 
-SCAF uses WebDriver's RemoteDriver to be able to run a browser remotely. You need to download [selenium server](https://www.selenium.dev/downloads/ "selenium server") and provide its path in the configuration file.
+PyCats uses WebDriver's RemoteDriver to be able to run a browser remotely. You need to download [selenium server](https://www.selenium.dev/downloads/ "selenium server") and provide its path in the configuration file.
 
 
 ### Installation
@@ -30,7 +30,7 @@ pip3 install -r requirements.txt
 ```
 
 ### Configuration
-Prepare the config file `config.ini` in config directory of SCAF:
+Prepare the config file `config.ini` in config directory of PyCats:
 
 Example of `config.ini`:
 ```
@@ -104,18 +104,18 @@ To access Facade API you can use shortcut from common.facade.\_\_init__.py
 from common.facade import raw_config, logger
 ```
 
-- `raw_config` -  shortcut to access scaf.config_manager.config object from Facade
-- `logger` -  shortcut to access scaf.logger object from Facade
+- `raw_config` -  shortcut to access pycats.config_manager.config object from Facade
+- `logger` -  shortcut to access pycats.logger object from Facade
 
 ## Writing UI tests
 TBU
 
 ## Writing API  tests
 
-The SCAF's API testing main feature is the ability to use models to validate request/response automatically on the core level without test layer impact.
+The PyCats's API testing main feature is the ability to use models to validate request/response automatically on the core level without test layer impact.
 On the tests layer it is needed to prepare a response model and specify expected conditions, and the system does the rest for you.
 
-Detailed description and example you can find on wiki page: [Writing API tests](https://github.com/Softeq/SCAF/wiki/Writing-API--tests "Writing API tests")
+Detailed description and example you can find on wiki page: [Writing API tests](https://github.com/Softeq/PyCats/wiki/Writing-API--tests "Writing API tests")
 
 
 ## License

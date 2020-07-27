@@ -1,3 +1,3 @@
 pytest_plugins = [
-    "common.hooks.scaf_hooks"
+    "common.hooks.pycats_hooks"
 ]

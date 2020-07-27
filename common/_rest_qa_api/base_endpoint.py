@@ -9,21 +9,21 @@ from common._rest_qa_api.response_converter import ResponseConverterMixin
 from common._rest_qa_api.response_validator import ResponseValidatorMixin
 from common._rest_qa_api.rest_exceptions import MethodNotSupportedByEndpoint, DataclassNameError, \
     RestResponseValidationError, MissingDecoratorError
-from common._rest_qa_api.rest_utils import scaf_dataclass, make_request_url, dict_to_obj, obj_to_dict
+from common._rest_qa_api.rest_utils import pycats_dataclass, make_request_url, dict_to_obj, obj_to_dict
 
 import requests
 
 logger = logging.getLogger(__name__)
 
 
-@scaf_dataclass(repr=True, eq=True)
+@pycats_dataclass(repr=True, eq=True)
 class BaseRequestModel(metaclass=ABCMeta):
     """Abstract Base class for HTTP request model description.
 
     Developed according to standard python dataclass:
     https://docs.python.org/3/library/dataclasses.html
 
-    Instead of default python @dataclass decorator, own decorator @scaf_dataclass is used.
+    Instead of default python @dataclass decorator, own decorator @pycats_dataclass is used.
     The goal for this is to prevent __repr__ and __eq__ methods generation by default, make typing is optional,
     and support mutable fields without extra syntax.
 
@@ -32,9 +32,9 @@ class BaseRequestModel(metaclass=ABCMeta):
 
     Examples:
         from common._rest_qa_api.base_endpoint import BaseRequestModel
-        from common._rest_qa_api.rest_utils import SKIP, scaf_dataclass
+        from common._rest_qa_api.rest_utils import SKIP, pycats_dataclass
 
-        @scaf_dataclass
+        @pycats_dataclass
         class _TestEndpointRequestModel(BaseRequestModel):
             resource = '/test'
             headers = {"Content-Type": "application/json"}
@@ -47,12 +47,12 @@ class BaseRequestModel(metaclass=ABCMeta):
     """
 
     def __new__(cls, *args, **kwargs):
-        """Overrides __new__ to verify child class named in private and scaf_dataclass decorator is used
+        """Overrides __new__ to verify child class named in private and pycats_dataclass decorator is used
         Returns:
             object: BaseRequestModel object
         Raises:
             DataclassNameError if child class not started with '_'
-            MissingDecoratorError if child class not used scaf_dataclass decorator
+            MissingDecoratorError if child class not used pycats_dataclass decorator
         """
         if not cls.__name__.startswith("_"):
             raise DataclassNameError(cls.__name__)
@@ -194,7 +194,7 @@ class BaseRequestModel(metaclass=ABCMeta):
         self._allowed_methods = allowed_methods
 
 
-@scaf_dataclass(repr=True, eq=False)
+@pycats_dataclass(repr=True, eq=False)
 class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclass=ABCMeta):
     """Abstract Base class for HTTP Response model description.
 
@@ -215,7 +215,7 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
 
     Developed according to standard python dataclass: https://docs.python.org/3/library/dataclasses.html
 
-    Instead of default python @dataclass decorator, own decorator @scaf_dataclass is used.
+    Instead of default python @dataclass decorator, own decorator @pycats_dataclass is used.
     The goal for this is to prevent __repr__ and __eq__ methods generation by default, make typing is optional,
     and support mutable fields without extra syntax.
 
@@ -227,9 +227,9 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
 
     Examples:
         from common._rest_qa_api.base_endpoint import BaseResponseModel
-        from common._rest_qa_api.rest_utils import SKIP, scaf_dataclass
+        from common._rest_qa_api.rest_utils import SKIP, pycats_dataclass
 
-        @scaf_dataclass
+        @pycats_dataclass
         class _TestEndpointResponseModel(BaseResponseModel):
             status_code: int = 200
             headers = {'Content-Type': 'application/json; charset=utf-8'}
@@ -265,14 +265,14 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
     """
 
     def __new__(cls, *args, **kwargs):
-        """Overrides __new__ to verify child class named is private and scaf_dataclass decorator is used
+        """Overrides __new__ to verify child class named is private and pycats_dataclass decorator is used
 
         Returns:
             object: BaseResponseModel object
 
         Raises:
             DataclassNameError if child class not started with '_'
-            MissingDecoratorError if child class not used scaf_dataclass decorator
+            MissingDecoratorError if child class not used pycats_dataclass decorator
         """
         if not cls.__name__.startswith("_"):
             raise DataclassNameError(cls.__name__)

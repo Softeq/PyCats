@@ -1,15 +1,15 @@
 import logging
 
-from common.scaf_facade import SCAFFacade
+from common.pycats_facade import PyCatsFacade
 
 
 def pytest_runtest_logstart(nodeid, location):
-    SCAFFacade().logger.logger.name = nodeid
-    SCAFFacade().logger.switch_test(location[2])
+    PyCatsFacade().logger.logger.name = nodeid
+    PyCatsFacade().logger.switch_test(location[2])
 
 
 def pytest_exception_interact(node, call, report):
-    if SCAFFacade().logger.log_level == logging.INFO:
-        SCAFFacade().logger.log_fail("TEST FAILED")
+    if PyCatsFacade().logger.log_level == logging.INFO:
+        PyCatsFacade().logger.log_fail("TEST FAILED")
     else:
-        SCAFFacade().logger.log_fail(f"\n{report.longrepr}")
+        PyCatsFacade().logger.log_fail(f"\n{report.longrepr}")

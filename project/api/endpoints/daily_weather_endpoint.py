@@ -1,5 +1,5 @@
 from common.facade.api import BaseRequestModel, BaseResponseModel, endpoint_factory
-from common.facade.api import SKIP, scaf_dataclass
+from common.facade.api import SKIP, pycats_dataclass
 from common.facade import raw_config
 
 
@@ -8,9 +8,9 @@ def query_builder(city, token):
     return f'q={city}&appid={token}'
 
 
-@scaf_dataclass
+@pycats_dataclass
 class DailyWeatherEndpointBuilder:
-    @scaf_dataclass
+    @pycats_dataclass
     class _DailyWeatherRequestModel(BaseRequestModel):
         resource: str = 'weather'
         headers = {"Accept": "application/json"}
@@ -21,7 +21,7 @@ class DailyWeatherEndpointBuilder:
         params = None
         allowed_methods = ("get",)
 
-    @scaf_dataclass
+    @pycats_dataclass
     class _DailyWeatherResponseModel(BaseResponseModel):
         status_code = 200
         headers = {'Content-Type': 'application/json; charset=utf-8'}
@@ -40,6 +40,7 @@ class DailyWeatherEndpointBuilder:
         error_data = None
         custom_checkers = []
 
+    _DailyWeatherResponseModel.configure_validator()
     endpoint = endpoint_factory(raw_config.api_settings.api_url, "DailyWeatherEndpoint",
                                 _DailyWeatherRequestModel, _DailyWeatherResponseModel)
 
