@@ -18,7 +18,7 @@ class DataclassNameError(Exception):
 
 class MissingDecoratorError(Exception):
     def __init__(self, class_name):
-        self.message = f"Child dataclass {class_name} should have @scaf_dataclass decorator"
+        self.message = f"Child dataclass {class_name} should have @pycats_dataclass decorator"
         super().__init__(self, self.message)
 
     def __str__(self):

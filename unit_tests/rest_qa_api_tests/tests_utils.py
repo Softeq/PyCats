@@ -3,7 +3,7 @@ from requests import Response, Request
 from common._libs.helpers.singleton import Singleton
 from common._libs.config_parser.config_dto import APIValidationDTO
 from common._rest_qa_api.base_endpoint import BaseRequestModel, BaseResponseModel, endpoint_factory
-from common._rest_qa_api.rest_utils import scaf_dataclass, SKIP
+from common._rest_qa_api.rest_utils import pycats_dataclass, SKIP
 
 
 class DummyApiValidationConfig:
@@ -40,10 +40,10 @@ class DummyConfigBuilder:
                                 self.api_validations.validate_body, self.api_validations.validate_is_field_missing)
 
 
-@scaf_dataclass
+@pycats_dataclass
 class TestEndpointBuilder:
 
-    @scaf_dataclass
+    @pycats_dataclass
     class _TestRequestModel(BaseRequestModel):
         resource = ""
         headers = None
@@ -54,7 +54,7 @@ class TestEndpointBuilder:
         params = None
         allowed_methods = None
 
-    @scaf_dataclass
+    @pycats_dataclass
     class _TestResponseModel(BaseResponseModel):
         status_code = SKIP
         headers = SKIP

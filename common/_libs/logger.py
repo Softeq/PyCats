@@ -27,7 +27,7 @@ class Counter(metaclass=Singleton):
         return getattr(self.generator, item)
 
 
-class SCAFLogger:
+class PyCatsLogger:
     enable_libs_logging = False
     log_level = None
     base_log_dir = None
@@ -47,7 +47,7 @@ class SCAFLogger:
     _logger_instances: List[logging.Logger] = list()
 
     def __init__(self, logger: logging.Logger, log_level: int = None):
-        self.log_level = log_level or SCAFLogger.log_level
+        self.log_level = log_level or PyCatsLogger.log_level
         self.logger = logger
 
         self._file_handler = None
@@ -155,5 +155,5 @@ class SCAFLogger:
 
     @classmethod
     def reset_counters(cls):
-        SCAFLogger.step_generator.send(1)
-        SCAFLogger.prec_generator.send(1)
+        PyCatsLogger.step_generator.send(1)
+        PyCatsLogger.prec_generator.send(1)

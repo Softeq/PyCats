@@ -1,4 +1,4 @@
-from common.scaf_facade import SCAFFacade
+from common.pycats_facade import PyCatsFacade
 
 pytest_plugins = [
     "common.hooks.cli_options",
@@ -8,6 +8,6 @@ pytest_plugins = [
 
 def pytest_addhooks(pluginmanager):
     """Setup the framework config and logger firstly"""
-    facade = SCAFFacade()
+    facade = PyCatsFacade()
     facade.setup_config(None)
     facade.setup_logger(None)
