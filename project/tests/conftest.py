@@ -31,7 +31,7 @@ def open_browser(request):
 @pytest.fixture(scope="function", autouse=False)
 def main_page():
     logger.log_step("Open Main application page", precondition=True)
-    navigate_to(raw_config.web_settings.app_url)
+    navigate_to(raw_config.project_settings.web_app_url)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -39,7 +39,7 @@ def api_token():
     logger.log_step("Retrieve API token from UI", precondition=True)
     try:
         start_webui(config_manager)
-        navigate_to(raw_config.web_settings.app_url)
+        navigate_to(raw_config.project_settings.web_app_url)
         main_page = MainPageSteps()
         main_page.click_login()
 

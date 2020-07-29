@@ -1,7 +1,20 @@
+import glob
+import os
+import pathlib
+import pkgutil
 import re
 import random
 import string
 import unicodedata
+
+
+def get_modules_list(package_path, glob_expression):
+    paths = glob.glob(os.path.join(package_path, glob_expression), recursive=True)
+    modules = []
+    for file_handler, module, _ in pkgutil.walk_packages(path=paths):
+        packages = ".".join(filter(None, file_handler.path.replace(package_path, '').split(os.sep)))
+        modules.append(".".join(element for element in [pathlib.Path(package_path).name, packages, module] if element))
+    return modules
 
 
 def get_string(length=8, char='lower'):

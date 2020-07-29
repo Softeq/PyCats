@@ -2,18 +2,20 @@
 This module contains the ParseConfig class, used to parse the
 frameworks configuration file.
 """
-
+import importlib
+import inspect
 import os
 from collections import Counter
 from typing import Optional
 
 from configparser import ConfigParser
 
-from common._libs.config_parser.section.api_section import APISection
+from common._libs.config_parser.section.api_validation_section import APIValidationSection
 from common._libs.config_parser.section.base_section import ConfigSection
 from common._libs.config_parser.config_error import ConfigError
 from common._libs.config_parser.section.global_section import GlobalSection, BaseGlobalSection
 from common._libs.config_parser.section.web_section import WebSection
+from common._libs.helpers.utils import get_modules_list
 
 
 class ParseConfig:
@@ -22,7 +24,7 @@ class ParseConfig:
      module to handle that.
 
      Attributes:
-         config_file:             An absolute path to the config.
+         config_dir:              An absolute path to the configs directory.
          config:                  ConfigParser object.
          global_settings:         GlobalSection/BaseGlobalSection object.
          api_settings:            
@@ -36,31 +38,37 @@ class ParseConfig:
         enable_libs_logging = config.global_settings.enable_libs_logging
     """
 
-    def __init__(self, config_file, custom_args=None):
+    def __init__(self, config_dir, custom_args=None):
         """Create a parser object. Verify if specified sections
         (global, node, build) exist.
 
         Args:
-            config_file (str):  An absolute path to the configuration file.
+            config_dir (str):  An absolute path to the configs directory.
         """
-        if not os.path.exists(config_file):
-            raise ConfigError(f"Unable to found configuration file '{config_file}'")
+        if not os.path.exists(config_dir):
+            raise ConfigError(f"Unable to find configuration folder '{config_dir}'")
+
+        self.config_files = [os.path.join(config_dir, f) for f in os.listdir(config_dir)
+                             if f.lower().startswith('pycats') and f.lower().endswith('.ini')]
+        if not config_dir:
+            raise ConfigError(f"Unable to find PyCats configuration files in '{config_dir}' folder")
+
         self.custom_args = custom_args
-        self.config_file = config_file
+        self.config_dir = config_dir
         self.config = ConfigParser()
-        self.config.read(config_file)
+        self.config.read(self.config_files)
 
         self.global_settings: Optional[GlobalSection] = None
-        self.sections = None
-        self.api_settings: Optional[APISection] = None
+        self.api_validation_settings: Optional[APIValidationSection] = None
         self.web_settings: Optional[WebSection] = None
+        # self.project_settings: Optional[ConfigSection] = None
 
         self._verify_duplicated_options()
 
         self._tune_global()
-
-        if self.global_settings.sections:
-            self._tune_sections()
+        self._tune_api_validations_section()
+        self._tune_web_section()
+        self._tune_project_sections()
 
     def _tune_global(self):
         """Tune global settings. If there is no 'global' section
@@ -68,17 +76,30 @@ class ParseConfig:
         section will be created with the default parameters for
         'logdir' and 'enable_libs_logging'.
         """
-        if self.config.has_section('global'):
+        if self.config.has_section(GlobalSection.SECTION_NAME):
             self.global_settings = GlobalSection(self.config, self.custom_args)
         else:
             self.global_settings = BaseGlobalSection()
 
-    def _tune_sections(self):
-        sections_mapping = {"api": APISection,
-                            "web": WebSection}
-        for section in self.global_settings.sections:
-            ConfigSection.check_if_section_exists(self.config, section, None)
-            setattr(self, f"{section}_settings", sections_mapping[section](self.config, self.custom_args))
+    def _tune_api_validations_section(self):
+        setattr(self, f"{APIValidationSection.SECTION_NAME}_settings",
+                APIValidationSection(self.config, self.custom_args))
+
+    def _tune_web_section(self):
+        setattr(self, f"{WebSection.SECTION_NAME}_settings",
+                WebSection(self.config, self.custom_args))
+
+    def _tune_project_sections(self):
+        # import sections modules from config directory
+        modules_list = get_modules_list(self.config_dir, "**/")
+        for name in modules_list:
+            module = importlib.import_module(name)
+            # filter all classes in imported module to find childes of ConfigSection
+            sections = [value for key, value in inspect.getmembers(module, inspect.isclass)
+                        if value.__base__ == ConfigSection]
+            if sections:
+                for section in sections:
+                    setattr(self, f"{section.SECTION_NAME}_settings", section(self.config, self.custom_args))
 
     def _verify_duplicated_options(self):
         sections = self.config.sections()

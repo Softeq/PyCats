@@ -18,7 +18,6 @@ class WebSection(ConfigSection):
 
     def __init__(self, config, custom_args):
         """Basic initialization."""
-        self.app_url = None
         self.webdriver_folder = None
         self.webdriver_default_wait_time = 20
         self.webdriver_implicit_wait_time = 60
@@ -39,8 +38,8 @@ class WebSection(ConfigSection):
         bool, int, list of nodes fields if it is necessary.
         """
 
-        self._mandatory_fields = ['app_url', 'webdriver_folder', 'chrome_driver_name']
-        self._str_fields = ['app_url', 'webdriver_folder', 'selenium_server_executable', 'chrome_driver_name',
+        self._mandatory_fields = ['webdriver_folder', 'chrome_driver_name']
+        self._str_fields = ['webdriver_folder', 'selenium_server_executable', 'chrome_driver_name',
                             'firefox_driver_name', 'browser']
         self._int_fields = ['webdriver_default_wait_time', 'webdriver_implicit_wait_time']
         self._settings = self._str_fields + self._int_fields

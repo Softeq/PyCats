@@ -1,26 +1,20 @@
-from typing import Optional
-
 from common._libs.config_parser.section.base_section import ConfigSection
-from common._libs.config_parser.section.api_validation_section import APIValidationSection
 
 
-class APISection(ConfigSection):
-    """Class responsible for api section parsing."""
+class ProjectSection(ConfigSection):
+    """Class responsible for project section parsing."""
 
-    SECTION_NAME = 'api'
+    SECTION_NAME = 'project'
 
     def __init__(self, config, custom_args):
         """Basic initialization."""
-
-        self.api_url = None
-        self.api_validation_settings: Optional[APIValidationSection] = None
+        self.web_app_url = None
+        self.web_api_url = None
         self.config = config
         self.custom_args = custom_args
         self._settings = []
 
         super().__init__(config, self.SECTION_NAME, custom_args=custom_args)
-
-        self._tune_api_validations()
 
     def _configure_section(self):
         """Divide settings according to their types.
@@ -28,14 +22,9 @@ class APISection(ConfigSection):
         bool, int, list of nodes fields if it is necessary.
         """
 
-        self._mandatory_fields = ['api_url']
-        self._str_fields = ['api_url']
-        self._int_fields = []
-        self._settings = self._str_fields + self._int_fields
-
-    def to_dict(self):
-        """Convert to dictionary."""
-        return {field: getattr(self, field, None) for field in self._settings}
+        self._mandatory_fields = ['web_app_url', 'web_api_url']
+        self._str_fields = ['web_app_url', 'web_api_url']
+        self._settings = self._str_fields
 
     def _perform_custom_tunings(self):
         """Perform custom tunings for obtained settings."""
@@ -45,10 +34,6 @@ class APISection(ConfigSection):
 
         if self.custom_args is not None:
             self._tune_custom_args()
-
-    def _tune_api_validations(self):
-        setattr(self, f"{APIValidationSection.SECTION_NAME}_settings", APIValidationSection(self.config,
-                                                                                            self.custom_args))
 
     def _check_settings(self):
         pass

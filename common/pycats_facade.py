@@ -41,8 +41,8 @@ class PyCatsFacade(metaclass=Singleton):
             raise FacadeError("Logger was already initialized. Facade update is forbidden")
         self.setup_logger(logger)
 
-    def setup_config(self, config: Union[Any, ConfigManager]):
-        self._config_manager = config or ConfigManager()
+    def setup_config(self, config: Union[Any, ConfigManager] = None, config_dir: str = None):
+        self._config_manager = config or ConfigManager(config_dir)
 
     def setup_logger(self, logger_instance):
         if not self._config_manager:
