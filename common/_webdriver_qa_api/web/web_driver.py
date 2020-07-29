@@ -1,6 +1,6 @@
 import logging
 
-from common._libs.config_manager import ConfigManager
+from common.config_manager import ConfigManager
 
 from selenium.webdriver import Remote, ActionChains
 from selenium.webdriver.common.by import By

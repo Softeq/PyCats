@@ -1,5 +1,5 @@
-from common._libs.config_parser.config_dto import APIValidationDTO, WebDriverSettingsDTO
-from common._libs.config_parser.config_parser import ParseConfig
+from common.config_parser.config_dto import APIValidationDTO, WebDriverSettingsDTO
+from common.config_parser.config_parser import ParseConfig
 from common._libs.helpers.singleton import Singleton
 
 

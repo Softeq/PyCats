@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 
-from common._libs.config_parser.config_error import ConfigError
-from common._libs.config_parser.section.base_section import ConfigSection
+from common.config_parser.config_error import ConfigError
+from common.config_parser.section.base_section import ConfigSection
 
 
 class APIValidationSection(ConfigSection):

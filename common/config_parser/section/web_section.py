@@ -1,7 +1,7 @@
 import os
 
-from common._libs.config_parser.section.base_section import ConfigSection
-from common._libs.config_parser.config_error import ConfigError
+from common.config_parser.section.base_section import ConfigSection
+from common.config_parser.config_error import ConfigError
 
 WEB_SECTION = "web"
 
@@ -47,6 +47,10 @@ class WebSection(ConfigSection):
     def to_dict(self):
         """Convert to dictionary."""
         return {field: getattr(self, field, None) for field in self._settings}
+
+    def _load_from_config(self):
+        self.check_if_section_exists(self.config, self.SECTION_NAME, None)
+        super()._load_from_config()
 
     def _perform_custom_tunings(self):
         """Perform custom tunings for obtained settings."""

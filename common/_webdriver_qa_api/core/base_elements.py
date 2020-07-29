@@ -6,7 +6,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-from common._libs.config_manager import ConfigManager
+from common.config_manager import ConfigManager
 from common._webdriver_qa_api.core.utils import assert_should_be_equal, fail_test, assert_should_be_not_equal, \
     assert_should_contain, assert_should_not_contain, assert_should_be_greater_than, get_wait_seconds
 from common._webdriver_qa_api.core.selenium_dynamic_elements import DynamicElement, DynamicElements

@@ -30,71 +30,78 @@ pip3 install -r requirements.txt
 ```
 
 ### Configuration
-Prepare the config file `config.ini` in config directory of PyCats:
+##### Setup Config
+Create directory for configs and prepare the config ini file started with `pycats_` prefix and `.ini` extension, like:  `pycats_config.ini`:
 
-Example of `config.ini`:
+Example of `pycats_config.ini`:
 ```
 [global]
+;Path to folder to keep the log files. Folder will be created if if does not exist. Logs by default
 logdir = Logs
-log_level = DEBUG
+;Log level. The same for all streams. INFO by default 
+log_level = INFO
+; If True, the logging from 3-d party libraries like Selenium, requests, etc, will be included in log file. True by default
 enable_libs_logging = True
-sections = api web
-
-[api]
-api_url = http://api.openweathermap.org/data/2.5/
 
 [api_validation]
+;Should the API validator verify response status code. True by default
 validate_status_code = True
+;Should the API validator verify response headers. True by default
 validate_headers = True
+;Should the API validator verify response body. (default is True)
 validate_body = True
+;Should the API validator raise exception if some field from model is absent in response. True by default
 validate_is_field_missing = True
 
 [web]
-app_url = https://openweathermap.org/
+;Folder where browsers drivers are located
 webdriver_folder = /home/test/web/webdrivers/
+;Time to wait until element appears on the page. 20 seconds by default
 webdriver_default_wait_time = 20
+;Webdriver implicit wait time. 60 seconds by default
 webdriver_implicit_wait_time = 60
+;Folder where selenium server is located
 selenium_server_executable = /home/test/web/webdrivers/selenium-server-standalone-3.141.59.jar
+;Chrome driver filename
 chrome_driver_name = chromedriver
+;Firefox driver filename
 firefox_driver_name = gecodriver
+;Browser to use in a testing (depending on this field value - appropriate driver name will be looked up in webdriver_folder)
 browser = chrome
 ```
 
-The mandatory settings for `global` section are:
+`global` and `api_validation` sections are optional but you can override their default behaviour in config. 
 
-- `logdir = Logs` - path to folder to keep the log files. Folder will be created if if does not exist
-- `sections = api web` - space-separated list of section to enable during config parsing. If you do not want to use API - leave only web, the same for other sections.
+The mandatory settings for `web` section are:
+- `webdriver_folder`
+- `chrome_driver_name`
+- `firefox_driver_name`
+- `browser`
 
-for `api` section:
+##### Setup pytest.ini
+Create `pytest.ini` file in the root directory with the following content:
+```
+[pytest]
+config_dir = ./config
+```
 
-- `api_url = http://api.openweathermap.org/data/2.5/` - URL to API to use in API project
+where `config_dir` is absolute or relative path to configs directory.  
 
-for `web` section:
+##### Add custom sections
+PyCats configuration system allows users to extend default config file or split it to multiple and load them dynamically.
+Specify necessary configuration options like application url or api url in custom section of config file:
 
-- `app_url = https://openweathermap.org/` - URL to Web Site to use in WEB project
-- `webdriver_folder = /home/test/web/webdrivers/` - Folder where browsers drivers are located
-- `chrome_driver_name = chromedriver` - Chrome driver filename
-- `firefox_driver_name = gecodriver` - Firefox driver filename
-- `browser = chrome` - Browser to use in a testing (depending on this field value - appropriate driver name will be looked up in webdriver_folder)
+Example of `pycats_config.ini`:
+```
+[project]
+web_app_url = https://openweathermap.org/
+web_api_url = http://api.openweathermap.org/data/2.5/
+```
 
-The following parameters are optional:
-
-for `global` section:
-
-- `log_level = INFO` - (INFO if omited). Log level. The same for all streams.
-- `enable_libs_logging = True` - (False if omitted). If True, the logging from 3-d party libraries like Selenium, requests, etc, will be included in log file
-
-for `web` section:
-
-- `webdriver_default_wait_time = 20` - Time to wait until element appears on the page (default is 20)
-- `webdriver_implicit_wait_time = 60` - Webdriver implicit wait time (default is 60)
-
-for `api` the `api_validation` section is optional with the following optional parameters:
-
-- `validate_status_code = True` - Should the API validator verify response status code (default is True)
-- `validate_headers = True` - Should the API validator verify response headers (default is True)
-- `validate_body = True` - Should the API validator verify response body (default is True)
-- `validate_is_field_missing = True` - Should the API validator raise exception if some field from model is absent in response (default is True)
+then write section description class in the same config folder or subfolders. It should be inherited from 
+`common.config_parser.config_parser.ConfigSection` class and implement all necessary abstract methods.
+See example in `config/project_section.py`
+ 
 
 #### Access Facade API
 

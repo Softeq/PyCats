@@ -1,6 +1,6 @@
 from selenium.webdriver import ActionChains
 
-from common._libs.config_manager import ConfigManager
+from common.config_manager import ConfigManager
 from common._webdriver_qa_api.web.web_driver import WebDriver
 from common._webdriver_qa_api.core.utils import assert_should_be_equal
 from common._webdriver_qa_api.core.base_elements import BaseElement, BaseElements

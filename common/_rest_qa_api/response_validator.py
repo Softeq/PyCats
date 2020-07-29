@@ -3,7 +3,7 @@ import logging
 from copy import copy
 from typing import TYPE_CHECKING, Union
 
-from common._libs.config_parser.config_dto import APIValidationDTO
+from common.config_parser.config_dto import APIValidationDTO
 from common._rest_qa_api.rest_checkers import BaseRESTCheckers
 from common._rest_qa_api.rest_utils import SKIP
 

@@ -2,9 +2,13 @@ import importlib
 import logging
 from typing import Union, Optional, Any
 
-from common._libs.config_manager import ConfigManager
+from common.config_manager import ConfigManager
 from common._libs.helpers.singleton import Singleton
 from common._libs.logger import PyCatsLogger
+
+
+class PyCatsError(Exception):
+    pass
 
 
 class FacadeError(Exception):

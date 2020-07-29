@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import InitVar
 from typing import Any, Dict, Union, Optional, Tuple, Callable, List, Type
 
-from common._libs.config_manager import ConfigManager
+from common.config_manager import ConfigManager
 from common._rest_qa_api import default_exclude_list, method_exclude_lists
 from common._rest_qa_api.response_converter import ResponseConverterMixin
 from common._rest_qa_api.response_validator import ResponseValidatorMixin

@@ -10,11 +10,11 @@ from typing import Optional
 
 from configparser import ConfigParser
 
-from common._libs.config_parser.section.api_validation_section import APIValidationSection
-from common._libs.config_parser.section.base_section import ConfigSection
-from common._libs.config_parser.config_error import ConfigError
-from common._libs.config_parser.section.global_section import GlobalSection, BaseGlobalSection
-from common._libs.config_parser.section.web_section import WebSection
+from common.config_parser.section.api_validation_section import APIValidationSection
+from common.config_parser.section.base_section import ConfigSection
+from common.config_parser.config_error import ConfigError
+from common.config_parser.section.global_section import GlobalSection, BaseGlobalSection
+from common.config_parser.section.web_section import WebSection
 from common._libs.helpers.utils import get_modules_list
 
 
@@ -27,10 +27,11 @@ class ParseConfig:
          config_dir:              An absolute path to the configs directory.
          config:                  ConfigParser object.
          global_settings:         GlobalSection/BaseGlobalSection object.
-         api_settings:            
+         api_validation_settings: APIValidationSection object
+         web_settings:            WebSection object
 
     Examples:
-      config = ParseConfig('config/test.conf')
+      config = ParseConfig('/home/user/config')
 
       Access global settings:
         logdir = config.global_settings.logdir
@@ -39,8 +40,8 @@ class ParseConfig:
     """
 
     def __init__(self, config_dir, custom_args=None):
-        """Create a parser object. Verify if specified sections
-        (global, node, build) exist.
+        """Create a parser object. Verify if PyCats configuration files present in specified folder.
+        Verify if required sections and options are exist in config files
 
         Args:
             config_dir (str):  An absolute path to the configs directory.
@@ -61,7 +62,6 @@ class ParseConfig:
         self.global_settings: Optional[GlobalSection] = None
         self.api_validation_settings: Optional[APIValidationSection] = None
         self.web_settings: Optional[WebSection] = None
-        # self.project_settings: Optional[ConfigSection] = None
 
         self._verify_duplicated_options()
 

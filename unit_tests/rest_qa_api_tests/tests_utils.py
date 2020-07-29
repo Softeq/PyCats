@@ -1,7 +1,7 @@
 from requests import Response, Request
 
 from common._libs.helpers.singleton import Singleton
-from common._libs.config_parser.config_dto import APIValidationDTO
+from common.config_parser.config_dto import APIValidationDTO
 from common._rest_qa_api.base_endpoint import BaseRequestModel, BaseResponseModel, endpoint_factory
 from common._rest_qa_api.rest_utils import pycats_dataclass, SKIP
 

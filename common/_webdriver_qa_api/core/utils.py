@@ -3,7 +3,7 @@ import time
 import logging
 from datetime import timedelta
 
-from common._libs.config_parser.config_dto import WebDriverSettingsDTO
+from common.config_parser.config_dto import WebDriverSettingsDTO
 
 logger = logging.getLogger(__name__)
 
