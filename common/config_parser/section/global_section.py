@@ -1,4 +1,4 @@
-from common._libs.config_parser.section.base_section import ConfigSection
+from common.config_parser.section.base_section import ConfigSection
 
 
 class BaseGlobalSection:

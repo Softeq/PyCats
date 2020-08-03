@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from common._libs.config_parser.config_error import ConfigError
+from common.config_parser.config_error import ConfigError
 
 
 class ConfigSection(metaclass=ABCMeta):

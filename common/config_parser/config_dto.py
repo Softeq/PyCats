@@ -19,4 +19,3 @@ class WebDriverSettingsDTO:
     firefox_driver_name: str
     browser: str
     driver_path: str
-

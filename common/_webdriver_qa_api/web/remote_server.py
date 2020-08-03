@@ -4,7 +4,7 @@ import time
 
 import requests
 
-from common._libs.config_manager import ConfigManager
+from common.config_manager import ConfigManager
 from common._libs.helpers.os_helpers import get_platform_type
 from common._shell_qa_api.subprocess_command import subprocess_send_command_asynchronous, subprocess_send_command
 

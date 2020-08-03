@@ -1,4 +1,4 @@
-from common._libs.config_manager import ConfigManager
+from common.config_manager import ConfigManager
 from common._webdriver_qa_api.core.base_pages import BasePage
 from common._webdriver_qa_api.web.web_driver import WebDriver
 
