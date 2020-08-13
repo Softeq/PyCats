@@ -1,11 +1,6 @@
 import os
 from common.pycats_facade import PyCatsFacade, PyCatsError
 
-pytest_plugins = [
-    "common.hooks.cli_options",
-    "common.hooks.logger_hooks"
-]
-
 
 def pytest_addhooks(pluginmanager):
     """Setup the framework config and logger firstly"""

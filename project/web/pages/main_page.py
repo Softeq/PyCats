@@ -7,8 +7,8 @@ class MainPage(WebPage):
 
     def __init__(self):
         super().__init__(By.ID, "main-slideshow", "Weather main page")
-        self.txb_search = WebTextBox(By.XPATH, "//input[@placeholder='Your city name']")
-        self.btn_search = WebElement(By.XPATH, "//button[contains(text(),' Search')]")
+        self.txb_search = WebTextBox(By.XPATH, "//input[@placeholder='Search city']")
+        self.btn_search = WebElement(By.XPATH, "//button[@type='submit']")
         self.btn_sign_in = WebElement(By.XPATH, "//a[@href='/home/sign_in']")
 
     def fill_city_to_search(self, city):

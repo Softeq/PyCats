@@ -64,7 +64,7 @@ class TestEndpointBuilder:
         delete_data = SKIP
         patch_data = SKIP
         error_data = SKIP
-        custom_checkers = None
+        custom_checkers = []
 
     config = DummyConfigBuilder(DummyApiValidationConfig())
     endpoint = endpoint_factory("", "Dummy", _TestRequestModel, _TestResponseModel, config=config)

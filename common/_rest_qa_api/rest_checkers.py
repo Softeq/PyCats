@@ -73,7 +73,7 @@ class JSONCheckers(BaseRESTCheckers):
     def check_status(cls, response: BaseResponseModel):
         logger.info(f"check that status code is {cls.status}")
         assert response.raw_response.status_code == cls.status, \
-            f"Invalid status code. Expected {cls.status}, bug got {response.raw_response.status_code}"
+            f"Invalid status code. Expected '{cls.status}', but got '{response.raw_response.status_code}'"
 
 
 def check_json_structure(expected_json_structure):
@@ -92,5 +92,5 @@ def check_status(status: int):
     def internal_check_status(response: BaseResponseModel):
         logger.info(f"check that status code is {status}")
         assert response.raw_response.status_code == status, \
-            f"Invalid status code. Expected {status}, bug got {response.raw_response.status_code}"
+            f"Invalid status code. Expected '{status}', but got '{response.raw_response.status_code}'"
     return internal_check_status
