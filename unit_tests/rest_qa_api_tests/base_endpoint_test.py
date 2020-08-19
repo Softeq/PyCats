@@ -214,6 +214,17 @@ class TestBody:
         except Exception as e:
             pytest.fail(f"DID RAISE {e}")
 
+    def test_json_body_empty_list_valid_value(self, _, response, builder, method):
+        test_body = {"testKey1": []}
+        setattr(builder.endpoint.response_model, f"{method}_data", test_body)
+        builder.endpoint.request_model.allowed_methods = (method,)
+        response.body(test_body)
+        response.method(method)
+        try:
+            getattr(builder.endpoint, method)()
+        except Exception as e:
+            pytest.fail(f"DID RAISE {e}")
+
     def test_json_body_list_invalid_value(self, _, response, builder, method):
         test_body = {"testKey1": ["testValue1"]}
         setattr(builder.endpoint.response_model, f"{method}_data", test_body)
