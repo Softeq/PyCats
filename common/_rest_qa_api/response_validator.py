@@ -164,6 +164,9 @@ class ResponseValidatorMixin:
                     except IndexError:
                         # if there is no element in list
                         self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
+            # for cases when expected empty list
+            elif not model_to_verify and not data_to_verify:
+                pass
             else:
                 self.errors["default"].append((copy(self.field_nesting), model_to_verify, data_to_verify))
         else:
