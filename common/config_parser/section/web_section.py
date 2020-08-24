@@ -49,7 +49,6 @@ class WebSection(ConfigSection):
         return {field: getattr(self, field, None) for field in self._settings}
 
     def _load_from_config(self):
-        self.check_if_section_exists(self.config, self.SECTION_NAME, None)
         super()._load_from_config()
 
     def _perform_custom_tunings(self):
