@@ -61,7 +61,7 @@ class ParseConfig:
 
         self.global_settings: Optional[GlobalSection] = None
         self.api_validation_settings: Optional[APIValidationSection] = None
-        self.web_settings: Optional[WebSection] = None
+        self._web_settings: Optional[WebSection] = None
 
         self._verify_duplicated_options()
 
@@ -69,6 +69,17 @@ class ParseConfig:
         self._tune_api_validations_section()
         self._tune_web_section()
         self._tune_project_sections()
+
+    @property
+    def web_settings(self):
+        if not self._web_settings:
+            raise ConfigError(f"Section '{WebSection.SECTION_NAME}' and its options were not initialized because they "
+                              f"are absent in config. Please check web section content in your configuration files.")
+        return self._web_settings
+
+    @web_settings.setter
+    def web_settings(self, value):
+        self._web_settings = value
 
     def _tune_global(self):
         """Tune global settings. If there is no 'global' section
@@ -86,6 +97,11 @@ class ParseConfig:
                 APIValidationSection(self.config, self.custom_args))
 
     def _tune_web_section(self):
+        # if web section does not present in config files - treat it not used in the project
+        try:
+            ConfigSection.check_if_section_exists(self.config, WebSection.SECTION_NAME, None)
+        except ConfigError:
+            return
         setattr(self, f"{WebSection.SECTION_NAME}_settings",
                 WebSection(self.config, self.custom_args))
 
