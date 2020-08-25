@@ -85,19 +85,6 @@ class TestCustomLogger:
         messages = [record for record in caplog.records if expected_log_message == record.message]
         assert len(messages) == 1, "Expected message not found in logs"
 
-    def test_logging_through_customer_checker_class(self, _, response, builder, caplog):
-        JSONCheckers.status = 200
-        JSONCheckers.deactivate(JSONCheckers.check_json_structure)
-        builder.endpoint.response_model.custom_checkers.append(JSONCheckers)
-        response.status_code = 200
-        try:
-            builder.endpoint.get()
-        except Exception as e:
-            pytest.fail(f"DID RAISE {e}")
-        expected_log_message = f"{JSONCheckers.check_status.__name__} validation passed"
-        messages = [record for record in caplog.records if expected_log_message == record.message]
-        assert len(messages) == 1, "Expected message not found in logs"
-
     def test_logging_through_customer_checker_function(self, _, response, builder, caplog):
         response.status_code = 200
         check_status_code = 200
