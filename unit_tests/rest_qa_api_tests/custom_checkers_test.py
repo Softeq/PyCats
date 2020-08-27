@@ -105,3 +105,13 @@ class TestCustomLogger:
         with pytest.raises(RestResponseValidationError) as excinfo:
             builder.endpoint.get()
         assert f"\n{'#' * 40}\nCUSTOM RESPONSE VALIDATION FAILED.\n{'#' * 40}\n" in str(excinfo.value)
+        
+    def test_negative_condition_for_run_checker_function(self, _, response, builder, caplog):
+        JSONCheckers.status = 200
+        response.status_code = 400
+        JSONCheckers.deactivate(JSONCheckers.check_json_structure)
+        builder.endpoint.response_model.custom_checkers.append(JSONCheckers)
+        with pytest.raises(RestResponseValidationError) as excinfo:
+            builder.endpoint.get()
+        assert f"{JSONCheckers.check_status.__name__} validation passed" not in str(excinfo.value)
+    
