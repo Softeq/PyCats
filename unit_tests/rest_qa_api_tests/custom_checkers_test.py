@@ -23,7 +23,7 @@ class TestRunCheckersBranches:
     def test_calling_of_multiple_custom_checkers(self, _, response, builder):
         JSONCheckers.status = 200
         JSONCheckers.expected_json_structure = {"testKey1": ["testValue1", "testValue2"]}
-        response.body(json.dumps({"testKey1": ["testValue1", "testValue3"]}))
+        response.body(json.dumps({"testKey2": ["testValue1", "testValue2"]}))
         response.status_code = 500
         builder.endpoint.response_model.custom_checkers.append(JSONCheckers)
         with pytest.raises(RestResponseValidationError) as excinfo:
