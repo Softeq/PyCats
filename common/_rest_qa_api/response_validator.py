@@ -199,4 +199,5 @@ class ResponseValidatorMixin:
                 logger.exception(err)
                 raise
             else:
-                logger.info(f"{checker.__name__} validation passed")
+                if not self.errors["default"] and not self.errors["custom"]:
+                    logger.info(f"{checker.__name__} validation passed")
