@@ -114,4 +114,3 @@ class TestCustomLogger:
         with pytest.raises(RestResponseValidationError) as excinfo:
             builder.endpoint.get()
         assert f"{JSONCheckers.check_status.__name__} validation passed" not in str(excinfo.value)
-    
