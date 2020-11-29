@@ -6,6 +6,7 @@ from project.web.steps.page_object_steps.pages.city_details import CityDetailsSt
 from project.web.steps.page_object_steps.pages.main import MainPageSteps
 
 
+@pytest.mark.usefixtures("open_browser")
 @pytest.mark.parametrize('city', ['San Jose', "Los Angeles"])
 @pytest.mark.usefixtures('open_main_page')
 def test_weather_api(api_token, city):

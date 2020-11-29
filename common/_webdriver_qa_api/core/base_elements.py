@@ -302,15 +302,16 @@ class BaseElements:
         actual = len(self.elements())
         assert_should_be_greater_than(actual, expected)
 
-
-class BaseElementsActionsMixin:
-
     def get_elements_text(self):
         """
         find elements and get it's text
         :return: list of the text of element
         """
-        result = []
-        for element in self():
-            result.append(element.text)
-        return result
+        return [element.text for element in self.elements.selenium_element]
+
+    def get_elements(self):
+        """
+        find elements and get it's text
+        :return: list of the text of element
+        """
+        return self.elements.selenium_element

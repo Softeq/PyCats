@@ -4,8 +4,8 @@ from common.facade import raw_config, logger
 
 
 # TODO - find solution to set dataclass fields properly after initialization
-def query_builder(city, token):
-    return f'q={city}&appid={token}'
+def query_builder(city, token, units='imperial'):
+    return f'q={city}&appid={token}&units={units}'
 
 
 @pycats_dataclass

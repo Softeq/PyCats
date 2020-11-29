@@ -1,6 +1,5 @@
 import logging
 from typing import Optional, Union, Dict
-from selenium.webdriver.common.keys import Keys
 from common._webdriver_qa_api.core.utils import assert_should_be_equal
 
 logger = logging.getLogger(__name__)
@@ -8,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class TextBoxActionsMixin:
 
-    def set_text(self, text: Optional[str], skip_if_none: bool = True, blur_and_focus: bool = False):
+    def set_text(self, text: Optional[str], skip_if_none: bool = True):
         """
         clear the text field and type new text
         :param text: text that should be set
@@ -21,8 +20,6 @@ class TextBoxActionsMixin:
         logger.info(f"Clear text field '{self.element.name}' and set text '{text}'")
         self.element.clear()
         self.element.send_keys(text)
-        if blur_and_focus:
-            self.blur_and_focus()
 
     def type_text(self, text: str):
         """
@@ -50,12 +47,6 @@ class TextBoxActionsMixin:
         assert_should_be_equal(actual_value=actual_state, expected_value=expected_state,
                                message="Verify is '{0}' field {1}masked".format(
                                    self.element.name, '' if is_masked else 'not '))
-
-    def blur_and_focus(self):
-        """ Reset focus to target element """
-        self.element.click()
-        self.element.send_keys(Keys.TAB)
-        self.element.click()
 
     @property
     def value(self) -> Optional[Union[str, Dict]]:
