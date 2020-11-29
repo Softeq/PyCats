@@ -314,6 +314,6 @@ class BaseElements:
     def get_elements(self):
         """
         find elements and get it's text
-        :return: list of selenium elements
+        :return: list of element
         """
         return self.elements.selenium_element
