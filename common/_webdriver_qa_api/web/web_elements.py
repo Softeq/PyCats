@@ -1,4 +1,5 @@
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 from common.config_manager import ConfigManager
 from common._webdriver_qa_api.web.web_driver import WebDriver
@@ -50,4 +51,20 @@ class WebElement(BaseElement):
 
 
 class WebTextBox(TextBoxActionsMixin, WebElement):
-    pass
+
+    def set_text(self, text, skip_if_none=True, blur_and_focus=False):
+        """
+        clear the text field and type new text
+        :param text: text that should be set
+        :param skip_if_none: true - do nothing if text isn't specified, set text if it specified
+        false - set text if it specified, error if text isn't specified
+        """
+        super(WebTextBox, self).set_text(text=text, skip_if_none=skip_if_none)
+        if blur_and_focus:
+            self.blur_and_focus()
+        return self
+
+    def blur_and_focus(self):
+        self.element.click()
+        self.element.send_keys(Keys.TAB)
+        self.element.click()

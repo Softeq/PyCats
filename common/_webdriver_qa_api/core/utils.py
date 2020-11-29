@@ -1,11 +1,9 @@
 import re
 import time
-import logging
 from datetime import timedelta
+from common.facade import logger
 
 from common.config_parser.config_dto import WebDriverSettingsDTO
-
-logger = logging.getLogger(__name__)
 
 
 def assert_should_be_equal(actual_value, expected_value, message=None,

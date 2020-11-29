@@ -1,13 +1,11 @@
 import logging
 
-from selenium.webdriver.common.keys import Keys
-
 logger = logging.getLogger(__name__)
 
 
 class TextBoxActionsMixin:
 
-    def set_text(self, text, skip_if_none=True, blur_and_focus=False):
+    def set_text(self, text, skip_if_none=True):
         """
         clear the text field and type new text
         :param text: text that should be set
@@ -19,9 +17,6 @@ class TextBoxActionsMixin:
         logger.info(f"Clear text field '{self.element.name}' and set text '{text}'")
         self.element.clear()
         self.element.send_keys(text)
-        if blur_and_focus:
-            self.blur_and_focus()
-        return self
 
     def type_text(self, text, force_open_keyboard=False):
         """
@@ -60,11 +55,6 @@ class TextBoxActionsMixin:
                 "Incorrect state of '{0}': masked={1}. Expected state: masked={2}".format(
                     self.element.name, actual_state, expected_state))
         assert (actual_state == expected_state)
-
-    def blur_and_focus(self):
-        self.element.click()
-        self.element.send_keys(Keys.TAB)
-        self.element.click()
 
     @property
     def value(self):

@@ -14,6 +14,7 @@ from common.config_parser.section.api_validation_section import APIValidationSec
 from common.config_parser.section.base_section import ConfigSection
 from common.config_parser.config_error import ConfigError
 from common.config_parser.section.global_section import GlobalSection, BaseGlobalSection
+from common.config_parser.section.mobile_section import MobileSection
 from common.config_parser.section.web_section import WebSection
 from common._libs.helpers.utils import get_modules_list
 
@@ -62,12 +63,14 @@ class ParseConfig:
         self.global_settings: Optional[GlobalSection] = None
         self.api_validation_settings: Optional[APIValidationSection] = None
         self._web_settings: Optional[WebSection] = None
+        self._mobile_settings: Optional[MobileSection] = None
 
         self._verify_duplicated_options()
 
         self._tune_global()
         self._tune_api_validations_section()
         self._tune_web_section()
+        self._tune_mobile_section()
         self._tune_project_sections()
 
     @property
@@ -77,9 +80,21 @@ class ParseConfig:
                               f"are absent in config. Please check web section content in your configuration files.")
         return self._web_settings
 
+    @property
+    def mobile_settings(self):
+        if not self._mobile_settings:
+            raise ConfigError(f"Section '{MobileSection.SECTION_NAME}' and its options were not initialized because "
+                              f"they are absent in config. Please check mobile section content in your configuration "
+                              f"files.")
+        return self._mobile_settings
+
     @web_settings.setter
     def web_settings(self, value):
         self._web_settings = value
+
+    @mobile_settings.setter
+    def mobile_settings(self, value):
+        self._mobile_settings = value
 
     def _tune_global(self):
         """Tune global settings. If there is no 'global' section
@@ -104,6 +119,15 @@ class ParseConfig:
             return
         setattr(self, f"{WebSection.SECTION_NAME}_settings",
                 WebSection(self.config, self.custom_args))
+
+    def _tune_mobile_section(self):
+        # if mobile section does not present in config files - treat it not used in the project
+        try:
+            ConfigSection.check_if_section_exists(self.config, MobileSection.SECTION_NAME, None)
+        except ConfigError:
+            return
+        setattr(self, f"{MobileSection.SECTION_NAME}_settings",
+                MobileSection(self.config, self.custom_args))
 
     def _tune_project_sections(self):
         # import sections modules from config directory

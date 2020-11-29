@@ -23,7 +23,11 @@ class BaseRemoteServer:
         """
         Stop remote server process (depending on the platform)
         """
-        logger.info(f"stop webdriver server on {self.address}:{self.port}")
+        logger.info(f"stop WebDriver server on {self.address}:{self.port}")
+        for _ in range(5):
+            if not self._get_current_sessions():
+                time.sleep(2)
+
         if not self._get_current_sessions():
             if self.is_linux:
                 cmd = f"lsof -ti:{self.port} | xargs kill"
@@ -37,6 +41,51 @@ class BaseRemoteServer:
         except requests.exceptions.ConnectionError:
             return False
         return response.json()["value"]
+
+
+class AppiumRemoteServer(BaseRemoteServer):
+
+    def __init__(self, config: ConfigManager, address='127.0.0.1', port=4723, log_path="Logs"):
+        super().__init__(address, port)
+        self._config = config.get_mobile_settings()
+        self.log = os.path.join(log_path, 'appium.log')
+
+    def start_server(self):
+        """
+        Start appium remote server process (for mobile testing)
+        """
+        logger.info(f"Start Appium Server - {self.address}:{self.port}")
+        if self._get_current_sessions() is False:
+            server_cmd = list()
+            server_cmd.append(self._config.node_executable_path)
+            server_cmd.append(self._config.appium_server_path)
+            server_cmd.append(f'--address {self.address}')
+            server_cmd.append(f'--port {self.port}')
+            server_cmd.append(f'--log "{self.log}"')
+
+            subprocess_send_command_asynchronous(' '.join(server_cmd))
+            time.sleep(20)
+
+            try:
+                self.is_local_server_running()
+            except AssertionError:
+                logger.exception(f'Could not start Appium Server. Please check log: {self.log}')
+                raise
+        else:
+            logger.info("Appium Server already running, trying to connect to it")
+
+    def is_local_server_running(self):
+        """
+        Try to get process info and return True if port now used.
+        """
+        if self.is_linux:
+            cmd = f"lsof -i -n -P | grep {self.port}"
+        else:
+            # todo: try on windows (and modify cmd if needed)
+            cmd = f"netstat -na | find \"{self.port}\""
+        out, err, rc = subprocess_send_command(cmd)
+        # todo: try on windows (and modify expected command)
+        return bool(out[0] and 'node' in out[0])
 
 
 class SeleniumServer(BaseRemoteServer):

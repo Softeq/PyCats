@@ -19,3 +19,15 @@ class WebDriverSettingsDTO:
     firefox_driver_name: str
     browser: str
     driver_path: str
+
+
+@dataclass
+class MobileDriverSettingsDTO:
+    appium_server_path: str
+    node_executable_path: str
+    platform: str
+    ios_udid: str
+    ipa_path: str
+    android_udid: str
+    android_package: str
+    android_activity: str

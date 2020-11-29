@@ -4,8 +4,8 @@ from common.facade import raw_config
 
 
 # TODO - find solution to set dataclass fields properly after initialization
-def query_builder(city, token):
-    return f'q={city}&appid={token}'
+def query_builder(city, token, units='imperial'):
+    return f'q={city}&appid={token}&units={units}'
 
 
 @pycats_dataclass
@@ -44,7 +44,7 @@ class DailyWeatherEndpointBuilder:
     endpoint = endpoint_factory(raw_config.project_settings.web_api_url, "DailyWeatherEndpoint",
                                 _DailyWeatherRequestModel, _DailyWeatherResponseModel)
 
-    def get_weather_details(self, city, token):
-        self.endpoint.request_model.params = query_builder(city, token)
+    def get_weather_details(self, city, token, units='imperial'):
+        self.endpoint.request_model.params = query_builder(city, token, units)
         result = self.endpoint.get()
         return result.get_data

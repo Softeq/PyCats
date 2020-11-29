@@ -4,7 +4,7 @@ import logging
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from common.config_manager import ConfigManager
 from common._webdriver_qa_api.core.utils import assert_should_be_equal, fail_test, assert_should_be_not_equal, \
@@ -119,11 +119,18 @@ class BaseElement:
         element_text = self.element.text
         assert_should_be_not_equal(actual_value=element_text, expected_value="", silent=True)
 
-    def is_present(self):
+    def is_present(self, seconds=0):
         """
         :return: true if element is present, false if element is absent
         """
-        return self.element() is not None
+        try:
+            self.driver.implicitly_wait(seconds)
+            result = bool(self.element())
+        except NoSuchElementException:
+            result = False
+        finally:
+            self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
+        return result
 
     def is_present_without_waiting(self):
         """
@@ -133,7 +140,7 @@ class BaseElement:
             self.driver.implicitly_wait(0)
             WebDriverWait(self.driver, 0).until(EC.presence_of_element_located((self.locator_type, self.locator)))
             return True
-        except:
+        except TimeoutException:
             return False
         finally:
             self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
@@ -307,15 +314,16 @@ class BaseElements:
         actual = len(self.elements())
         assert_should_be_greater_than(actual, expected)
 
-
-class BaseElementsActionsMixin:
-
     def get_elements_text(self):
         """
         find elements and get it's text
         :return: list of the text of element
         """
-        result = []
-        for element in self():
-            result.append(element.text)
-        return result
+        return [element.text for element in self.elements.selenium_element]
+
+    def get_elements(self):
+        """
+        find elements and get it's text
+        :return: list of the text of element
+        """
+        return self.elements.selenium_element

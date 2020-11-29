@@ -31,15 +31,16 @@ def get_singleton_class(key_name, base_class):
     return singleton_class
 
 
-def delete_singleton_object(key_name, base_class):
+def delete_singleton_object(class_obj):
     """Remove class instance with specified name and inheritable base class
        from Singleton instances.
 
     Args:
-        key_name (str): Class name
-        base_class (str): Base class name
+        class_obj (type): Class name
     """
-    return Singleton._instances.pop(f"{key_name}_{base_class.__name__}", None)
+    # todo: discuss
+    # return Singleton._instances.pop(f"{key_name}_{base_class.__name__}", None)
+    return Singleton._instances.pop(class_obj.__name__, None)
 
 
 def delete_singleton_objects(prefix):

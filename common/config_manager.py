@@ -1,4 +1,4 @@
-from common.config_parser.config_dto import APIValidationDTO, WebDriverSettingsDTO
+from common.config_parser.config_dto import APIValidationDTO, WebDriverSettingsDTO, MobileDriverSettingsDTO
 from common.config_parser.config_parser import ParseConfig
 from common._libs.helpers.singleton import Singleton
 
@@ -27,3 +27,9 @@ class ConfigManager(metaclass=Singleton):
                                     settings.webdriver_implicit_wait_time, settings.selenium_server_executable,
                                     settings.chrome_driver_name, settings.firefox_driver_name, settings.browser,
                                     settings.driver_path)
+
+    def get_mobile_settings(self) -> MobileDriverSettingsDTO:
+        settings = self.config.mobile_settings
+        return MobileDriverSettingsDTO(settings.appium_server_path, settings.node_executable_path, settings.platform,
+                                       settings.ios_udid, settings.ipa_path,
+                                       settings.android_udid, settings.android_package, settings.android_activity)
