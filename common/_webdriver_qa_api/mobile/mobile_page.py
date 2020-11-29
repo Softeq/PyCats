@@ -1,5 +1,5 @@
-import logging
 import random
+import logging
 
 from typing import Union, Optional
 from selenium.common.exceptions import WebDriverException
