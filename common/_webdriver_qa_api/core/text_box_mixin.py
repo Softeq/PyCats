@@ -2,6 +2,7 @@ import logging
 from typing import Optional, Union, Dict
 from common._webdriver_qa_api.core.utils import assert_should_be_equal
 
+
 logger = logging.getLogger(__name__)
 
 
