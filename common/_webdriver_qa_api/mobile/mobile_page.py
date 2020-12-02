@@ -57,7 +57,6 @@ class MobilePage(BasePage):
         try:
             self.driver.hide_keyboard()
         except WebDriverException as e:
-            type(e)
             if "Soft keyboard not present, cannot hide keyboard" in str(e):
                 pass
             else:
