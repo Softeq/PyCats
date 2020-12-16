@@ -543,7 +543,7 @@ class BaseEndpoint:
 
 def endpoint_factory(base_url: str, class_name: str, request_model: Type[BaseRequestModel],
                      response_model: Type[BaseResponseModel], superclass=BaseEndpoint,
-                     make_url_method=make_request_url, config: ConfigManager = ConfigManager()) \
+                     make_url_method=make_request_url, config=None) \
         -> Union[Callable[[], BaseEndpoint], BaseEndpoint]:
     """Factory to create class based on BaseEndpoint
 
@@ -559,6 +559,8 @@ def endpoint_factory(base_url: str, class_name: str, request_model: Type[BaseReq
     Returns:
         :obj lambda with class which 'class_name' is inherited from 'superclass'
     """
+    if not config:
+        config = ConfigManager()
     dummy_class = type(class_name, (superclass,), dict(request_model=None, response_model=None, base_url=None,
                                                        make_url_method=None))
     return lambda: dummy_class(base_url, request_model=copy.deepcopy(request_model()),

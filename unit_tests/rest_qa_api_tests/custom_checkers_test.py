@@ -61,7 +61,7 @@ class TestRunCheckersBranches:
         builder.endpoint.response_model.custom_checkers.append(DummyResponseBuilder)
         with pytest.raises(Exception):
             builder.endpoint.get()
-        expected_log_message = f"fail"
+        expected_log_message = "fail"
         expected_second_log_message = f"<class 'unit_tests.rest_qa_api_tests.tests_utils.DummyResponseBuilder'> has" \
                                       f" unsupported type. Supported are functions and BaseRESTCheckers instances"
         first_message = [record for record in caplog.records if expected_log_message == record.message]
@@ -81,9 +81,14 @@ class TestCustomLogger:
             builder.endpoint.get()
         except Exception as e:
             pytest.fail(f"DID RAISE {e}")
-        expected_log_message = f"{JSONCheckers.check_status.__name__} validation passed"
-        messages = [record for record in caplog.records if expected_log_message == record.message]
-        assert len(messages) == 1, "Expected message not found in logs"
+        expected_first_log_message = f"run checker: {JSONCheckers.__name__}: "
+        expected_second_log_message = f"check that status code is {JSONCheckers.status}"
+        expected_third_log_message = f"{JSONCheckers.check_status.__name__} validation passed"
+        expected_fourth_log_message = f"{JSONCheckers.__name__} validation passed"
+        messages = [record for record in caplog.records if record.message in
+                    (expected_first_log_message, expected_second_log_message,
+                     expected_third_log_message, expected_fourth_log_message)]
+        assert len(messages) == 4, "Expected message not found in logs"
 
     def test_logging_through_customer_checker_function(self, _, response, builder, caplog):
         response.status_code = 200
