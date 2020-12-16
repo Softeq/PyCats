@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from common._rest_qa_api.response_converter import ResponseConverterMixin  # noqa
 
 logger = logging.getLogger(__name__)
+logger.setLevel("INFO")
 
 
 class ResponseValidatorMixin:

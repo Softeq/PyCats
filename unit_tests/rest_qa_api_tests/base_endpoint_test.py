@@ -49,6 +49,22 @@ def test_access_public_fields():
         pytest.fail(f"DID RAISE {e}")
 
 
+def test_new_instance_inits_with_clean_models():
+    try:
+        first_instance = TestEndpointBuilder()
+        first_instance.endpoint.request_model.post_data = {"testField1": "testValue1"}
+        first_instance.endpoint.response_model.post_data = {"testField1": "testValue1"}
+        second_instance = TestEndpointBuilder()
+        assert second_instance.endpoint.request_model.post_data is None
+        assert second_instance.endpoint.response_model.post_data is SKIP
+        second_instance.endpoint.request_model.post_data = {"testField2": "testValue2"}
+        second_instance.endpoint.response_model.post_data = {"testField2": "testValue2"}
+        assert first_instance.endpoint.request_model.post_data == {"testField1": "testValue1"}
+        assert first_instance.endpoint.response_model.post_data == {"testField1": "testValue1"}
+    except Exception as e:
+        pytest.fail(f"DID RAISE {e}")
+
+
 @patch('requests.request', return_value=fake_response())
 class TestStatusCode:
 
