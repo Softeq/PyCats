@@ -1,3 +1,4 @@
+import copy
 import logging
 from abc import ABCMeta, abstractmethod
 from dataclasses import InitVar
@@ -560,5 +561,6 @@ def endpoint_factory(base_url: str, class_name: str, request_model: Type[BaseReq
     """
     dummy_class = type(class_name, (superclass,), dict(request_model=None, response_model=None, base_url=None,
                                                        make_url_method=None))
-    return lambda: dummy_class(base_url, request_model=request_model(), response_model=response_model(config=config),
+    return lambda: dummy_class(base_url, request_model=copy.deepcopy(request_model()),
+                               response_model=copy.deepcopy(response_model(config=config)),
                                make_url_method=make_url_method)
