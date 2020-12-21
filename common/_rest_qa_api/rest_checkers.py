@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from common._rest_qa_api.base_endpoint import BaseResponseModel
 
 logger = logging.getLogger(__name__)
+logger.setLevel("INFO")
 
 
 class BaseRESTCheckers:
