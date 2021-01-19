@@ -6,7 +6,7 @@ from project.api.steps.weather_api_steps import compare_api_weather_with_ui
 from project import mobile, web
 
 
-@pytest.mark.usefixtures("open_browser")
+@pytest.mark.usefixtures('open_main_page')
 @pytest.mark.parametrize('city', ['San Jose', "Los Angeles"])
 @pytest.mark.usefixtures('open_main_page')
 def test_weather_api(api_token, city):

@@ -15,7 +15,7 @@ class DropDownMixin:
 
     def open_menu(self):
         self.click()
-        self.menu.wait_element_visible()
+        self.menu.assert_visible()
 
     def select_by_index(self, index: int):
         self.menu_items[index].click()
