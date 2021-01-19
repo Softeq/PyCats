@@ -35,6 +35,15 @@ class WebDriver:
             WebDriver.web_driver.quit()
             WebDriver.web_driver = None
 
+    def open_new_tab(self):
+        """ Open new tab on existent webdriver session """
+        self.driver.execute_script("window.open('');")
+        self.switch_to_tab(tab_number=-1)
+
+    def switch_to_tab(self, tab_number: int = 0):
+        """ Switch to browser tab by index"""
+        self.driver.switch_to.window(self.driver.window_handles[tab_number])
+
 
 def start_webui(config: ConfigManager):
     WebDriver(config).web_driver.maximize_window()

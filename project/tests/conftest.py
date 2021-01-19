@@ -31,7 +31,7 @@ def open_browser(request, start_remote_server):
 
 
 @pytest.fixture(scope="function", autouse=False)
-def main_page():
+def open_main_page(open_browser):
     logger.log_step("Open Main application page", precondition=True)
     navigate_to(raw_config.project_settings.web_app_url)
 
@@ -46,7 +46,7 @@ def api_token(start_remote_server):
         main_page.click_login()
 
         login_steps = SignInSteps()
-        login_steps.login(valid_user)
+        login_steps.login(email=valid_user.email, password=valid_user.password)
 
         home_steps = HomePageSteps()
         api_key = home_steps.get_api_key()

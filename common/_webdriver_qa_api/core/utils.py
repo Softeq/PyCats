@@ -133,11 +133,12 @@ def assert_should_contain(actual_value, expected_value, message=None,
     :param message: message that will be logged.
     :param silent: logging mod, if true - there is no logging
     """
+    msg = message or "Actual value is part of expected: '{act}' in '{exp}'".format(
+        act=actual_value, exp=expected_value)
+
     if actual_value in expected_value:
         if not silent:
-            logger.info(
-                "Actual value is part of expected: '{act}' in '{exp}'".format(
-                    act=actual_value, exp=expected_value))
+            logger.info(msg)
     else:
         fail_test(
             "There is no Actual value in expected: '{0}' not in '{1}'".format(
