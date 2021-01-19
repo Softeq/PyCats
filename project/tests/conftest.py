@@ -18,7 +18,8 @@ def start_remote_server(request):
     request.addfinalizer(finalizer)
     server.start_server()
 
-@pytest.fixture(scope="function", autouse=True)
+
+@pytest.fixture(scope="function", autouse=False)
 def open_browser(request):
     logger.log_step("Open Browser", precondition=True)
 
@@ -29,12 +30,12 @@ def open_browser(request):
 
 
 @pytest.fixture(scope="function", autouse=False)
-def main_page():
+def open_main_page(open_browser):
     logger.log_step("Open Main application page", precondition=True)
     navigate_to(raw_config.project_settings.web_app_url)
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="module", autouse=False)
 def api_token():
     logger.log_step("Retrieve API token from UI", precondition=True)
     try:
@@ -44,7 +45,7 @@ def api_token():
         main_page.click_login()
 
         login_steps = SignInSteps()
-        login_steps.login(valid_user)
+        login_steps.login(email=valid_user.email, password=valid_user.password)
 
         home_steps = HomePageSteps()
         api_key = home_steps.get_api_key()

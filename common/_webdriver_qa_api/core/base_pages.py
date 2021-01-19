@@ -1,5 +1,6 @@
 import time
 import logging
+from typing import Union
 
 from common._webdriver_qa_api.core.utils import assert_should_be_equal
 from common._webdriver_qa_api.core.base_elements import BaseElement
@@ -16,35 +17,22 @@ class BasePage:
         self.name = locator if name is None else name
         self._config = config
 
-    def assert_page_present(self, second=20, silent=False):
+    def assert_page_present(self, second: Union[int, float] = 20):
         """
         assert page present, test fails if page is absent
         """
-        if not silent:
-            logger.info(f"Verify is page '{self.name}' opens in {second} seconds")
-        page_element = BaseElement(self.locator_type, self.locator, self.driver, self._config)
-        assert_should_be_equal(actual_value=page_element.is_present_without_waiting,
-                               expected_value=True, silent=silent, timeout=second)
-        if not silent:
-            logger.info(f"Page '{self.name}' is opened")
+        assert_should_be_equal(actual_value=self.is_page_present(second=second), expected_value=True,
+                               message=f"Verify is page '{self.name}' opens in {second} seconds")
+        logger.info(f"Page '{self.name}' is opened")
 
-    def assert_page_not_present(self, second=20):
+    def assert_page_not_present(self, second: Union[int, float] = 20):
         """
         assert page not present, test fails if page is present
         """
-        logger.info(f"Verify is page '{self.name}' absent in {second} seconds")
-        end_time = time.time() + second
-        present_status = True
-        while time.time() < end_time and present_status:
-            time.sleep(0.2)
-            present_status = BaseElement(self.locator_type,
-                                         self.locator,
-                                         self.driver,
-                                         self._config).is_present_without_waiting()
-        assert_should_be_equal(actual_value=present_status,
-                               expected_value=False, silent=True)
+        assert_should_be_equal(actual_value=self.is_page_present(second=second), expected_value=False,
+                               message=f"Verify is page '{self.name}' absent in {second} seconds")
 
-    def is_page_present(self, second=0.1):
+    def is_page_present(self, second: Union[int, float] = 0.1) -> bool:
         """
         Get page initial element and return True if element present
         """
@@ -67,7 +55,6 @@ class BasePage:
         self.driver.refresh()
         self.assert_page_present()
 
-    def navigate_to(self, url):
+    def navigate_to(self, url: str):
         logger.info(f"Going to {url}")
         self.driver.get(url)
-        return self

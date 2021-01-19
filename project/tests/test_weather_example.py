@@ -8,7 +8,8 @@ from project.web.steps.search_result import SearchResultSteps
 
 
 @pytest.mark.parametrize('city', ['San Jose', "Los Angeles"])
-def test_weather_api(main_page, api_token,  city):
+@pytest.mark.usefixtures('open_main_page')
+def test_weather_api(api_token,  city):
     logger.log_step(f"Open Main Page and search city {city}")
     main_steps = MainPageSteps()
     main_steps.search_city(city)
@@ -23,4 +24,3 @@ def test_weather_api(main_page, api_token,  city):
 
     logger.log_step("Compare UI weather with API weather data")
     compare_api_weather_with_ui(city, api_token, weather_info)
-
