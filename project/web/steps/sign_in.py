@@ -1,5 +1,4 @@
 from project.web.pages.sign_in_page import SignInPage
-from project.test_data.users import User
 
 
 class SignInSteps(SignInPage):
