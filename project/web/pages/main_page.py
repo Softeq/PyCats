@@ -18,7 +18,5 @@ class MainPage(WebPage):
         self.btn_search.click()
 
     def click_sign_in(self):
+        self.btn_sign_in.wait_element_enabled()
         self.btn_sign_in.click()
-
-    def click_login(self):
-        self.click_sign_in()

@@ -3,7 +3,7 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 from common.config_manager import ConfigManager
-from common._webdriver_qa_api.web.web_driver import WebDriver
+from common._webdriver_qa_api.web.web_driver import get_webdriver_session
 from common._webdriver_qa_api.core.utils import assert_should_be_equal
 from common._webdriver_qa_api.core.base_elements import BaseElement, BaseElements
 from common._webdriver_qa_api.core.text_box_mixin import TextBoxActionsMixin
@@ -11,16 +11,16 @@ from common._webdriver_qa_api.core.text_box_mixin import TextBoxActionsMixin
 
 class WebElements(BaseElements):
     def __init__(self, locator_type: str, locator: str, name: str = None, parent: BaseElement = None):
-        super().__init__(locator_type, locator, driver=WebDriver.web_driver, name=name, parent=parent)
+        super().__init__(locator_type, locator, driver=get_webdriver_session().driver, name=name, parent=parent)
 
 
 class WebElement(BaseElement):
     def __init__(self, locator_type: str, locator: str, name: str = None,
                  parent: Optional[BaseElement] = None, frame: Optional[BaseElement] = None):
-        self.driver = WebDriver.web_driver
+        self.driver = get_webdriver_session().driver
         self.frame = frame
         super().__init__(locator_type, locator,
-                         driver=WebDriver.web_driver, config=ConfigManager(), name=name,
+                         driver=self.driver, config=ConfigManager(), name=name,
                          parent=parent)
         self.ALLOWED_DYNAMIC_METHODS = ["click", "text"]
 
@@ -56,7 +56,7 @@ class WebElement(BaseElement):
         actions.move_to_element(self.element()).perform()
 
     def click_with_js(self):
-        WebDriver.web_driver.execute_script("arguments[0].click()", self.element())
+        self.driver.execute_script("arguments[0].click()", self.element())
 
 
 class WebTextBox(TextBoxActionsMixin, WebElement):

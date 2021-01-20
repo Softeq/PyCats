@@ -16,7 +16,7 @@ users = [
 def test_login(email, password, error):
     logger.log_step(f"Open Main Page and navigate to sign in page")
     main_steps = MainPageSteps()
-    main_steps.click_login()
+    main_steps.click_sign_in()
 
     logger.log_step("Click on the first search result")
     sign_in_page = SignInSteps()
