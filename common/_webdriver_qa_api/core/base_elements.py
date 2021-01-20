@@ -34,7 +34,7 @@ class BaseElement:
     def __getattr__(self, item):
         if self.ALLOWED_DYNAMIC_METHODS is not None:
             assert item in self.ALLOWED_DYNAMIC_METHODS, f"get attribute {item} directly is forbidden"
-        return self.element
+        return getattr(self.element, item)
 
     def assert_present(self, is_present: bool = True, timeout: TimeoutType = None):
         """

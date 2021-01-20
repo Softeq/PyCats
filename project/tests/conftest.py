@@ -1,7 +1,7 @@
 import pytest
 
 from common.facade import logger, raw_config, config_manager
-from common._webdriver_qa_api.web.web_driver import start_webui, stop_webui, navigate_to
+from common._webdriver_qa_api.web.web_driver import start_webdriver_session, stop_webdriver_session, navigate_to
 from common._webdriver_qa_api.web.remote_server import SeleniumServer
 from project.test_data.users import valid_user
 from project.web.steps.home import HomePageSteps
@@ -24,9 +24,9 @@ def open_browser(request):
     logger.log_step("Open Browser", precondition=True)
 
     def finalizer():
-        stop_webui()
+        stop_webdriver_session()
     request.addfinalizer(finalizer)
-    start_webui(config_manager)
+    start_webdriver_session(config_manager)
 
 
 @pytest.fixture(scope="function", autouse=False)
@@ -39,10 +39,10 @@ def open_main_page(open_browser):
 def api_token():
     logger.log_step("Retrieve API token from UI", precondition=True)
     try:
-        start_webui(config_manager)
+        start_webdriver_session(config_manager)
         navigate_to(raw_config.project_settings.web_app_url)
         main_page = MainPageSteps()
-        main_page.click_login()
+        main_page.click_sign_in()
 
         login_steps = SignInSteps()
         login_steps.login(email=valid_user.email, password=valid_user.password)
@@ -50,5 +50,5 @@ def api_token():
         home_steps = HomePageSteps()
         api_key = home_steps.get_api_key()
     finally:
-        stop_webui()
+        stop_webdriver_session()
     return api_key

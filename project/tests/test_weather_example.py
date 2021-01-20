@@ -9,7 +9,7 @@ from project.web.steps.search_result import SearchResultSteps
 
 @pytest.mark.parametrize('city', ['San Jose', "Los Angeles"])
 @pytest.mark.usefixtures('open_main_page')
-def test_weather_api(api_token,  city):
+def test_weather_api(api_token, city):
     logger.log_step(f"Open Main Page and search city {city}")
     main_steps = MainPageSteps()
     main_steps.search_city(city)
