@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.common.exceptions import WebDriverException
@@ -30,29 +31,29 @@ class MobileElement(BaseElement):
         """
         return self.get_element().size
 
-    def click_and_hold(self, seconds):
+    def click_and_hold(self, timeout: Union[int, float]):
         """
-        Click and hold element for <seconds> second
-        :param seconds:
-        :return:
+        Click and hold element for a <seconds> seconds
+        :param timeout: hold time in seconds
         """
-        logger.info("Click and hold '{0}' for a {1} seconds".format(self.name, seconds))
+        logger.info(f"Click and hold '{self.name}' for a {timeout} seconds")
 
         element = self.get_element()
         actions = TouchAction(self.driver)
-        actions.long_press(element, duration=seconds * 1000)
+        actions.long_press(element, duration=timeout * 1000)
         actions.release()
         actions.perform()
 
-    def click_multiple_times(self, times):
+    def click_multiple_times(self, times: int):
         """
-        Click and hold element for <seconds> second
+        Click element multiple times
+        :param: times: click action count
         """
-        logger.info("Click '{0}' for a {1} times".format(self.name, times))
+        logger.info(f"Click '{self.name}' for a {times} times")
 
         element = self.get_element()
         for loop in range(times):
-            logger.info("Click: {0}/{1}".format(loop + 1, times))
+            logger.info(f"Click: {loop + 1}/{times}")
             element.click()
 
     def get_top_y(self):
@@ -77,12 +78,11 @@ class MobileElement(BaseElement):
         """
         logger.info("Tap to coordinates (x,y) - ({x},{y})".format(x=x, y=y))
         self.driver.tap([(x, y)])
-        return self
 
 
 class MobileTextBox(TextBoxActionsMixin, MobileElement):
 
-    def set_text(self, text, skip_if_none=True):
+    def set_text(self, text: str, skip_if_none: bool = True):
         """
         clear the text field and type new text
         catch exception if it appears (appium issue https://github.com/appium/appium/issues/7572)

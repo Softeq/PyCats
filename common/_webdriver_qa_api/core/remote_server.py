@@ -1,7 +1,6 @@
 import os
 import logging
 import time
-
 import requests
 
 from common.config_manager import ConfigManager

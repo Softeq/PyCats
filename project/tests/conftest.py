@@ -3,7 +3,7 @@ import pytest
 from common._webdriver_qa_api.mobile.mobile_driver import MobileDriver
 from common.facade import logger, raw_config, config_manager
 from common._webdriver_qa_api.web.web_driver import start_webui, stop_webui, navigate_to
-from common._webdriver_qa_api.web.remote_server import SeleniumServer, AppiumRemoteServer
+from common._webdriver_qa_api.core.remote_server import SeleniumServer, AppiumRemoteServer
 from project.test_data.users import valid_user
 from project.web.steps.home import HomePageSteps
 from project.web.steps.main import MainPageSteps
