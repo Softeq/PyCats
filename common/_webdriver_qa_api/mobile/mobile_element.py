@@ -70,6 +70,15 @@ class MobileElement(BaseElement):
         """
         return self.get_top_y() + self.get_element_size()['height']
 
+    def tap_by_coordinates(self, x, y):
+        """
+        tap on coordinates
+        :param x: x coordinate to tap
+        :param y: y coordinate to tap
+        """
+        logger.info("Tap to coordinates (x,y) - ({x},{y})".format(x=x, y=y))
+        self.driver.tap([(x, y)])
+
 
 class MobileTextBox(TextBoxActionsMixin, MobileElement):
 
