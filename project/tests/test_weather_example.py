@@ -3,16 +3,15 @@ import pytest
 from common.facade import logger
 from project.api.endpoints.daily_weather_endpoint import DailyWeatherEndpointBuilder
 from project.api.steps.weather_api_steps import compare_api_weather_with_ui
-from project.mobile.steps.global_steps import add_location
-from project.mobile.steps.navigation_steps import navigate_to_main_page
 from project.web.steps.city_details import CityDetailsSteps
 from project.web.steps.main import MainPageSteps
 from project.web.steps.search_result import SearchResultSteps
+from project import mobile
 
 
 @pytest.mark.usefixtures("open_browser")
 @pytest.mark.parametrize('city', ['San Jose', "Los Angeles"])
-def test_weather_api(main_page, api_token,  city):
+def test_weather_api(main_page, api_token, city):
     logger.log_step(f"Open Main Page and search city {city}")
     main_steps = MainPageSteps()
     main_steps.search_city(city)
@@ -42,14 +41,14 @@ def test_weather_mobile(api_token, city):
     3. Get current temperature from api for {city} lcoation
     4. Compare APU result with mobile app result for selected location
     """
-    navigate_to_main_page()
+    mobile.navigation_steps.navigate_to_main_page()
 
     logger.log_step("Add city - {}".format(city))
-    weather_steps = add_location(city=city)
-    weather_steps.verify_selected_city(value=city)
+    weather_page = mobile.global_steps.add_location(city=city)
+    weather_page.verify_selected_city(value=city)
 
     logger.log_step("Get current temperature from api")
     api_result = DailyWeatherEndpointBuilder().get_weather_details(city=city, token=api_token, units='metric')
 
     logger.log_step("Verify current temperature for city - {}".format(city))
-    weather_steps.verify_current_temperature(value=str(int(api_result["main"]["temp"])))
+    weather_page.verify_current_temperature(value=str(int(api_result["main"]["temp"])))

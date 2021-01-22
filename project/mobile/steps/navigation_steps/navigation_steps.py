@@ -1,11 +1,11 @@
-from common.facade import logger
-
 __all__ = ['navigate_to_main_page']
 
+from common.facade import logger
+
 from project.mobile.src.confirmations.location_permission import LocationPermissionAndroid
-from project.mobile.steps.pages.setup_notification import SetupNotificationSteps
-from project.mobile.steps.pages.setup_location import SetupLocationSteps
-from project.mobile.steps.pages.weather import WeatherSteps
+from project.mobile.steps.page_steps.pages.setup_notification import SetupNotificationSteps
+from project.mobile.steps.page_steps.pages.setup_location import SetupLocationSteps
+from project.mobile.steps.page_steps.pages.weather import WeatherSteps
 
 
 def navigate_to_main_page():

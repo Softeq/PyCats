@@ -12,3 +12,6 @@ class WeatherSteps(WeatherPage):
         self.refresh_data()
         assert_should_be_equal(actual_value=self.get_current_temperature(), expected_value=value,
                                message="Verify current temperature location.")
+
+    def sample_to_check_format(self):
+        self.btn_menu.get_element_size()

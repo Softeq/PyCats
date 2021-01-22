@@ -72,9 +72,9 @@ def start_mobile_session(request, start_mobile_server):
     # platfrom = config_manager.config.mobile_settings.platform
     # android_config(request.config.getoption("--android_device")) if platfrom == 'android' else \
     #     ios_config(request.config.getoption("--ios_device"))
-    MobileDriver(config_manager)
+    mobile_session = MobileDriver(config_manager)
 
     def test_teardown():
-        MobileDriver(config_manager).quit()
+        mobile_session.quit()
 
     request.addfinalizer(test_teardown)

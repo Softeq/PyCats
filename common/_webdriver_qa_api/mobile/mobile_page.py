@@ -1,53 +1,46 @@
+import logging
 import random
-from typing import Union, Literal
 
+from typing import Union, Optional
 from selenium.common.exceptions import WebDriverException
 
 from common._webdriver_qa_api.core.base_pages import BasePage
 from common._webdriver_qa_api.core.utils import fail_test
 from common._webdriver_qa_api.mobile.mobile_element import MobileElement
-from common._webdriver_qa_api.mobile.mobile_driver import MobileDriver
+from common._webdriver_qa_api.mobile.mobile_driver import get_mobile_driver_session
 from common.config_manager import ConfigManager
-from common.facade import logger
+
+logger = logging.getLogger(__name__)
 
 
 class MobilePage(BasePage):
     def __init__(self, locator_type, locator, name, should_present=True):
         config = ConfigManager()
-        super().__init__(driver=MobileDriver(config).driver, config=config,
+        super().__init__(driver=get_mobile_driver_session().driver, config=config,
                          locator_type=locator_type, locator=locator, name=name)
         if should_present:
             self.wait_page_present()
 
-    def get_page_source(self):
+    def get_page_source(self) -> str:
         """
-        :return: width of the page
+        Get the source of the current page.
+        :return: current screen source in xml format
         """
         return self.driver.page_source
 
-    def get_page_width(self):
+    def get_page_width(self) -> int:
         """
+        Get page(screen) width
         :return: width of the page
         """
         return self.driver.get_window_size()['width']
 
-    def get_page_height(self):
+    def get_page_height(self) -> int:
         """
+        Get page(screen) height
         :return: height of the page
         """
         return self.driver.get_window_size()['height']
-
-    def scroll_page_down(self):
-        """
-        scroll page down to the bottom, only works on iOS
-        """
-        self.driver.execute_script("mobile: scroll", {"direction": 'down'})
-
-    def scroll_page_up(self):
-        """
-        scroll page up to the top, only works on iOS
-        """
-        self.driver.execute_script("mobile: scroll", {"direction": 'up'})
 
     def hide_keyboard(self):
         """
@@ -65,9 +58,10 @@ class MobilePage(BasePage):
         """
         try to hide keyboard by tapping somewhere on page
         """
-        self.tap_by_coordinates(1, self.get_page_height() / 2)
+        self.tap_by_coordinates(1, int(self.get_page_height() / 2))
 
-    def swipe_down(self, start_coord_x=None, start_coord_y=None, duration=300):
+    def swipe_down(self, start_coord_x: Optional[int] = None, start_coord_y: Optional[int] = None,
+                   duration: Optional[int] = 300):
         """
         perform swipe from given coordinates to the top to scroll to the bottom part of the page
         :param start_coord_y: y coordinate to start swipe
@@ -79,9 +73,10 @@ class MobilePage(BasePage):
         start_y = round(self.get_page_height() / 2) if not start_coord_y else start_coord_y
         offset_y = round(self.get_page_height() / 8)
         result_y = 1 if (start_y - offset_y) < 0 else start_y - offset_y
-        return self.swipe(start_x, start_y, start_x, result_y, duration)
+        self.swipe(start_x, start_y, start_x, result_y, duration)
 
-    def swipe_up(self, start_coord_x=None, start_coord_y=None, duration=300, offset=0.25):
+    def swipe_up(self, start_coord_x: Optional[int] = None, start_coord_y: Optional[int] = None,
+                 duration: Optional[int] = 300, offset: Optional[float] = 0.25):
         """
         perform swipe from given coordinates to the bottom to scroll to the top part of the page
         :param start_coord_y: y coordinate to start swipe
@@ -94,9 +89,10 @@ class MobilePage(BasePage):
         start_y = round(self.get_page_height() / 2) if not start_coord_y else start_coord_y
         offset_y = round(self.get_page_height() * offset)
         result_y = self.get_page_height() - 1 if start_y + offset_y > self.get_page_height() else start_y + offset_y
-        return self.swipe(start_x, start_y, start_x, result_y, duration)
+        self.swipe(start_x, start_y, start_x, result_y, duration)
 
-    def swipe_left(self, start_coord_x=None, start_coord_y=None, duration=300):
+    def swipe_left(self, start_coord_x: Optional[int] = None, start_coord_y: Optional[int] = None,
+                   duration: Optional[int] = 300):
         """
         perform swipe from given coordinates to the left side of page to scroll to the left part of the page
         :param start_coord_y: y coordinate to start swipe
@@ -108,9 +104,10 @@ class MobilePage(BasePage):
         start_y = round(self.get_page_height() / 2) if not start_coord_y else start_coord_y
         offset_x = round(self.get_page_width() / 2)
         result_x = 1 if start_x - offset_x < 0 else start_x - offset_x
-        return self.swipe(start_x, start_y, result_x, start_y, duration)
+        self.swipe(start_x, start_y, result_x, start_y, duration)
 
-    def swipe_right(self, start_coord_x=None, start_coord_y=None, duration=300):
+    def swipe_right(self, start_coord_x: Optional[int] = None, start_coord_y: Optional[int] = None,
+                    duration: Optional[int] = 300):
         """
         perform swipe from given coordinates to the right side of page to scroll to the right part of the page
         :param start_coord_y: y coordinate to start swipe
@@ -122,9 +119,10 @@ class MobilePage(BasePage):
         start_y = round(self.get_page_height() / 2) if not start_coord_y else start_coord_y
         offset_x = round(self.get_page_width() / 2)
         result_x = self.get_page_width() - 1 if start_x + offset_x > self.get_page_width() else start_x + offset_x
-        return self.swipe(start_x, start_y, result_x, start_y, duration)
+        self.swipe(start_x, start_y, result_x, start_y, duration)
 
-    def swipe(self, start_x, start_y, x_offset, y_offset, duration=None):
+    def swipe(self, start_x: int, start_y: int, x_offset: float, y_offset: float,
+              duration: Optional[int] = None):
         """
         swipe page and catch exception if it appears.
         appium issue https://github.com/appium/appium/issues/7572
@@ -139,10 +137,10 @@ class MobilePage(BasePage):
         except WebDriverException:
             logger.info("Swipe failed the first time because of WebDriverAgent error. Trying to swipe again")
             self.driver.swipe(start_x, start_y, x_offset, y_offset, duration)
-        return self
 
     def scroll_to_element_if_needed(self, element: MobileElement,
-                                    top_limit=None, bottom_limit=None):
+                                    top_limit: Optional[int] = None,
+                                    bottom_limit: Optional[int] = None):
         """
         If element is not fully on screen, scroll in the corresponding direction to make it fully visible
         :param element: Target element that should be on the screen
@@ -165,8 +163,7 @@ class MobilePage(BasePage):
                 return True
             attempt += 1
 
-    def scroll_to_element_in_direction(self, element: MobileElement,
-                                       direction: Literal["up", "down"]):
+    def scroll_to_element_in_direction(self, element: MobileElement, direction: str):
         """
         If element is not fully on screen, scroll in the corresponding direction to make it fully visible
         :param element: mobile element to scroll to
@@ -183,7 +180,7 @@ class MobilePage(BasePage):
             swipe_action()
             attempt += 1
 
-    def tap_by_coordinates(self, x, y):
+    def tap_by_coordinates(self, x: int, y: int):
         """
         tap on coordinates
         :param x: x coordinate to tap
@@ -192,7 +189,7 @@ class MobilePage(BasePage):
         logger.info("Tap to coordinates (x,y) - ({x},{y})".format(x=x, y=y))
         self.driver.tap([(x, y)])
 
-    def tap_and_hold_by_coordinates(self, x, y, seconds: Union[int, float] = 3):
+    def tap_and_hold_by_coordinates(self, x: int, y: int, seconds: Union[int, float] = 3):
         """
         tap on coordinates and hold (seconds) time
         :param x: x coordinate to tap

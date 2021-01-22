@@ -1,5 +1,7 @@
-from project.mobile.steps.pages.weather import WeatherSteps
-from project.mobile.steps.pages.add_location import AddLocationSteps
+__all__ = ['add_location']
+
+from project.mobile.steps.page_steps.pages.weather import WeatherSteps
+from project.mobile.steps.page_steps.pages.add_location import AddLocationSteps
 
 
 def add_location(city):

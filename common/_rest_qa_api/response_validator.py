@@ -9,8 +9,8 @@ from common._rest_qa_api.rest_utils import SKIP
 
 if TYPE_CHECKING:
     # to avoid import loop only for annotations
-    from common._rest_qa_api.base_endpoint import BaseResponseModel
-    from common._rest_qa_api.response_converter import ResponseConverterMixin
+    from common._rest_qa_api.base_endpoint import BaseResponseModel  # noqa
+    from common._rest_qa_api.response_converter import ResponseConverterMixin  # noqa
 
 logger = logging.getLogger(__name__)
 

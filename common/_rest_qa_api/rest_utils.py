@@ -75,9 +75,7 @@ def obj_to_dict(obj, exclude_params=None):
         exclude_params = []
     return dict(
         (key, obj.__getattribute__(key)) for key in dir(obj)
-        if not callable(obj.__getattribute__(key))
-        and not key.startswith('_')
-        and key not in exclude_params)
+        if not callable(obj.__getattribute__(key)) and not key.startswith('_') and key not in exclude_params)
 
 
 def dict_to_obj(obj, **kwargs):

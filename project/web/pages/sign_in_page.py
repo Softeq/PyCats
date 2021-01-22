@@ -1,7 +1,6 @@
 from common._webdriver_qa_api.web.web_pages import WebPage
 from selenium.webdriver.common.by import By
 from common._webdriver_qa_api.web.web_elements import WebElement, WebTextBox
-from project.test_data.users import User
 
 
 class SignInPage(WebPage):

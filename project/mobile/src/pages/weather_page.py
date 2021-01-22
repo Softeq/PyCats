@@ -26,17 +26,17 @@ class WeatherPage(MobilePage):
         self.swipe_down()
         self.img_refresh.wait_element_absent(second=5)
 
-    def get_location(self):
+    def get_location(self) -> str:
         return self.lbl_location.text
 
-    def get_current_temperature(self):
-        return self.lbl_current_temperature.text[:-1]
+    def get_current_temperature(self) -> int:
+        return int(self.lbl_current_temperature.text[:-1])
 
-    def get_high_temperature(self):
-        return self.lbl_max_daily_temperature.text[:-1], self.lbl_min_daily_temperature.text[:-1]
+    def get_high_temperature(self) -> int:
+        return int(self.lbl_max_daily_temperature.text[:-1], self.lbl_min_daily_temperature.text[:-1])
 
     def click_add_location(self):
-        return self.btn_add_location.click()
+        self.btn_add_location.click()
 
     def open_menu(self):
-        return self.btn_menu.click()
+        self.btn_menu.click()
