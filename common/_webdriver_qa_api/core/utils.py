@@ -10,7 +10,8 @@ from common.config_parser.config_dto import WebDriverSettingsDTO, MobileDriverSe
 logger = logging.getLogger(__name__)
 
 
-def _smart_assert(actual, expected, comp_operator, msg=None, timeout=None, repeats=None):
+def assert_should_be_equal(actual_value, expected_value, message=None,
+                           silent=False, timeout=None):
     """
     Compare <actual> with <expected> using <operator>.
 

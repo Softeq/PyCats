@@ -7,7 +7,7 @@ from project.test_data.users import valid_user
 
 users = [
     pytest.param(valid_user.email, valid_user.password, None, id="valid_user"),
-    pytest.param('invalid_user', valid_user.password, "Invalid Email or password.", id="invalid_user"),
+    pytest.param('invalid_user', valid_user.password, "Invalid Email or passwrd.", id="invalid_user"),
 ]
 
 
@@ -23,5 +23,4 @@ def test_login(email, password, error):
     sign_in_page.login(email, password)
 
     logger.log_step("Verify login result")
-    sign_in_page.test_changes()
     sign_in_page.verify_error_text(expected=error)
