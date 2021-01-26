@@ -69,3 +69,13 @@ def navigate_to(url: str):
 def close_cookie_consent():
     accept_button = get_webdriver_session().driver.find_element(by=By.XPATH, value="//button[@title='Accept']")
     accept_button.click()
+
+
+def open_new_tab():
+    get_webdriver_session().driver.execute_script("window.open('');")
+    switch_to_tab(tab_number=-1)
+
+
+def switch_to_tab(tab_number=0):
+    driver = get_webdriver_session().driver
+    driver.switch_to.window(driver.window_handles[tab_number])

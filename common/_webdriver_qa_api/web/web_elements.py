@@ -1,4 +1,6 @@
 from typing import Optional
+
+from selenium.common.exceptions import MoveTargetOutOfBoundsException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 
@@ -38,7 +40,7 @@ class WebElement(BaseElement):
         assert that element placeholder is equal to expected
         """
         element_placeholder = self.element.get_attribute("placeholder")
-        assert_should_be_equal(actual_value=element_placeholder, expected_value=expected, silent=True)
+        assert_should_be_equal(actual_value=element_placeholder, expected_value=expected)
 
     def assert_element_active(self, should_active: bool = True):
         """
@@ -52,8 +54,11 @@ class WebElement(BaseElement):
         return "active" in self.element.get_attribute("class")
 
     def scroll_to_element(self):
-        actions = ActionChains(self.driver)
-        actions.move_to_element(self.element()).perform()
+        try:
+            actions = ActionChains(self.driver)
+            actions.move_to_element(self.element()).perform()
+        except MoveTargetOutOfBoundsException:
+            self.driver.execute_script("arguments[0].scrollIntoView();", self.element())
 
     def click_with_js(self):
         self.driver.execute_script("arguments[0].click()", self.element())
