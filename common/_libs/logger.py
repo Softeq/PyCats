@@ -144,6 +144,16 @@ class PyCatsLogger:
     def log_fail(self, message):
         self._add_section('!!! TEST RESULT: FAIL !!!', message)
 
+    def log_title(self, message):
+        """
+        Log as title in format: %(levelname)s - %(asctime)s - %(message)s \t\t\t\t <message>
+        :param message: log message (actions that will be performed)
+        """
+        logger = logging.getLogger()
+        logger.handlers[0].setFormatter(logging.Formatter("%(levelname)s - %(asctime)s - %(message)s'"))
+        logger.info(self.__tab_alignment + message)
+        logger.handlers[0].setFormatter(logging.Formatter(self.log_format))
+
     def _add_section(self, header_msg, message=None):
         header = f"{self.__tab_alignment}{header_msg}"
         border = '-' * self.__separator_line_length
