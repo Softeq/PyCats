@@ -23,7 +23,7 @@ def get_singleton_class(key_name, base_class):
        from Singleton instances.
     Args:
         key_name (str): Class name
-        base_class (type): Base class name
+        base_class (type): Base class
     """
     singleton_class = Singleton(
         f"{key_name}_{base_class.__name__}",

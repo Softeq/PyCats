@@ -24,6 +24,10 @@ class WebElement(BaseElement):
         self.ALLOWED_DYNAMIC_METHODS = ["click", "text"]
 
     def __getattribute__(self, item):
+        """ Switch to frame container before any action with element
+        and switch back to main page source after action processed.
+        That allow to work with element inside frame containers.
+        """
         if item == 'element':
             if self.frame is not None:
                 frame_element = self.frame.element.selenium_element
