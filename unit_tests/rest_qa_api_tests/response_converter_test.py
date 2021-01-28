@@ -72,7 +72,7 @@ def test_status_code_converter_as_mixin():
     converted_response = TestEndpointBuilder._TestResponseModel(config).convert_raw_response(orig_response)
     assert converted_response.status_code == orig_response.status_code
     assert exclude_fields_from_obj(converted_response, affected_fields_error) == \
-           exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_error)
+        exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_error)
 
 
 def test_headers_converter_as_mixin():
@@ -80,7 +80,7 @@ def test_headers_converter_as_mixin():
     converted_response = TestEndpointBuilder._TestResponseModel(config).convert_raw_response(orig_response)
     assert converted_response.headers == orig_response.headers
     assert exclude_fields_from_obj(converted_response, affected_fields_get) == \
-           exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
+        exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
 
 
 def test_body_json_converter_as_mixin_valid_value():
@@ -90,7 +90,7 @@ def test_body_json_converter_as_mixin_valid_value():
     converted_response = TestEndpointBuilder._TestResponseModel(config).convert_raw_response(orig_response)
     assert converted_response.get_data == test_body
     assert exclude_fields_from_obj(converted_response, affected_fields_get) == \
-           exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
+        exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
 
 
 def test_body_json_converter_as_mixin_not_json_mime_type():
@@ -100,7 +100,7 @@ def test_body_json_converter_as_mixin_not_json_mime_type():
     converted_response = TestEndpointBuilder._TestResponseModel(config).convert_raw_response(orig_response)
     assert converted_response.get_data == json.dumps(test_body)
     assert exclude_fields_from_obj(converted_response, affected_fields_get) == \
-           exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
+        exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
 
 
 def test_body_json_converter_as_mixin_no_mime_type_provided():
@@ -110,7 +110,7 @@ def test_body_json_converter_as_mixin_no_mime_type_provided():
     converted_response = TestEndpointBuilder._TestResponseModel(config).convert_raw_response(orig_response)
     assert converted_response.get_data == json.dumps(test_body)
     assert exclude_fields_from_obj(converted_response, affected_fields_get) == \
-           exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
+        exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_get)
 
 
 def test_body_json_converter_as_mixin_invalid_body():
@@ -127,4 +127,4 @@ def test_body_json_converter_as_mixin_error_status_code():
     converted_response = TestEndpointBuilder._TestResponseModel(config).convert_raw_response(orig_response)
     assert converted_response.error_data == test_body
     assert exclude_fields_from_obj(converted_response, affected_fields_error) == \
-           exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_error)
+        exclude_fields_from_obj(TestEndpointBuilder._TestResponseModel(config), affected_fields_error)

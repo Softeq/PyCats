@@ -4,8 +4,8 @@ from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     # to avoid import loop only for annotations
-    from common._rest_qa_api.base_endpoint import BaseResponseModel
-    from common._rest_qa_api.response_validator import ResponseValidatorMixin
+    from common._rest_qa_api.base_endpoint import BaseResponseModel  # noqa
+    from common._rest_qa_api.response_validator import ResponseValidatorMixin  # noqa
 
 
 class ResponseConverterMixin:

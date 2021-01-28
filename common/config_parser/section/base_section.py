@@ -50,7 +50,7 @@ class ConfigSection(metaclass=ABCMeta):
 
         self._check_settings()
 
-    def _load_settings_from_config(self):
+    def _load_settings_from_config(self):  # noqa
         """Load settings from the configuration file."""
 
         for int_setting in self._int_fields:

@@ -451,8 +451,7 @@ class BaseResponseModel(ResponseConverterMixin, ResponseValidatorMixin, metaclas
         return f"{self.__class__.__qualname__}" + f"(" + \
                "\n".join(f"{f}={self.__getattribute__(f)}"
                          for f in [field for field in dir(self) if
-                                   not callable(getattr(self, field))
-                                   and not field.startswith("_")]) + f")"
+                                   not callable(getattr(self, field)) and not field.startswith("_")]) + f")"
 
 
 class BaseEndpoint:
