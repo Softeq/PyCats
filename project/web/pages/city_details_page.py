@@ -3,12 +3,18 @@ from selenium.webdriver.common.by import By
 from common._webdriver_qa_api.web.web_elements import WebElement
 
 
-class CityDetailsPage(WebPage):
+class CityDetailsContainer(WebPage):
 
     def __init__(self):
-        super().__init__(By.XPATH, "//h1[text()='Weather forecast']", "City Details Page")
-        self.widget_temperature = WebElement(By.ID, "weather-widget-temperature")
-        self.lbl_pressure = WebElement(By.XPATH, "//td[text()='Pressure']/following-sibling::td[1]")
-        self.lbl_humidity = WebElement(By.XPATH, "//td[text()='Humidity']/following-sibling::td[1]")
-        self.lbl_sunrise = WebElement(By.XPATH, "//td[text()='Sunrise']/following-sibling::td[1]")
-        self.lbl_sunset = WebElement(By.XPATH, "//td[text()='Sunset']/following-sibling::td[1]")
+        super().__init__(By.XPATH, "//div[@class='current-container mobile-padding']", "City Details Container")
+        container_element = WebElement(By.XPATH, "//div[@class='current-container mobile-padding']")
+        self.widget_temperature = WebElement(By.XPATH, "div[2]/div[1]/span", parent=container_element)
+        self.lbl_pressure = WebElement(By.XPATH, "//li[./*[@class='icon-pressure']]", parent=container_element)
+        self.lbl_humidity = WebElement(By.XPATH, "//li[./span[text()='Humidity:']]", parent=container_element)
+        self.lbl_city = WebElement(By.XPATH, "div/h2", parent=container_element)
+
+    def get_pressure_value(self):
+        return self.lbl_pressure.get_element_text()[:-3]
+
+    def get_humidity_value(self):
+        return self.lbl_humidity.get_element_text().split()[1][:-1]

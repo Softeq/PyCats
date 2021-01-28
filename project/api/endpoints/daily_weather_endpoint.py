@@ -1,6 +1,6 @@
 from common.facade.api import BaseRequestModel, BaseResponseModel, endpoint_factory
 from common.facade.api import SKIP, pycats_dataclass
-from common.facade import raw_config
+from common.facade import raw_config, logger
 
 
 # TODO - find solution to set dataclass fields properly after initialization
@@ -45,6 +45,7 @@ class DailyWeatherEndpointBuilder:
                                 _DailyWeatherRequestModel, _DailyWeatherResponseModel)
 
     def get_weather_details(self, city, token):
+        logger.info("Get weather details")
         self.endpoint.request_model.params = query_builder(city, token)
         result = self.endpoint.get()
         return result.get_data

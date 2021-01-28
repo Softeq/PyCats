@@ -21,26 +21,28 @@ class DynamicElement:
     def selenium_element(self):
         if self.__parent is None:
             try:
-                logger.info(f"Looking for element {self.__locator}")
+                logger.debug(f"Looking for element {self.__locator}")
                 return self.__driver.find_element(self.__locator_type, self.__locator)
             except NoSuchElementException:
                 logger.exception("An element '{0}' {1}could not be located on the page.".format(
                     self.__name, "" if self.__locator == self.__name else "with locator '{}' ".format(self.__locator)))
+                raise NoSuchElementException
         else:
             try:
-                return self.__parent().find_element(self.__locator_type, self.__locator)
+                return self.__parent.element().find_element(self.__locator_type, self.__locator)
             except NoSuchElementException:
                 logger.exception("An element '{0}' {1}for __parent '{2}' could not be located on the page.".format(
                     self.__name, "" if self.__locator == self.__name else "with locator '{}' ".format(self.__locator),
                     self.__parent.name))
+                raise NoSuchElementException
 
     def __log(self, item, attribute):
         name = object.__getattribute__(self, "name")
 
         if callable(attribute):
-            logger.info(f"Call method {item} in element {name}")
+            logger.debug(f"Call method {item} in element {name}")
         else:
-            logger.info(f"get attribute {item} in element {name}")
+            logger.debug(f"get attribute {item} in element {name}")
 
     def __call__(self):
         return self.selenium_element
@@ -51,7 +53,7 @@ class DynamicElement:
         if "_DynamicElement__" not in item:
             object.__getattribute__(self, "_DynamicElement__log")(
                 item, attribute)
-            logger.info(f"attribute getattribute {attribute} {item}")
+            logger.debug(f"attribute getattribute {attribute} {item}")
         return attribute
 
     def __getattr__(self, item):
@@ -60,7 +62,7 @@ class DynamicElement:
         except StaleElementReferenceException:
             attribute = getattr(self.selenium_element, item)
         object.__getattribute__(self, "_DynamicElement__log")(item, attribute)
-        logger.info(f"attribute getattr {attribute}")
+        logger.debug(f"attribute getattr {attribute}")
         return attribute
 
 
@@ -79,4 +81,7 @@ class DynamicElements(DynamicElement):
         if self.parent is None:
             return self.driver.find_elements(self.locator_type, self.locator)
         else:
-            return self.parent().find_elements(self.locator_type, self.locator)
+            return self.parent.element().find_elements(self.locator_type, self.locator)
+
+    def __call__(self):
+        return self.selenium_element

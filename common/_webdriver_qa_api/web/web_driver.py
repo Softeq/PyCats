@@ -34,11 +34,13 @@ class WebDriver(metaclass=Singleton):
 
     def open_new_tab(self):
         """ Open new tab on existent webdriver session """
+        logger.info(f"Open new tab.")
         self.driver.execute_script("window.open('');")
         self.switch_to_tab(tab_number=-1)
 
     def switch_to_tab(self, tab_number: int = 0):
         """ Switch to browser tab by index"""
+        logger.info(f"Switch to tab - {tab_number}")
         self.driver.switch_to.window(self.driver.window_handles[tab_number])
 
 
@@ -51,12 +53,14 @@ def get_webdriver_session() -> WebDriver:
 
 def start_webdriver_session(config: ConfigManager):
     """ Create webdriver session and maximize browser window """
+    logger.info("Start WebDriver session")
     session = WebDriver(config)
     session.driver.maximize_window()
 
 
 def stop_webdriver_session():
     """ stop webdriver session and delete session instance """
+    logger.info("Stop WebDriver session")
     get_webdriver_session().quit()
 
 

@@ -3,9 +3,7 @@ import logging
 from typing import Optional, Union, Dict
 
 from selenium.webdriver import ActionChains
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from common.config_manager import ConfigManager
 from common._webdriver_qa_api.core.utils import assert_should_be_equal, fail_test, assert_should_be_not_equal, \
@@ -42,7 +40,7 @@ class BaseElement:
         :param is_present: if true - should be present, if false - should be absent
         :param timeout: timeout in seconds, if not pass - find element with implicitly wait timeout
         """
-        actual_state = self.is_present if timeout is None else self.is_present_without_waiting
+        actual_state = self.is_present_without_waiting
         assert_should_be_equal(actual_value=actual_state, expected_value=is_present, timeout=timeout,
                                message=f"Verify is element '{self.name}' present state is '{is_present}'")
 
@@ -94,13 +92,13 @@ class BaseElement:
         assert_should_be_equal(actual_value=attribute_value, expected_value=expected_value,
                                message=f"Verify '{attribute}' value of '{self.name}' element")
 
-    def assert_element_contains_text(self, expected: str):
+    def assert_element_contains_text(self, expected: str, timeout: TimeoutType = None):
         """
         assert that element text contains expected value {expected}
         :param expected: expected text value
+        :param timeout: timeout in seconds
         """
-        element_text = self.element.text
-        assert_should_contain(actual_value=expected, expected_value=element_text,
+        assert_should_contain(actual_value=expected, expected_value=self.get_element_text, timeout=timeout,
                               message=f"Verify element '{self.name}' contains '{expected}' text")
 
     def assert_element_should_not_contain_text(self, expected: str):
@@ -140,9 +138,9 @@ class BaseElement:
         """
         try:
             self.driver.implicitly_wait(0)
-            WebDriverWait(self.driver, 0).until(EC.presence_of_element_located((self.locator_type, self.locator)))
+            self.element()
             return True
-        except TimeoutException:
+        except NoSuchElementException:
             return False
         finally:
             self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
@@ -156,8 +154,11 @@ class BaseElement:
         """
         if not silent:
             logger.info("Wait for '{0}' in {1} seconds".format(self.name, timeout))
-        wait = WebDriverWait(self.driver, timeout)
-        wait.until(EC.presence_of_element_located((self.locator_type, self.locator)))
+        try:
+            self.driver.implicitly_wait(0)
+            self.is_present()
+        finally:
+            self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
 
     def wait_element(self, timeout: TimeoutType = None, silent: bool = False):
         """
@@ -169,7 +170,7 @@ class BaseElement:
         try:
             self._wait_element(silent, second)
         except TimeoutException:
-            fail_test("The element {} can not be located in {} seconds".format(self.name, timeout))
+            fail_test("The element {} can not be located in {} seconds".format(self.name, second))
 
     def try_wait_element(self, timeout: TimeoutType = None, silent: bool = False) -> bool:
         """
@@ -269,6 +270,14 @@ class BaseElement:
         while time.time() < end_time and expected in self.element.text:
             time.sleep(0.2)
         self.assert_element_should_not_contain_text(expected)
+
+    def get_element_text(self) -> str:
+        """
+        find element and get it's text
+        :return: Text of element
+        """
+        logger.info(f"Get text of element '{self.name}'")
+        return self.element.text
 
     def get_element_location(self) -> Dict[int, str]:
         """
