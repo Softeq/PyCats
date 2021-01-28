@@ -86,21 +86,34 @@ def assert_should_be_less_than(actual_value, expected_value, message=None, timeo
                   msg=message, timeout=timeout, repeats=repeats)
 
 
-def assert_should_contain(actual_value, expected_value, message=None):
+def assert_should_contain(actual_value, expected_value, message=None, timeout=None):
     """
     Assert <actual_value> contains in <expected_value>.
     :param actual_value: actual value that should be part of <expected_value>
     :param expected_value: expected value that should contain <actual_value>
     :param message: message that will be logged.
+    :param timeout: time gor value may change
     """
     logger.info(message or f"Assert: '{actual_value}' contains in '{expected_value}'")
 
-    if actual_value in expected_value:
-        logger.info(f"Assertion Passed: '{actual_value}' in '{expected_value}'")
-    else:
-        fail_test(
-            "Assertion Failed: There is no Actual value in expected: '{0}' not in '{1}'".format(
-                actual_value, expected_value))
+    start_time = time.time()
+    end_time = start_time + timeout if timeout else time.time() + 0.5
+    sleep_time = (end_time - start_time) / 10
+
+    while time.time() < end_time:
+        act = actual_value() if callable(actual_value) else actual_value
+        exp = expected_value() if callable(expected_value) else expected_value
+        if act in exp:
+            logger.info(f"Assertion Passed: '{act}' in '{exp}'")
+            break
+        elif time.time() + sleep_time + 0.5 < end_time:
+            logger.info(f"There is no Actual value in expected: '{act}' not in '{exp}',"
+                        f" try again in {sleep_time} seconds")
+            time.sleep(sleep_time)
+        else:
+            fail_test(
+                "Assertion Failed: There is no Actual value in expected: '{0}' not in '{1}'".format(
+                    act, exp))
 
 
 def assert_should_not_contain(actual_value, expected_value,

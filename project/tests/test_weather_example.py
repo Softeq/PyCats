@@ -3,9 +3,8 @@ import pytest
 from common.facade import logger
 from project.api.endpoints.daily_weather_endpoint import DailyWeatherEndpointBuilder
 from project.api.steps.weather_api_steps import compare_api_weather_with_ui
-from project.web.steps.city_details import CityDetailsSteps
-from project.web.steps.main import MainPageSteps
-from project.web.steps.search_result import SearchResultSteps
+from project.web.steps.page_object_steps.pages.city_details import CityDetailsSteps
+from project.web.steps.page_object_steps.pages.main import MainPageSteps
 from project import mobile
 
 
@@ -14,14 +13,11 @@ from project import mobile
 def test_weather_api(api_token, city):
     logger.log_step(f"Open Main Page and search city {city}")
     main_steps = MainPageSteps()
-    main_steps.search_city(city)
-
-    logger.log_step("Click on the first search result")
-    search_result_step = SearchResultSteps()
-    search_result_step.click_first_result()
+    main_steps.search_city(city, select_city=True)
 
     logger.log_step("Getting weather data from city details page")
     details_steps = CityDetailsSteps()
+    details_steps.verify_selected_city(city=city)
     weather_info = details_steps.get_weather_info()
 
     logger.log_step("Compare UI weather with API weather data")

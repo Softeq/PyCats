@@ -5,9 +5,9 @@ from common.facade import logger, raw_config, config_manager
 from common._webdriver_qa_api.web.web_driver import start_webdriver_session, stop_webdriver_session, navigate_to
 from common._webdriver_qa_api.web.remote_server import SeleniumServer, AppiumRemoteServer
 from project.test_data.users import valid_user
-from project.web.steps.home import HomePageSteps
-from project.web.steps.main import MainPageSteps
-from project.web.steps.sign_in import SignInSteps
+from project.web.steps.page_object_steps.pages.home import HomePageSteps
+from project.web.steps.page_object_steps.pages.main import MainPageSteps
+from project.web.steps.page_object_steps.pages.sign_in import SignInSteps
 
 
 @pytest.fixture(scope="session", autouse=False)

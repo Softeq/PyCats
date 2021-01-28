@@ -1,10 +1,35 @@
 import os
 import logging
+from functools import wraps
 from typing import List
 
 from common._libs.helpers.os_helpers import get_timestamp, create_folder
 from common._libs.helpers.singleton import Singleton
 from common._libs.helpers.utils import slugify
+
+
+def set_logger_format(format_string):
+    def outer_wrapper(func):
+        @wraps(set_logger_format)
+        def inner_wrapper(self, *args, **kwargs):
+            def set_formatter(formatter):
+                if len(self.logger.handlers) > 0:
+                    logger = self.logger
+                else:
+                    logger = logging.getLogger()
+                for handler in logger.handlers:
+                    handler.setFormatter(formatter)
+
+            original_formatter = logging.getLogger().handlers[0].formatter
+            new_formatter = logging.Formatter(format_string)
+
+            set_formatter(new_formatter)
+            func(self, *args, **kwargs)
+            set_formatter(original_formatter)
+
+        return inner_wrapper
+
+    return outer_wrapper
 
 
 class Counter(metaclass=Singleton):
@@ -39,9 +64,9 @@ class PyCatsLogger:
     __tab_alignment = "\t\t\t\t"
     __separator_line_length = 60
     log_format = (
-        '%(levelname)s - '
         '%(asctime)s - '
-        '%(name)s - '
+        '%(levelname)s: '
+        '[%(name)s]: '
         '%(message)s'
     )
     _logger_instances: List[logging.Logger] = list()
@@ -99,6 +124,26 @@ class PyCatsLogger:
     def exception(self, message: str):
         self.logger.exception(message)
 
+    @staticmethod
+    def _split_line(text, maxlen):
+        msg_list = []
+        text1 = ''
+        c = 0
+        result_max_len = 0
+        for i in text.split():
+            if c + len(i) > maxlen:
+                msg_list.append(text1[:-1])
+                result_max_len = c - 1 if c - 1 > result_max_len else result_max_len
+                text1 = ''
+                c = 0
+            text1 += i + ' '
+            c += len(i) + 1
+        if len(text1) != 0:
+            msg_list.append(text1[:-1])
+            result_max_len = len(text1) if result_max_len < len(text1) else result_max_len
+        return msg_list, result_max_len
+
+    @set_logger_format(format_string="%(asctime)s - %(levelname)s: %(message)s")
     def log_step(self, description: str, precondition: bool = False):
         """
         Log the step of the test
@@ -107,52 +152,38 @@ class PyCatsLogger:
             False - tests step
             True - precondition step
         """
-
-        def split_line(text, maxlen):
-            msg_list = []
-            text1 = ''
-            c = 0
-            result_max_len = 0
-            for i in text.split():
-                if c + len(i) > maxlen:
-                    msg_list.append(text1[:-1])
-                    result_max_len = c - 1 if c - 1 > result_max_len else result_max_len
-                    text1 = ''
-                    c = 0
-                text1 += i + ' '
-                c += len(i) + 1
-            if len(text1) != 0:
-                msg_list.append(text1[:-1])
-                result_max_len = len(text1) if result_max_len < len(text1) else result_max_len
-            return msg_list, result_max_len
-
         if precondition is True:
             step = f"PRECONDITION {self.prec_generator.__next__()}"
         else:
             step = f"STEP {self.step_generator.__next__()}"
 
         message = f"{step}: {description}"
-        msg_lines_list, max_line_len = split_line(message, 50)
+        msg_lines_list, max_line_len = self._split_line(message, 50)
 
-        border = '-' * self.__separator_line_length
+        border = self.__tab_alignment + '-' * self.__separator_line_length
         self.info(border)
         for msg_line in msg_lines_list:
-            line = ' ' * ((self.__separator_line_length - len(msg_line)) // 2) + msg_line
-            self.info(f"{line}")
+            alignment_indent = ' ' * (((self.__separator_line_length - len(msg_line)) // 2) - 2)
+            line = alignment_indent + msg_line + alignment_indent
+            self.info(self.__tab_alignment + f"| {line} |")
         self.info(border)
 
+    @set_logger_format(format_string="%(asctime)s - %(levelname)s: %(message)s")
     def log_fail(self, message):
         self._add_section('!!! TEST RESULT: FAIL !!!', message)
 
+    @set_logger_format(format_string="%(asctime)s - %(levelname)s: %(message)s")
     def log_title(self, message):
         """
         Log as title in format: %(levelname)s - %(asctime)s - %(message)s \t\t\t\t <message>
         :param message: log message (actions that will be performed)
         """
-        logger = logging.getLogger()
-        logger.handlers[0].setFormatter(logging.Formatter("%(levelname)s - %(asctime)s - %(message)s'"))
-        logger.info(self.__tab_alignment + message)
-        logger.handlers[0].setFormatter(logging.Formatter(self.log_format))
+        self.logger.info("")
+        msg_lines_list, max_line_len = self._split_line(message, 50)
+        for msg_line in msg_lines_list:
+            line = ' ' * ((self.__separator_line_length - len(msg_line)) // 2) + msg_line
+            self.logger.info(self.__tab_alignment + line)
+        self.logger.info("")
 
     def _add_section(self, header_msg, message=None):
         header = f"{self.__tab_alignment}{header_msg}"
