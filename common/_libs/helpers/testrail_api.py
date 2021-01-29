@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 class TestRailApiClient:
     """ Class to interact with TestRail via API. Used to work with TestRuns.
+    Latest stable version - v5.3.0.
 
     Sample of Using:
     def close_tests_run(run_id, project_id, suite_id):

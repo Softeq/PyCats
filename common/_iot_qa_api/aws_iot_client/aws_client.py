@@ -33,6 +33,7 @@ class AWSIotClient(metaclass=Singleton):
         self.endpoint = endpoint
 
         self.client = AWSIoTMQTTClient(client_id)
+        # @todo: add timeouts to config files
         self.client.configureConnectDisconnectTimeout(10)
         self.client.configureMQTTOperationTimeout(5)
         self.connection()
