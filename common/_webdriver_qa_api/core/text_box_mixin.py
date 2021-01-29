@@ -44,9 +44,10 @@ class TextBoxActionsMixin:
         assert element text masked, test fails if expected state isn't equal to actual
         :param is_masked: if true - should be masked, if false - not masked
         """
-        # expected_state = "true" if is_masked else "false"
+        # @todo: check on masked field, not sure that it will work for any case
+        expected_state = "true" if is_masked else "false"
         actual_state = self.element.get_attribute("password")
-        assert_should_be_equal(actual_value=actual_state, expected_value=is_masked,
+        assert_should_be_equal(actual_value=actual_state, expected_value=expected_state,
                                message="Verify is '{0}' field {1}masked".format(
                                    self.element.name, '' if is_masked else 'not '))
 
