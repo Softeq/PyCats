@@ -3,10 +3,10 @@ import logging
 from typing import Optional, Union, Dict
 
 from selenium.webdriver import ActionChains
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException
 
 from common.config_manager import ConfigManager
-from common._webdriver_qa_api.core.utils import assert_should_be_equal, fail_test, assert_should_be_not_equal, \
+from common._webdriver_qa_api.core.utils import assert_should_be_equal, assert_should_be_not_equal, \
     assert_should_contain, assert_should_not_contain, assert_should_be_greater_than, get_wait_seconds
 from common._webdriver_qa_api.core.selenium_dynamic_elements import DynamicElement, DynamicElements
 
@@ -152,10 +152,9 @@ class BaseElement:
 
         :param timeout: number of seconds after which test will fail if element is absent.
         """
-        logger.info("Wait for '{0}' in {1} seconds".format(self.name, timeout))
         try:
             self.driver.implicitly_wait(timeout)
-            self.is_present()
+            return self.is_present()
         finally:
             self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
 
@@ -165,10 +164,8 @@ class BaseElement:
         :param timeout: number of seconds after which test will fail if element is absent.
         """
         second = get_wait_seconds(timeout, self._webdriver_settings)
-        try:
-            self._wait_element(second)
-        except TimeoutException:
-            fail_test("The element {} can not be located in {} seconds".format(self.name, second))
+        assert_should_be_equal(actual_value=self._wait_element(timeout=second), expected_value=True,
+                               message=f"Wait for element {self.name} in {second} seconds")
 
     def try_wait_element(self, timeout: TimeoutType = None) -> bool:
         """
@@ -177,11 +174,9 @@ class BaseElement:
         :return: true if element becomes present during timeout
         """
         second = get_wait_seconds(timeout, self._webdriver_settings)
-        try:
-            self._wait_element(second)
-        except TimeoutException:
-            return False
-        return True
+
+        logger.info("Try to get element '{0}' in {1} seconds".format(self.name, timeout))
+        return self._wait_element(second)
 
     def wait_element_absent(self, timeout: TimeoutType = None):
         """
