@@ -130,7 +130,11 @@ class BaseElement:
         """
         :return: true if element is present, false if element is absent
         """
-        return self.element() is not None
+        try:
+            self.element()
+        except NoSuchElementException:
+            return False
+        return True
 
     def is_present_without_waiting(self) -> bool:
         """
@@ -138,70 +142,60 @@ class BaseElement:
         """
         try:
             self.driver.implicitly_wait(0)
-            self.element()
-            return True
-        except NoSuchElementException:
-            return False
+            return self.is_present()
         finally:
             self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
 
-    def _wait_element(self, timeout: Union[int, float], silent: bool = False):
+    def _wait_element(self, timeout: Union[int, float]):
         """
         wait for element present
 
-        :param silent: true - log message isn't displayed, false - log message is displayed
         :param timeout: number of seconds after which test will fail if element is absent.
         """
-        if not silent:
-            logger.info("Wait for '{0}' in {1} seconds".format(self.name, timeout))
+        logger.info("Wait for '{0}' in {1} seconds".format(self.name, timeout))
         try:
-            self.driver.implicitly_wait(0)
+            self.driver.implicitly_wait(timeout)
             self.is_present()
         finally:
             self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
 
-    def wait_element(self, timeout: TimeoutType = None, silent: bool = False):
+    def wait_element(self, timeout: TimeoutType = None):
         """
         wait for element present with fail test if element not be found
         :param timeout: number of seconds after which test will fail if element is absent.
-        :param silent: true - log message isn't displayed, false - log message is displayed
         """
         second = get_wait_seconds(timeout, self._webdriver_settings)
         try:
-            self._wait_element(silent, second)
+            self._wait_element(second)
         except TimeoutException:
             fail_test("The element {} can not be located in {} seconds".format(self.name, second))
 
-    def try_wait_element(self, timeout: TimeoutType = None, silent: bool = False) -> bool:
+    def try_wait_element(self, timeout: TimeoutType = None) -> bool:
         """
         wait to see if element becomes present during timeout
         :param timeout: number of seconds after which test will fail if element is absent.
-        :param silent: true - log message isn't displayed, false - log message is displayed
         :return: true if element becomes present during timeout
         """
         second = get_wait_seconds(timeout, self._webdriver_settings)
         try:
-            self._wait_element(silent, second)
+            self._wait_element(second)
         except TimeoutException:
             return False
         return True
 
-    def wait_element_absent(self, timeout: TimeoutType = None, silent: bool = False):
+    def wait_element_absent(self, timeout: TimeoutType = None):
         """
         wait for element absent (if timeout more than 20 second, find element with default timeout,
          else find element every 0.1 seconds)
         :param timeout: number of seconds after which test will wail if element is absent.
-        :param silent: true - log message isn't displayed, false - log message is displayed
         """
         second = get_wait_seconds(timeout, self._webdriver_settings)
-        present_method = self.is_present if second > 30 else self.is_present_without_waiting
 
-        if not silent:
-            logger.info("Wait for '{0}' absent in {1} seconds".format(self.name, second))
+        logger.info("Wait for '{0}' absent in {1} seconds".format(self.name, 0 if not second else second))
         end_time = time.time() + second
         present = True
         while time.time() < end_time and present:
-            present = present_method()
+            present = self.is_present_without_waiting()
             time.sleep(0.1)
         self.assert_present(is_present=False)
 

@@ -17,7 +17,7 @@ def _smart_assert(actual, expected, comp_operator, msg=None, timeout=None, repea
     :param expected: expected value
     :param comp_operator: One of Comparison Operations function from operator package: [eq, ne, gt, lt, ge, le]
     :param msg: message that will be logged.
-    :param timeout: time gor value may change
+    :param timeout: time or value may change
     :param repeats: number of repetitions to check,
         used for calculate sleep time between attempts: where sleep_time = {timeout} / {repeats},
          if not set - sleep time = 1 second
@@ -92,7 +92,7 @@ def assert_should_contain(actual_value, expected_value, message=None, timeout=No
     :param actual_value: actual value that should be part of <expected_value>
     :param expected_value: expected value that should contain <actual_value>
     :param message: message that will be logged.
-    :param timeout: time gor value may change
+    :param timeout: time or value may change
     """
     logger.info(message or f"Assert: '{actual_value}' contains in '{expected_value}'")
 
@@ -116,24 +116,21 @@ def assert_should_contain(actual_value, expected_value, message=None, timeout=No
                     act, exp))
 
 
-def assert_should_not_contain(actual_value, expected_value,
-                              message=None, silent=False):
+def assert_should_not_contain(actual_value, expected_value, message=None):
     """
     Assert <actual_value> is not contained in <expected_value>.
     :param actual_value: actual value that should not be a part of <expected_value>
     :param expected_value: expected value that should not contain <actual_value>
     :param message: message that will be logged.
-    :param silent: logging mod, if true - there is no logging
     """
     logger.info(
         message if message else "Assert: '{act}' not contains in '{exp}'".format(
             act=actual_value, exp=expected_value))
 
     if actual_value not in expected_value:
-        if not silent:
-            logger.info(
-                "Assertion Passed: Actual value is not part of expected: '{act}' not in '{exp}'".format(
-                    act=actual_value, exp=expected_value))
+        logger.info(
+            "Assertion Passed: Actual value is not part of expected: '{act}' not in '{exp}'".format(
+                act=actual_value, exp=expected_value))
     else:
         fail_test(
             "Assertion Failed: Actual value is part of expected: '{0}' in '{1}'".format(
