@@ -2,172 +2,138 @@ import re
 import time
 import logging
 from datetime import timedelta
+from operator import gt, lt, eq, ne, le, ge
 
 from common.config_parser.config_dto import WebDriverSettingsDTO
 
 logger = logging.getLogger(__name__)
 
 
-def assert_should_be_equal(actual_value, expected_value, message=None,
-                           silent=False, timeout=None):
+def _smart_assert(actual, expected, comp_operator, msg=None, timeout=None, repeats=None):
     """
-    Assert <actual_value> is equal to <expected_value>.
-    :param actual_value: actual value
-    :param expected_value: expected value
-    :param message: message that will be logged.
-    :param silent: logging mod, if true - there is no logging
-    :param timeout: time gor value may change
-    """
-    actual = actual_value() if callable(actual_value) else actual_value
-    msg = message if message else "Assert values '{}' and '{}', that should be equal".format(
-        actual_value, expected_value)
-    logger.info(msg)
+    Compare <actual> with <expected> using <operator>.
 
-    end_time = time.time() + timeout if timeout else time.time() + 1
-    sleep_time = (time.time() - end_time) / 5 if (time.time() - end_time) / 5 >= 1 else 1
+    :param actual: actual value or function
+    :param expected: expected value
+    :param comp_operator: One of Comparison Operations function from operator package: [eq, ne, gt, lt, ge, le]
+    :param msg: message that will be logged.
+    :param timeout: time or value may change
+    :param repeats: number of repetitions to check,
+        used for calculate sleep time between attempts: where sleep_time = {timeout} / {repeats},
+         if not set - sleep time = 1 second
+    """
+    operator_str = {
+        eq: {"positive": "equal with", "negative": "not equal with"},
+        ne: {"positive": "not equal with", "negative": "equal with"},
+        gt: {"positive": "more than", "negative": "less than"},
+        lt: {"positive": "less than", "negative": "more than"},
+        ge: {"positive": "more or equal with", "negative": "less or equal with"},
+        le: {"positive": "less or equal with", "negative": "more or equal with"}
+    }
+    op = operator_str[comp_operator]["positive"]
+    nop = operator_str[comp_operator]["negative"]
+
+    start_time = time.time()
+    end_time = start_time + timeout if timeout else time.time() + 0.5
+    sleep_time = (end_time - start_time) / repeats if repeats else 1
+
+    logger.info(msg if msg else "Assert: '{act}' {op} '{exp}'".format(
+        act=f"result of '{actual.__name__}' execution" if callable(actual) else actual,
+        op=op, exp=expected))
+
     while time.time() < end_time:
-        actual = actual_value() if callable(actual_value) else actual_value
-        if actual == expected_value:
-            if not silent:
-                logger.info(
-                    "Actual value is equal to expected: '{0}' == '{1}'".format(
-                        actual, expected_value))
-            return None
+        act = actual() if callable(actual) else actual
+        if comp_operator(act, expected):
+            logger.info("\tAssertion passed in {s} seconds".format(s=int(time.time() - start_time)))
+            break
+        elif time.time() + sleep_time + 0.5 < end_time:
+            logger.info("'{act}' {op} '{exp}', try again in {time} seconds".format(
+                act=act, op=nop, exp=expected, time=sleep_time))
+            time.sleep(sleep_time)
         else:
-            if not silent:
-                logger.info(
-                    "Actual value isn't equal to expected: '{0}' != '{1}', try again".format(
-                        actual, expected_value))
-        time.sleep(sleep_time)
-    fail_test(
-        "Actual value isn't equal to expected: '{0}' != '{1}'".format(actual, expected_value))
+            fail_test("Assertion failed: '{act}' {op} '{exp}'".format(act=act, op=nop, exp=expected))
 
 
-def assert_should_be_not_equal(actual_value, expected_value,
-                               message=None, silent=False,
-                               timeout=None):
+def assert_should_be_equal(actual_value, expected_value, message=None, timeout=None, repeats=None):
     """
-    Assert <actual_value> is not equal to <expected_value>.
-    :param actual_value: actual value
-    :param expected_value: expected value
-    :param message: message that will be logged.
-    :param silent: logging mod, if true - there is no logging
-    :param timeout: time gor value may change
+    Assert <actual> is equal with <expected>.
     """
-    msg = message if message else "Assert values {} and {}, that should be not equal".format(
-        actual_value, expected_value)
-    logger.info(msg)
-
-    end_time = time.time() + timeout if timeout else time.time() + 1
-    sleep_time = (time.time() - end_time) / 5 if (time.time() - end_time) / 5 >= 1 else 1
-    while time.time() < end_time:
-        if actual_value != expected_value:
-            if not silent:
-                logger.info(
-                    "Actual value isn't equal to expected: {0} != {1}".format(
-                        actual_value, expected_value))
-            return None
-        else:
-            if not silent:
-                logger.info(
-                    "Actual value is equal to expected: '{0}' == '{1}', try again".format(
-                        actual_value, expected_value))
-        time.sleep(sleep_time)
-    fail_test(
-        "Actual value is equal to expected: '{0}' == '{1}'".format(
-            actual_value, expected_value))
+    _smart_assert(actual=actual_value, expected=expected_value, comp_operator=eq,
+                  msg=message, timeout=timeout, repeats=repeats)
 
 
-def assert_should_be_greater_than(actual_value, expected_value,
-                                  message=None, silent=False):
+def assert_should_be_not_equal(actual_value, expected_value, message=None, timeout=None, repeats=None):
     """
-    Assert <actual_value> is greater than <expected_value>.
-    :param actual_value: actual value
-    :param expected_value: expected value
-    :param message: message that will be logged.
-    :param silent: logging mod, if true - there is no logging
+    Assert <actual> is not equal with <expected>
     """
-    msg = message if message else "Assert value {} should be greater than {}".format(
-        actual_value, expected_value)
-    logger.info(msg)
-
-    if actual_value > expected_value:
-        if not silent:
-            logger.info(
-                "Actual value is greater than expected value: {0} > {1}".format(
-                    actual_value, expected_value))
-    else:
-        fail_test(
-            "Actual value isn't greater than expected value: '{0}' <= '{1}'"
-            .format(actual_value, expected_value))
+    _smart_assert(actual=actual_value, expected=expected_value, comp_operator=ne,
+                  msg=message, timeout=timeout, repeats=repeats)
 
 
-def assert_should_be_less_than(actual_value, expected_value,
-                               message=None, silent=False):
+def assert_should_be_greater_than(actual_value, expected_value, message=None, timeout=None, repeats=None):
     """
-    Assert <actual_value> is less than <expected_value>.
-    :param actual_value: actual value
-    :param expected_value: expected value
-    :param message: message that will be logged.
-    :param silent: logging mod, if true - there is no logging
+    Assert <actual> is greater than <expected>.
     """
-    msg = message if message else "Assert value {} should be less than {}".format(
-        actual_value, expected_value)
-    logger.info(msg)
-
-    if actual_value < expected_value:
-        if not silent:
-            logger.info(
-                "Actual value is less than expected value: {0} < {1}".format(
-                    actual_value, expected_value))
-    else:
-        fail_test(
-            "Actual value isn't less than expected value: '{0}' >= '{1}'"
-            .format(actual_value, expected_value))
+    _smart_assert(actual=actual_value, expected=expected_value, comp_operator=gt,
+                  msg=message, timeout=timeout, repeats=repeats)
 
 
-def assert_should_contain(actual_value, expected_value, message=None,
-                          silent=False):
+def assert_should_be_less_than(actual_value, expected_value, message=None, timeout=None, repeats=None):
+    """
+    Assert <actual> is less than <expected>.
+    """
+    _smart_assert(actual=actual_value, expected=expected_value, comp_operator=lt,
+                  msg=message, timeout=timeout, repeats=repeats)
+
+
+def assert_should_contain(actual_value, expected_value, message=None, timeout=None):
     """
     Assert <actual_value> contains in <expected_value>.
     :param actual_value: actual value that should be part of <expected_value>
     :param expected_value: expected value that should contain <actual_value>
     :param message: message that will be logged.
-    :param silent: logging mod, if true - there is no logging
+    :param timeout: time or value may change
     """
-    msg = message or "Actual value is part of expected: '{act}' in '{exp}'".format(
-        act=actual_value, exp=expected_value)
+    logger.info(message or f"Assert: '{actual_value}' contains in '{expected_value}'")
 
-    if actual_value in expected_value:
-        if not silent:
-            logger.info(msg)
-    else:
-        fail_test(
-            "There is no Actual value in expected: '{0}' not in '{1}'".format(
-                actual_value, expected_value))
+    start_time = time.time()
+    end_time = start_time + timeout if timeout else time.time() + 0.5
+    sleep_time = (end_time - start_time) / 10
+
+    while time.time() < end_time:
+        act = actual_value() if callable(actual_value) else actual_value
+        exp = expected_value() if callable(expected_value) else expected_value
+        if act in exp:
+            logger.info(f"Assertion Passed: '{act}' in '{exp}'")
+            break
+        elif time.time() + sleep_time + 0.5 < end_time:
+            logger.info(f"There is no Actual value in expected: '{act}' not in '{exp}',"
+                        f" try again in {sleep_time} seconds")
+            time.sleep(sleep_time)
+        else:
+            fail_test(
+                "Assertion Failed: There is no Actual value in expected: '{0}' not in '{1}'".format(
+                    act, exp))
 
 
-def assert_should_not_contain(actual_value, expected_value,
-                              message=None, silent=False):
+def assert_should_not_contain(actual_value, expected_value, message=None):
     """
     Assert <actual_value> is not contained in <expected_value>.
     :param actual_value: actual value that should not be a part of <expected_value>
     :param expected_value: expected value that should not contain <actual_value>
     :param message: message that will be logged.
-    :param silent: logging mod, if true - there is no logging
     """
     logger.info(
-        message if message else "Assert value '{act}' not contains in '{exp}'".format(
+        message if message else "Assert: '{act}' not contains in '{exp}'".format(
             act=actual_value, exp=expected_value))
 
     if actual_value not in expected_value:
-        if not silent:
-            logger.info(
-                "Actual value is not part of expected: '{act}' not in '{exp}'".format(
-                    act=actual_value, exp=expected_value))
+        logger.info(
+            "Assertion Passed: Actual value is not part of expected: '{act}' not in '{exp}'".format(
+                act=actual_value, exp=expected_value))
     else:
         fail_test(
-            "Actual value is contains in expected: '{0}' in '{1}'".format(
+            "Assertion Failed: Actual value is part of expected: '{0}' in '{1}'".format(
                 actual_value, expected_value))
 
 
@@ -210,6 +176,37 @@ def assert_dates_with_delta(actual_value, expected_value,
                 act=actual_value.strftime('%Y-%m-%d %H:%M:%S'),
                 exp=expected_value.strftime('%Y-%m-%d %H:%M:%S'),
                 delta=delta_seconds))
+
+
+def assert_dict_should_contains(actual_value, expected_value, message=None, timeout=None):
+    """
+    Assert that dict <actual> contains all elements from sub-dict <expected>.
+    :param actual_value: dict object, that should contain <expected> dict or function to get dict
+    :param expected_value: dict object that should be a part of <actual> dict
+    :param message: message that will be logged.
+    :param timeout: timeout to wait correct value
+    """
+    def _is_subset(subset, superset):
+        if isinstance(subset, dict):
+            return all(key in superset and _is_subset(val, superset[key]) for key, val in subset.items())
+        # assume that subset is a plain value if none of the above match
+        return subset == superset
+
+    start_time = time.time()
+    end_time = start_time + timeout if timeout else time.time() + 0.5
+    sleep_time = (end_time - start_time) / 10
+
+    logger.info(message or f"Assert: '{actual_value}' in '{expected_value}'")
+    while time.time() < end_time:
+        act = actual_value() if callable(actual_value) else actual_value
+        if act and _is_subset(subset=expected_value, superset=act) is True:
+            logger.info(f"Assertion Passed: '{expected_value}' in '{act}'")
+            break
+        elif time.time() + sleep_time + 0.5 < end_time:
+            logger.info(f"Assertion failed: {act} not contain {expected_value}, try again in {sleep_time} seconds")
+            time.sleep(sleep_time)
+        else:
+            fail_test(f"Assertion Failed: '{expected_value}' not in '{actual_value}'")
 
 
 def fail_test(message):

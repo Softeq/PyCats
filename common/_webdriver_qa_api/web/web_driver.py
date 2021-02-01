@@ -32,15 +32,6 @@ class WebDriver(metaclass=Singleton):
         self.driver.quit()
         delete_singleton_object(WebDriver)
 
-    def open_new_tab(self):
-        """ Open new tab on existent webdriver session """
-        self.driver.execute_script("window.open('');")
-        self.switch_to_tab(tab_number=-1)
-
-    def switch_to_tab(self, tab_number: int = 0):
-        """ Switch to browser tab by index"""
-        self.driver.switch_to.window(self.driver.window_handles[tab_number])
-
 
 def get_webdriver_session() -> WebDriver:
     session = get_singleton_instance(WebDriver)
@@ -51,12 +42,14 @@ def get_webdriver_session() -> WebDriver:
 
 def start_webdriver_session(config: ConfigManager):
     """ Create webdriver session and maximize browser window """
+    logger.info("Start WebDriver session")
     session = WebDriver(config)
     session.driver.maximize_window()
 
 
 def stop_webdriver_session():
     """ stop webdriver session and delete session instance """
+    logger.info("Stop WebDriver session")
     get_webdriver_session().quit()
 
 
@@ -69,3 +62,17 @@ def navigate_to(url: str):
 def close_cookie_consent():
     accept_button = get_webdriver_session().driver.find_element(by=By.XPATH, value="//button[@title='Accept']")
     accept_button.click()
+
+
+def open_new_tab():
+    """ Open new tab on existent webdriver session """
+    logger.info(f"Open new tab.")
+    get_webdriver_session().driver.execute_script("window.open('');")
+    switch_to_tab(tab_number=-1)
+
+
+def switch_to_tab(tab_number=0):
+    """ Switch to browser tab by index"""
+    logger.info(f"Switch to tab - {tab_number}")
+    driver = get_webdriver_session().driver
+    driver.switch_to.window(driver.window_handles[tab_number])

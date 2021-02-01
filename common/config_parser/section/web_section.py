@@ -20,7 +20,7 @@ class WebSection(ConfigSection):
         """Basic initialization."""
         self.webdriver_folder = None
         self.webdriver_default_wait_time = 20
-        self.webdriver_implicit_wait_time = 60
+        self.webdriver_implicit_wait_time = 30
         self.selenium_server_executable = None
         self.chrome_driver_name = None
         self.firefox_driver_name = None

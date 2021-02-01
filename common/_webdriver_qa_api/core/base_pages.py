@@ -45,6 +45,7 @@ class BasePage:
                                          self.driver,
                                          self._config,
                                          self.name).is_present_without_waiting()
+            time.sleep(0.1)
         return present_status
 
     def refresh_page(self):
