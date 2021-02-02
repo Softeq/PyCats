@@ -24,15 +24,17 @@ class BaseRemoteServer:
         """
         logger.info(f"stop WebDriver server on {self.address}:{self.port}")
         for _ in range(5):
-            if not self._get_current_sessions():
+            if self._get_current_sessions() is False:
                 time.sleep(2)
 
-        if not self._get_current_sessions():
+        if self._get_current_sessions():
             if self.is_linux:
                 cmd = f"lsof -ti:{self.port} | xargs kill"
             else:
                 cmd = f"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr \":{self.port}\"') do taskkill /F /PID %a"
             subprocess_send_command(cmd)
+        else:
+            logger.info("There is no working WebDriver server")
 
     def _get_current_sessions(self):
         try:

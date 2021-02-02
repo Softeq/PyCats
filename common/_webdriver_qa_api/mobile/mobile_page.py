@@ -205,7 +205,7 @@ class MobilePage(BasePage):
         :param timeout: seconds to wait for page default element
         """
         element = MobileElement(self.locator_type, self.locator, self.name)
-        if not element.try_wait_element(silent=True, second=timeout):
+        if not element.try_wait_element(timeout=timeout):
             fail_test("Page '{0}' was not opened in {1} seconds".format(self.name, timeout))
         logger.info("Page '{0}' was opened".format(self.name))
 

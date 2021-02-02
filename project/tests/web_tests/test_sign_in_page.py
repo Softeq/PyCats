@@ -16,6 +16,7 @@ class TestSignIn:
         pytest.param('', '', "Invalid Email or password.", id="not_filled"),
         pytest.param(valid_user.email, '', "Invalid Email or password.", id="password_not_filled"),
         pytest.param('', valid_user.password, "Invalid Email or password.", id="email_not_filled"),
+        pytest.param('', valid_user.password, "", id="email_not_filled")
     ]
 
     def test_sign_in_page_displayed(self):

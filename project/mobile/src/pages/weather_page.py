@@ -24,7 +24,7 @@ class WeatherPage(MobilePage):
 
     def refresh_data(self):
         self.swipe_down()
-        self.img_refresh.wait_element_absent(second=5)
+        self.img_refresh.wait_element_absent(timeout=5)
 
     def get_location(self) -> str:
         return self.lbl_location.text

@@ -9,7 +9,7 @@ from project.mobile.steps.page_steps.pages.weather import WeatherSteps
 
 
 def navigate_to_main_page():
-    logger.log_step("Navigate to main Weather Page", precondition=True)
+    logger.log_title("Navigate to main Weather Page")
 
     location_permission = LocationPermissionAndroid(should_present=False)
     if location_permission.is_page_present(second=2):
