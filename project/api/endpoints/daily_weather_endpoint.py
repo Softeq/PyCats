@@ -44,8 +44,7 @@ class DailyWeatherEndpointBuilder:
     endpoint = endpoint_factory(raw_config.project_settings.web_api_url, __qualname__,
                                 _DailyWeatherRequestModel, _DailyWeatherResponseModel)
 
-    def get_weather_details(self, city, token):
-        logger.info("Get weather details")
-        self.endpoint.request_model.params = query_builder(city, token)
+    def get_weather_details(self, city, token, units='imperial'):
+        self.endpoint.request_model.params = query_builder(city, token, units)
         result = self.endpoint.get()
         return result.get_data

@@ -13,7 +13,6 @@ class TextBoxActionsMixin:
         :param text: text that should be set
         :param skip_if_none: true - do nothing if text isn't specified, set text if it specified
         false - set text if it specified, error if text isn't specified
-        :param blur_and_focus: true - reset focus to element field
         """
         if text is None and skip_if_none:
             return self

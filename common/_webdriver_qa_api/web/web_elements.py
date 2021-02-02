@@ -76,6 +76,7 @@ class WebTextBox(TextBoxActionsMixin, WebElement):
         :param text: text that should be set
         :param skip_if_none: true - do nothing if text isn't specified, set text if it specified
         false - set text if it specified, error if text isn't specified
+        :param blur_and_focus: true - reset focus to element field
         """
         super(WebTextBox, self).set_text(text=text, skip_if_none=skip_if_none)
         if blur_and_focus:
