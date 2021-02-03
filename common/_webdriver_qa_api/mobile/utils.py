@@ -8,13 +8,11 @@ from typing import Union, Optional
 from appium.webdriver.connectiontype import ConnectionType
 
 from common._webdriver_qa_api.mobile.mobile_driver import get_mobile_driver_session
-from common.facade import config_manager
 
 logger = logging.getLogger(__name__)
 
-# todo: should be updated for ios platform - bundle id
+# todo: should be updated for ios platform - bundle id and move to methods
 APP_BUNDLE_ID = None
-APP_PACKAGE = config_manager.config.mobile_settings.android_package
 
 
 def background_app(seconds: Union[int, float] = -1):
@@ -58,13 +56,16 @@ def launch_app():
     """
     Activates the application if it is not running or is running in the background.
     """
+    session = get_mobile_driver_session().driver
+
     logger.info("Launch app from desired capabilities on device")
 
     if get_platform() == 'iOS':
-        get_mobile_driver_session().driver.execute_script('mobile: launchApp', {'bundleId': APP_BUNDLE_ID})
+        session.execute_script('mobile: launchApp', {'bundleId': APP_BUNDLE_ID})
     else:
+        app_package = session.desired_capabilities["appPackage"]
         awake_android()
-        get_mobile_driver_session().driver.activate_app(app_id=APP_PACKAGE)
+        session.activate_app(app_id=app_package)
 
 
 def get_platform() -> str:
