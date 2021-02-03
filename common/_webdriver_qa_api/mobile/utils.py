@@ -11,7 +11,9 @@ from common._webdriver_qa_api.mobile.mobile_driver import get_mobile_driver_sess
 from common.facade import config_manager
 
 logger = logging.getLogger(__name__)
-APP_BUNDLE_ID = config_manager.config.mobile_settings.android_activity
+
+# todo: should be updated for ios platform - bundle id
+APP_BUNDLE_ID = None
 APP_PACKAGE = config_manager.config.mobile_settings.android_package
 
 
