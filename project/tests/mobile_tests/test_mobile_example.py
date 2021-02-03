@@ -31,7 +31,6 @@ def test_mobile_temperature_unit_switch():
     logger.log_step("Get current temperature in celsius format")
     dashboard_page.assert_page_present()
     celsius_value = dashboard_page.get_current_temperature()
-    mobile.pages.SettingsSteps()
 
     logger.log_step("Set Fahrenheit unit on settings screen")
     dashboard_page.open_menu()
