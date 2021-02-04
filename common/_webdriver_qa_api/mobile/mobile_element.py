@@ -1,11 +1,12 @@
 import logging
+from typing import Union
 
 from appium.webdriver.common.touch_action import TouchAction
 from selenium.common.exceptions import WebDriverException
 
 from common._webdriver_qa_api.core.base_elements import BaseElement, BaseElements
 from common._webdriver_qa_api.core.text_box_mixin import TextBoxActionsMixin
-from common._webdriver_qa_api.mobile.mobile_driver import MobileDriver
+from common._webdriver_qa_api.mobile.mobile_driver import get_mobile_driver_session
 from common.config_manager import ConfigManager
 
 logger = logging.getLogger(__name__)
@@ -13,76 +14,66 @@ logger = logging.getLogger(__name__)
 
 class MobileElements(BaseElements):
     def __init__(self, locator_type, locator, name=None, parent=None):
-        super().__init__(locator_type, locator, driver=MobileDriver(ConfigManager()).driver, name=name, parent=parent)
+        super().__init__(locator_type, locator, driver=get_mobile_driver_session().driver, name=name, parent=parent)
 
 
 class MobileElement(BaseElement):
     def __init__(self, locator_type, locator, name=None, parent=None, scroll=False):
         config = ConfigManager()
-        super().__init__(driver=MobileDriver(config).driver, config=config,
+        super().__init__(driver=get_mobile_driver_session().driver, config=config,
                          locator_type=locator_type, locator=locator,
                          name=name, parent=parent)
         self.scroll = scroll
 
-    def get_element_size(self):
+    def get_element_size(self) -> dict:
         """
-        get size (x - 'width' and y - 'height') of the element
+        get size (x - 'width' and y - 'height') of the element: {'height': int, 'width': int}
         """
-        return self.get_element().size
+        return self.element().size
 
-    def click_and_hold(self, seconds):
+    def click_and_hold(self, timeout: Union[int, float]):
         """
-        Click and hold element for <seconds> second
-        :param seconds:
-        :return:
+        Click and hold element for a <seconds> seconds
+        :param timeout: hold time in seconds
         """
-        logger.info("Click and hold '{0}' for a {1} seconds".format(self.name, seconds))
+        logger.info(f"Click and hold '{self.name}' for a {timeout} seconds")
 
         element = self.get_element()
         actions = TouchAction(self.driver)
-        actions.long_press(element, duration=seconds * 1000)
+        actions.long_press(element, duration=timeout * 1000)
         actions.release()
         actions.perform()
 
-    def click_multiple_times(self, times):
+    def click_multiple_times(self, times: int):
         """
-        Click and hold element for <seconds> second
+        Click element multiple times
+        :param: times: click action count
         """
-        logger.info("Click '{0}' for a {1} times".format(self.name, times))
+        logger.info(f"Click '{self.name}' for a {times} times")
 
         element = self.get_element()
         for loop in range(times):
-            logger.info("Click: {0}/{1}".format(loop + 1, times))
+            logger.info(f"Click: {loop + 1}/{times}")
             element.click()
 
-    def get_top_y(self):
+    def get_top_y(self) -> int:
         """
         Get Y coordinate of Top edge of the element
         :return: Y coordinate of element's Top point
         """
         return self.get_element_location()['y']
 
-    def get_bottom_y(self):
+    def get_bottom_y(self) -> int:
         """
         Get Y coordinate of Bottom edge of the element
         :return: Y coordinate of element's Bottom point
         """
         return self.get_top_y() + self.get_element_size()['height']
 
-    def tap_by_coordinates(self, x, y):
-        """
-        tap on coordinates
-        :param x: x coordinate to tap
-        :param y: y coordinate to tap
-        """
-        logger.info("Tap to coordinates (x,y) - ({x},{y})".format(x=x, y=y))
-        self.driver.tap([(x, y)])
-        return self
-
 
 class MobileTextBox(TextBoxActionsMixin, MobileElement):
 
-    def set_text(self, text, skip_if_none=True):
+    def set_text(self, text: str, skip_if_none: bool = True):
         """
         clear the text field and type new text
         catch exception if it appears (appium issue https://github.com/appium/appium/issues/7572)

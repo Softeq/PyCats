@@ -17,7 +17,7 @@ class AddLocationPage(MobilePage):
         self.lbl_location_name = MobileElements(By.ID, "location_name")
 
     def _is_results_present(self):
-        return self.view_search_result.is_present(seconds=5)
+        return self.view_search_result.try_wait_element(timeout=5)
 
     def set_location_name(self, value):
         return self.txb_search_location.set_text(value)

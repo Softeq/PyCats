@@ -3,7 +3,7 @@ import pytest
 from common._webdriver_qa_api.mobile.mobile_driver import MobileDriver
 from common.facade import logger, raw_config, config_manager
 from common._webdriver_qa_api.web.web_driver import start_webdriver_session, stop_webdriver_session, navigate_to
-from common._webdriver_qa_api.web.remote_server import SeleniumServer, AppiumRemoteServer
+from common._webdriver_qa_api.core.remote_server import SeleniumServer, AppiumRemoteServer
 from project.test_data.users import valid_user
 from project.web.steps.page_object_steps.pages.home import HomePageSteps
 from project.web.steps.page_object_steps.pages.main import MainPageSteps
@@ -72,9 +72,9 @@ def start_mobile_session(request, start_mobile_server):
     # platfrom = config_manager.config.mobile_settings.platform
     # android_config(request.config.getoption("--android_device")) if platfrom == 'android' else \
     #     ios_config(request.config.getoption("--ios_device"))
-    MobileDriver(config_manager)
+    mobile_session = MobileDriver(config_manager)
 
     def test_teardown():
-        MobileDriver(config_manager).quit()
+        mobile_session.quit()
 
     request.addfinalizer(test_teardown)

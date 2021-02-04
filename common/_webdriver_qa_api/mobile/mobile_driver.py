@@ -1,4 +1,4 @@
-from common._libs.helpers.singleton import Singleton, delete_singleton_object
+from common._libs.helpers.singleton import Singleton, delete_singleton_object, get_singleton_instance
 from common.config_manager import ConfigManager
 from common.config_parser.config_error import ConfigError
 from appium.webdriver import Remote
@@ -42,3 +42,10 @@ class MobileDriver(metaclass=Singleton):
     def restart_mobile_driver(self, config: ConfigManager):
         self.quit()
         MobileDriver(config)
+
+
+def get_mobile_driver_session() -> MobileDriver:
+    session = get_singleton_instance(MobileDriver)
+    if not isinstance(session, MobileDriver):
+        raise ConnectionError("MobileDriver session was not created")
+    return session
