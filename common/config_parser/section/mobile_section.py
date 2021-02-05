@@ -14,8 +14,10 @@ class MobileSection(ConfigSection):
 
         self.appium_server_path = None
         self.node_executable_path = None
-        self.platform = None
+        self.default_wait_time = 20
+        self.implicit_wait_time = 30
 
+        self.platform = None
         self.ios_udid = None
         self.ipa_path = None
 
@@ -38,6 +40,7 @@ class MobileSection(ConfigSection):
         self._mandatory_fields = ['appium_server_path', 'node_executable_path']
         self._str_fields = ['appium_server_path', 'node_executable_path', 'platform',
                             'ios_udid', 'ipa_path', 'android_udid', 'android_package', 'android_activity']
+        self._int_fields = ['default_wait_time', 'implicit_wait_time']
         self._settings = self._str_fields
 
     def to_dict(self):

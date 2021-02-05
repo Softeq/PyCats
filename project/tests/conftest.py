@@ -27,7 +27,7 @@ def open_browser(request, start_remote_server):
     def finalizer():
         stop_webdriver_session()
     request.addfinalizer(finalizer)
-    start_webdriver_session(config_manager)
+    start_webdriver_session(config_manager.get_webdriver_settings())
 
 
 @pytest.fixture(scope="function", autouse=False)
@@ -40,7 +40,7 @@ def open_main_page(open_browser):
 def api_token(start_remote_server):
     logger.log_step("Retrieve API token from UI", precondition=True)
     try:
-        start_webdriver_session(config_manager)
+        start_webdriver_session(config_manager.get_webdriver_settings())
         navigate_to(raw_config.project_settings.web_app_url)
         main_page = MainPageSteps()
         main_page.click_sign_in()
@@ -72,7 +72,7 @@ def start_mobile_session(request, start_mobile_server):
     # platfrom = config_manager.config.mobile_settings.platform
     # android_config(request.config.getoption("--android_device")) if platfrom == 'android' else \
     #     ios_config(request.config.getoption("--ios_device"))
-    mobile_session = MobileDriver(config_manager)
+    mobile_session = MobileDriver(config_manager.get_mobile_settings())
 
     def test_teardown():
         mobile_session.quit()

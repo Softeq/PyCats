@@ -143,10 +143,11 @@ class ParseConfig:
 
     def _verify_duplicated_options(self):
         sections = self.config.sections()
-        options = []
+
         for section in sections:
+            options = []
             options.extend([option[0] for option in self.config.items(section)])
-        duplicated_options = [k for k, v in Counter(options).items() if v > 1]
-        if duplicated_options:
-            raise ConfigError(f"The following option(s) in config are duplicated. "
-                              f"Please use another name: {duplicated_options}")
+            duplicated_options = [k for k, v in Counter(options).items() if v > 1]
+            if duplicated_options:
+                raise ConfigError(f"The following option(s) in config are duplicated. "
+                                  f"Please use another name: {duplicated_options}")

@@ -23,13 +23,15 @@ class ConfigManager(metaclass=Singleton):
 
     def get_webdriver_settings(self) -> WebDriverSettingsDTO:
         settings = self.config.web_settings
-        return WebDriverSettingsDTO(settings.webdriver_folder, settings.webdriver_default_wait_time,
-                                    settings.webdriver_implicit_wait_time, settings.selenium_server_executable,
+        return WebDriverSettingsDTO(settings.webdriver_folder, settings.default_wait_time,
+                                    settings.implicit_wait_time, settings.selenium_server_executable,
                                     settings.chrome_driver_name, settings.firefox_driver_name, settings.browser,
                                     settings.driver_path)
 
     def get_mobile_settings(self) -> MobileDriverSettingsDTO:
         settings = self.config.mobile_settings
-        return MobileDriverSettingsDTO(settings.appium_server_path, settings.node_executable_path, settings.platform,
-                                       settings.ios_udid, settings.ipa_path,
-                                       settings.android_udid, settings.android_package, settings.android_activity)
+        return MobileDriverSettingsDTO(settings.appium_server_path, settings.node_executable_path,
+                                       settings.default_wait_time, settings.implicit_wait_time,
+                                       settings.platform, settings.ios_udid, settings.ipa_path,
+                                       settings.android_udid, settings.android_package,
+                                       settings.android_activity)
