@@ -5,29 +5,31 @@ from typing import Optional, Union, Dict
 from selenium.webdriver import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 
-from common.config_manager import ConfigManager
 from common._webdriver_qa_api.core.utils import assert_should_be_equal, assert_should_be_not_equal, \
     assert_should_contain, assert_should_not_contain, assert_should_be_greater_than, get_wait_seconds
 from common._webdriver_qa_api.core.selenium_dynamic_elements import DynamicElement, DynamicElements
+from common._webdriver_qa_api.mobile.mobile_driver import MobileDriver
+from common._webdriver_qa_api.web.web_driver import WebDriver
 
 logger = logging.getLogger(__name__)
 TimeoutType = Optional[Union[int, float]]
+WebDriverType = Optional[Union[WebDriver, MobileDriver]]
 
 
 class BaseElement:
 
-    def __init__(self, locator_type, locator, driver, config: ConfigManager, name=None, parent=None):
+    def __init__(self, locator_type, locator, web_driver: WebDriverType, name=None, parent=None):
         self.locator_type = locator_type
         self.locator = locator
-        self.driver = driver
+        self.driver = web_driver.driver
         self.parent = parent
         self.name = locator if name is None else name
         self.ALLOWED_DYNAMIC_METHODS = None
         self.element = DynamicElement(locator_type=locator_type,
                                       locator=locator,
-                                      driver=driver, name=name,
+                                      driver=self.driver, name=name,
                                       parent=parent)
-        self._webdriver_settings = config.get_webdriver_settings()
+        self.config = web_driver.config
 
     def __getattr__(self, item):
         if self.ALLOWED_DYNAMIC_METHODS is not None:
@@ -144,7 +146,7 @@ class BaseElement:
             self.driver.implicitly_wait(0)
             return self.is_present()
         finally:
-            self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
+            self.driver.implicitly_wait(self.config.implicit_wait_time)
 
     def _wait_element(self, timeout: Union[int, float]):
         """
@@ -156,14 +158,14 @@ class BaseElement:
             self.driver.implicitly_wait(timeout)
             return self.is_present()
         finally:
-            self.driver.implicitly_wait(self._webdriver_settings.webdriver_implicit_wait_time)
+            self.driver.implicitly_wait(self.config.implicit_wait_time)
 
     def wait_element(self, timeout: TimeoutType = None):
         """
         wait for element present with fail test if element not be found
         :param timeout: number of seconds after which test will fail if element is absent.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
         assert_should_be_equal(actual_value=self._wait_element(timeout=second), expected_value=True,
                                message=f"Wait for element {self.name} in {second} seconds")
 
@@ -173,7 +175,7 @@ class BaseElement:
         :param timeout: number of seconds after which test will fail if element is absent.
         :return: true if element becomes present during timeout
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
 
         logger.info("Try to get element '{0}' in {1} seconds".format(self.name, timeout))
         return self._wait_element(second)
@@ -184,7 +186,7 @@ class BaseElement:
          else find element every 0.1 seconds)
         :param timeout: number of seconds after which test will wail if element is absent.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
 
         logger.info("Wait for '{0}' absent in {1} seconds".format(self.name, 0 if not second else second))
         end_time = time.time() + second
@@ -199,7 +201,7 @@ class BaseElement:
         wait for element enabled
         :param timeout: number of seconds after which test will wail if element is enabled.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
         logger.info(f"Wait for '{self.name}' is enabled in '{second}' seconds")
         self.assert_enabled(is_enabled=True, timeout=second)
 
@@ -208,7 +210,7 @@ class BaseElement:
         wait for element disabled
         :param timeout: number of seconds after which test will wail if element is enabled.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
         logger.info(f"Wait for '{self.name}' is disabled in '{second} seconds'")
         self.assert_enabled(is_enabled=False, timeout=second)
 
@@ -217,7 +219,7 @@ class BaseElement:
         wait for element visible
         :param timeout: number of seconds after which test will wail if element is visible.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
         logger.info(f"Wait for '{self.name}' is visible in '{second}' seconds")
         self.assert_visible(is_visible=True, timeout=second)
 
@@ -226,7 +228,7 @@ class BaseElement:
         wait for element invisible
         :param timeout: number of seconds after which test will wail if element is visible.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
         logger.info(f"Wait for '{self.name}' is invisible in '{second}' seconds")
         self.assert_visible(is_visible=False, timeout=second)
 
@@ -236,7 +238,7 @@ class BaseElement:
         :param expected: expected text value
         :param timeout: number of seconds after which test will wail if element is visible.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
         logger.info(f"Wait for '{self.name}' contains following text: '{expected}' "
                     f"in '{second}' seconds")
 
@@ -251,7 +253,7 @@ class BaseElement:
         :param expected: text that should not be a part of element text
         :param timeout: number of seconds after which test will wail if element is visible.
         """
-        second = get_wait_seconds(timeout, self._webdriver_settings)
+        second = get_wait_seconds(timeout, self.config)
         logger.info(f"Wait for '{self.name}' does not contain following text: '{expected}' "
                     f"in '{second}' seconds")
 
@@ -288,13 +290,13 @@ class BaseElement:
 
 
 class BaseElements:
-    def __init__(self, locator_type, locator, driver, name=None, parent=None):
+    def __init__(self, locator_type, locator, web_driver, name=None, parent=None):
         self.locator_type = locator_type
         self.locator = locator
-        self.driver = driver
+        self.driver = web_driver.driver
         self.elements = DynamicElements(locator_type=locator_type,
                                         locator=locator,
-                                        driver=driver,
+                                        driver=self.driver,
                                         name=name,
                                         parent=parent)
 

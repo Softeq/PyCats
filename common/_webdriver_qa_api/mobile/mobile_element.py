@@ -7,20 +7,18 @@ from selenium.common.exceptions import WebDriverException
 from common._webdriver_qa_api.core.base_elements import BaseElement, BaseElements
 from common._webdriver_qa_api.core.text_box_mixin import TextBoxActionsMixin
 from common._webdriver_qa_api.mobile.mobile_driver import get_mobile_driver_session
-from common.config_manager import ConfigManager
 
 logger = logging.getLogger(__name__)
 
 
 class MobileElements(BaseElements):
     def __init__(self, locator_type, locator, name=None, parent=None):
-        super().__init__(locator_type, locator, driver=get_mobile_driver_session().driver, name=name, parent=parent)
+        super().__init__(locator_type, locator, web_driver=get_mobile_driver_session(), name=name, parent=parent)
 
 
 class MobileElement(BaseElement):
     def __init__(self, locator_type, locator, name=None, parent=None, scroll=False):
-        config = ConfigManager()
-        super().__init__(driver=get_mobile_driver_session().driver, config=config,
+        super().__init__(web_driver=get_mobile_driver_session(),
                          locator_type=locator_type, locator=locator,
                          name=name, parent=parent)
         self.scroll = scroll

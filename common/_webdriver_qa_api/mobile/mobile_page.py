@@ -8,15 +8,13 @@ from common._webdriver_qa_api.core.base_pages import BasePage
 from common._webdriver_qa_api.core.utils import fail_test
 from common._webdriver_qa_api.mobile.mobile_element import MobileElement
 from common._webdriver_qa_api.mobile.mobile_driver import get_mobile_driver_session
-from common.config_manager import ConfigManager
 
 logger = logging.getLogger(__name__)
 
 
 class MobilePage(BasePage):
     def __init__(self, locator_type, locator, name, should_present=True):
-        config = ConfigManager()
-        super().__init__(driver=get_mobile_driver_session().driver, config=config,
+        super().__init__(web_driver=get_mobile_driver_session(),
                          locator_type=locator_type, locator=locator, name=name)
         if should_present:
             self.wait_page_present()

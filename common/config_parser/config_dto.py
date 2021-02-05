@@ -12,8 +12,8 @@ class APIValidationDTO:
 @dataclass
 class WebDriverSettingsDTO:
     webdriver_folder: str
-    webdriver_default_wait_time: int
-    webdriver_implicit_wait_time: int
+    default_wait_time: int
+    implicit_wait_time: int
     selenium_server_executable: str
     chrome_driver_name: str
     firefox_driver_name: str
@@ -25,6 +25,8 @@ class WebDriverSettingsDTO:
 class MobileDriverSettingsDTO:
     appium_server_path: str
     node_executable_path: str
+    default_wait_time: int
+    implicit_wait_time: int
     platform: str
     ios_udid: str
     ipa_path: str

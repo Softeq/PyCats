@@ -1,15 +1,16 @@
 from common._libs.helpers.singleton import Singleton, delete_singleton_object, get_singleton_instance
-from common.config_manager import ConfigManager
+from common.config_parser.config_dto import MobileDriverSettingsDTO
 from common.config_parser.config_error import ConfigError
 from appium.webdriver import Remote
 
 
 class MobileDriver(metaclass=Singleton):
 
-    def __init__(self, config: ConfigManager, driver=Remote):
-        self._settings = config.get_mobile_settings()
-        mobile_driver_settings = self._get_driver_settings(self._settings)
+    def __init__(self, config: MobileDriverSettingsDTO, driver=Remote):
+        self.config = config
+        mobile_driver_settings = self._get_driver_settings(self.config)
         self.driver = driver(**mobile_driver_settings)
+        self.driver.implicitly_wait(self.config.implicit_wait_time)
 
     @staticmethod
     def _get_driver_settings(settings):
@@ -39,7 +40,7 @@ class MobileDriver(metaclass=Singleton):
         self.driver.quit()
         delete_singleton_object(MobileDriver)
 
-    def restart_mobile_driver(self, config: ConfigManager):
+    def restart_mobile_driver(self, config: MobileDriverSettingsDTO):
         self.quit()
         MobileDriver(config)
 
