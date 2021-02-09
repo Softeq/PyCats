@@ -29,6 +29,10 @@ class ConfigSection(metaclass=ABCMeta):
         self._configure_section()
         self._load_from_config()
 
+    def __call__(self):
+        self._check_settings()
+        return self
+
     @abstractmethod
     def _configure_section(self):
         """Divide settings according to their types.
@@ -47,8 +51,6 @@ class ConfigSection(metaclass=ABCMeta):
         self._perform_custom_tunings()
 
         self._check_mandatory_fields_present()
-
-        self._check_settings()
 
     def _load_settings_from_config(self):  # noqa
         """Load settings from the configuration file."""
