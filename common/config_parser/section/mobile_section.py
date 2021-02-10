@@ -1,3 +1,5 @@
+import os
+
 from common.config_parser.section.base_section import ConfigSection
 from common.config_parser.config_error import ConfigError
 
@@ -61,6 +63,10 @@ class MobileSection(ConfigSection):
 
     def _check_settings(self):
         """Check if settings are valid."""
+        if not os.path.exists(self.appium_server_path):
+            raise ConfigError(f"Unable to find appium server executable file in provided path: "
+                              f"{self.appium_server_path}")
+
         if self.platform not in ALLOWED_PLATFORMS_LIST:
             raise ConfigError(f"Unexpected mobile platform provided {self.platform}, "
                               f"possible types: {ALLOWED_PLATFORMS_LIST}")
