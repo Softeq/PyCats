@@ -3,18 +3,19 @@ import logging
 import time
 import requests
 
-from common.config_manager import ConfigManager
 from common._libs.helpers.os_helpers import get_platform_type
 from common._shell_qa_api.subprocess_command import subprocess_send_command_asynchronous, subprocess_send_command
+from common.config_parser.config_dto import WebDriverSettingsDTO, MobileDriverSettingsDTO
 
 logger = logging.getLogger(__name__)
 
 
 class BaseRemoteServer:
 
-    def __init__(self, address, port):
+    def __init__(self, address, port, server_type):
         self.address = address
         self.port = port
+        self.server_type = server_type
         self.platform_name = get_platform_type()
         self.is_linux = self.platform_name in ("Darwin", "Linux")
 
@@ -22,7 +23,7 @@ class BaseRemoteServer:
         """
         Stop remote server process (depending on the platform)
         """
-        logger.info(f"stop WebDriver server on {self.address}:{self.port}")
+        logger.info(f"stop {self.server_type} server on {self.address}:{self.port}")
         for _ in range(5):
             if self._get_current_sessions() is False:
                 time.sleep(2)
@@ -34,7 +35,7 @@ class BaseRemoteServer:
                 cmd = f"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr \":{self.port}\"') do taskkill /F /PID %a"
             subprocess_send_command(cmd)
         else:
-            logger.info("There is no working WebDriver server")
+            logger.info(f"There is no working {self.server_type} server")
 
     def _get_current_sessions(self):
         try:
@@ -46,9 +47,10 @@ class BaseRemoteServer:
 
 class AppiumRemoteServer(BaseRemoteServer):
 
-    def __init__(self, config: ConfigManager, address='127.0.0.1', port=4723, log_path="Logs"):
-        super().__init__(address, port)
-        self._config = config.get_mobile_settings()
+    def __init__(self, config: MobileDriverSettingsDTO, address: str = '127.0.0.1',
+                 port: int = 4723, log_path: str = "Logs"):
+        super().__init__(address, port, server_type="Appium")
+        self._config = config
         self.log = os.path.join(log_path, 'appium.log')
 
     def start_server(self):
@@ -91,9 +93,10 @@ class AppiumRemoteServer(BaseRemoteServer):
 
 class SeleniumServer(BaseRemoteServer):
 
-    def __init__(self, config: ConfigManager, address='127.0.0.1', port=4444, log_path="Logs"):
-        super().__init__(address, port)
-        self._config = config.get_webdriver_settings()
+    def __init__(self, config: WebDriverSettingsDTO, address: str = '127.0.0.1',
+                 port: int = 4444, log_path: str = "Logs"):
+        super().__init__(address, port, server_type="Selenium")
+        self._config = config
         self.log = os.path.join(log_path, 'selenium.log')
 
     def start_server(self):
