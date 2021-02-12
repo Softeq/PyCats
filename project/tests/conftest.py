@@ -12,7 +12,7 @@ from project.web.steps.page_object_steps.pages.sign_in import SignInSteps
 
 @pytest.fixture(scope="session", autouse=False)
 def start_remote_server(request):
-    server = SeleniumServer(config_manager)
+    server = SeleniumServer(config_manager.get_webdriver_settings())
 
     def finalizer():
         server.stop_server()
@@ -57,7 +57,7 @@ def api_token(start_remote_server):
 
 @pytest.fixture(scope='session', autouse=False)
 def start_mobile_server(request):
-    server = AppiumRemoteServer(config_manager)
+    server = AppiumRemoteServer(config_manager.get_mobile_settings())
 
     def teardown():
         server.stop_server()
@@ -69,9 +69,6 @@ def start_mobile_server(request):
 @pytest.fixture(scope='function', autouse=False)
 def start_mobile_session(request, start_mobile_server):
     logger.log_step("Start mobile session", precondition=True)
-    # platfrom = config_manager.config.mobile_settings.platform
-    # android_config(request.config.getoption("--android_device")) if platfrom == 'android' else \
-    #     ios_config(request.config.getoption("--ios_device"))
     mobile_session = MobileDriver(config_manager.get_mobile_settings())
 
     def test_teardown():
