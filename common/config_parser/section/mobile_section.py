@@ -1,5 +1,6 @@
 import os
 
+from shutil import which
 from common.config_parser.section.base_section import ConfigSection
 from common.config_parser.config_error import ConfigError
 
@@ -39,7 +40,7 @@ class MobileSection(ConfigSection):
         bool, int, list of nodes fields if it is necessary.
         """
         # todo: check _mandatory_fields based on parameter from config?
-        self._mandatory_fields = ['appium_server_path', 'node_executable_path']
+        self._mandatory_fields = ['appium_server_path', 'node_executable_path', 'platform']
         self._str_fields = ['appium_server_path', 'node_executable_path', 'platform',
                             'ios_udid', 'ipa_path', 'android_udid', 'android_package', 'android_activity']
         self._int_fields = ['default_wait_time', 'implicit_wait_time']
@@ -54,12 +55,11 @@ class MobileSection(ConfigSection):
 
     def _perform_custom_tunings(self):
         """Perform custom tunings for obtained settings."""
-        for setting in self._settings:
-            if setting in self._untuned_settings:
-                setattr(self, setting, self._untuned_settings[setting])
-
-        if self.custom_args is not None:
-            self._tune_custom_args()
+        super()._perform_custom_tunings()
+        if self.platform == "android":
+            self._mandatory_fields += ['android_udid', 'android_package', 'android_activity']
+        elif self.platform == "ios":
+            self._mandatory_fields += ['ios_udid', 'ipa_path']
 
     def _check_settings(self):
         """Check if settings are valid."""
@@ -67,6 +67,15 @@ class MobileSection(ConfigSection):
             raise ConfigError(f"Unable to find appium server executable file in provided path: "
                               f"{self.appium_server_path}")
 
+        # todo: need to check on windows
+        if not which(self.node_executable_path):
+            raise ConfigError(f"Unable to find node executable in provided path: "
+                              f"{self.node_executable_path}")
+
         if self.platform not in ALLOWED_PLATFORMS_LIST:
             raise ConfigError(f"Unexpected mobile platform provided {self.platform}, "
                               f"possible types: {ALLOWED_PLATFORMS_LIST}")
+
+        if self.platform == "ios" and not os.path.exists(self.ipa_path):
+            raise ConfigError(f"Unable to find .ipa archive with iOS target app in provided path: "
+                              f"{self.ipa_path}")

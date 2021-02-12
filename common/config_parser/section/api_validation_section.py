@@ -48,12 +48,7 @@ class APIValidationSection(ConfigSection):
 
     def _perform_custom_tunings(self):
         """Perform custom tunings for obtained settings."""
-        for setting in self._settings:
-            if setting in self._untuned_settings:
-                setattr(self, setting, self._untuned_settings[setting])
-
-        if self.custom_args is not None:
-            self._tune_custom_args()
+        super()._perform_custom_tunings()
 
     def _check_settings(self):
         pass
