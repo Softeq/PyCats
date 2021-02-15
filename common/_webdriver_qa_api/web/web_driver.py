@@ -3,6 +3,7 @@ import logging
 from common._libs.helpers.singleton import Singleton, get_singleton_instance, delete_singleton_object
 from common.config_manager import ConfigManager
 
+from selenium import webdriver
 from selenium.webdriver import Remote, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -25,7 +26,12 @@ class WebDriver(metaclass=Singleton):
         browser = dict(browserName=settings.browser,
                        version='',
                        platform='ANY')
-        return dict(command_executor='http://127.0.0.1:4444/wd/hub', desired_capabilities=browser)
+        options = None
+        if settings.browser == "chrome" and settings.chrome_options:
+            options = webdriver.ChromeOptions()
+            for chrome_option in settings.chrome_options:
+                options.add_argument(chrome_option)
+        return dict(command_executor='http://127.0.0.1:4444/wd/hub', desired_capabilities=browser, options=options)
 
     def quit(self):
         self.driver.close()
