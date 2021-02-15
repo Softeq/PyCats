@@ -44,7 +44,7 @@ class WebSection(ConfigSection):
                             'firefox_driver_name', 'browser']
         self._int_fields = ['webdriver_default_wait_time', 'webdriver_implicit_wait_time']
         self._comma_separated_list_fields = ['chrome_options']
-        self._settings = self._str_fields + self._int_fields
+        self._settings = self._str_fields + self._int_fields + self._comma_separated_list_fields
 
     def to_dict(self):
         """Convert to dictionary."""
