@@ -46,6 +46,12 @@ class SeleniumServer(BaseRemoteServer):
         self._config = config.get_webdriver_settings()
         self.log = os.path.join(log_path, 'selenium.log')
 
+    def stop_server(self):
+        if self._config.stop_server is True:
+            super().stop_server()
+        else:
+            logger.info("Skip stopping server due to config value")
+
     def start_server(self):
         """
         Start webdriver remote server process (for web testing)

@@ -26,4 +26,4 @@ class ConfigManager(metaclass=Singleton):
         return WebDriverSettingsDTO(settings.webdriver_folder, settings.webdriver_default_wait_time,
                                     settings.webdriver_implicit_wait_time, settings.selenium_server_executable,
                                     settings.chrome_driver_name, settings.firefox_driver_name, settings.browser,
-                                    settings.driver_path, settings.chrome_options)
+                                    settings.driver_path, settings.stop_server, settings.chrome_options)
