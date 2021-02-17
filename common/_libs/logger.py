@@ -56,7 +56,6 @@ class PyCatsLogger:
     enable_libs_logging = False
     log_level = None
     base_log_dir = None
-    base_log_path = None
     time_log_dir = get_timestamp()
 
     step_generator = type("StepCounter", (Counter,), {})()
@@ -70,6 +69,12 @@ class PyCatsLogger:
         '%(message)s'
     )
     _logger_instances: List[logging.Logger] = list()
+
+    @property
+    def base_log_path(self):
+        path = os.path.join(self.base_log_dir, self.time_log_dir)
+        create_folder(path)
+        return path
 
     def __init__(self, logger: logging.Logger, log_level: int = None):
         self.log_level = log_level or PyCatsLogger.log_level
@@ -92,8 +97,8 @@ class PyCatsLogger:
         if not filename.endswith(".log"):
             filename += ".log"
 
-        self.base_log_path = os.path.join(self.base_log_dir, self.time_log_dir)
-        create_folder(self.base_log_path)
+        # self.base_log_path = os.path.join(self.base_log_dir, self.time_log_dir)
+        # create_folder(self.base_log_path)
 
         # prepare file handler for new test
         self._file_handler = logging.FileHandler(f"{self.base_log_path}/{filename}")
