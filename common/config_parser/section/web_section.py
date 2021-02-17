@@ -25,7 +25,8 @@ class WebSection(ConfigSection):
         self.chrome_driver_name = None
         self.firefox_driver_name = None
         self.browser = 'chrome'
-        self.chrome_options = []
+        self.stop_server = True
+        self.chrome_options = list()
         self.driver_path = None
         self.config = config
         self.custom_args = custom_args
@@ -44,7 +45,8 @@ class WebSection(ConfigSection):
                             'firefox_driver_name', 'browser']
         self._int_fields = ['webdriver_default_wait_time', 'webdriver_implicit_wait_time']
         self._comma_separated_list_fields = ['chrome_options']
-        self._settings = self._str_fields + self._int_fields + self._comma_separated_list_fields
+        self._bool_fields = ['stop_server']
+        self._settings = self._str_fields + self._int_fields + self._comma_separated_list_fields + self._bool_fields
 
     def to_dict(self):
         """Convert to dictionary."""

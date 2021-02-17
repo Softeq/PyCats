@@ -19,4 +19,5 @@ class WebDriverSettingsDTO:
     firefox_driver_name: str
     browser: str
     driver_path: str
+    stop_server: bool
     chrome_options: list
