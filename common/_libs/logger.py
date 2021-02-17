@@ -97,9 +97,6 @@ class PyCatsLogger:
         if not filename.endswith(".log"):
             filename += ".log"
 
-        # self.base_log_path = os.path.join(self.base_log_dir, self.time_log_dir)
-        # create_folder(self.base_log_path)
-
         # prepare file handler for new test
         self._file_handler = logging.FileHandler(f"{self.base_log_path}/{filename}")
         self._file_handler.setLevel(self.log_level)
