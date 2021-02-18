@@ -26,7 +26,7 @@ def open_browser(request, start_remote_server):
     logger.log_step("Open Browser", precondition=True)
 
     def finalizer():
-        WebScreenShot(screen_path=logger.base_log_path).save_screenshot(request.node.name)
+        WebScreenShot(screen_path=logger.log_dir).save_screenshot(request.node.name)
         stop_webdriver_session()
     request.addfinalizer(finalizer)
     start_webdriver_session(config_manager.get_webdriver_settings())
@@ -74,7 +74,7 @@ def start_mobile_session(request, start_mobile_server):
     mobile_session = MobileDriver(config_manager.get_mobile_settings())
 
     def test_teardown():
-        MobileScreenShot(screen_path=logger.base_log_path).save_screenshot(request.node.name)
+        MobileScreenShot(screen_path=logger.log_dir).save_screenshot(request.node.name)
         mobile_session.quit()
 
     request.addfinalizer(test_teardown)

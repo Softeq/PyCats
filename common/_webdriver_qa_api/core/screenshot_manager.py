@@ -4,6 +4,7 @@ import shutil
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from common._libs.helpers.os_helpers import get_timestamp, create_folder
+from common._libs.helpers.utils import slugify
 from common._webdriver_qa_api.mobile.mobile_driver import get_mobile_driver_session
 from common._webdriver_qa_api.web.web_driver import get_webdriver_session
 
@@ -26,8 +27,7 @@ class ScreenShot:
         :param screenshot_name: name of the screenshot that should be saved
         :return: path to image file
         """
-        if not screenshot_name:
-            screenshot_name = get_timestamp()
+        screenshot_name = get_timestamp() if not screenshot_name else slugify(screenshot_name)
         create_folder(self.screenshot_folder)
 
         full_path = os.path.join(self.screenshot_folder, screenshot_name + '.png')

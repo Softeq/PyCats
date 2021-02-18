@@ -54,7 +54,7 @@ class PyCatsFacade(metaclass=Singleton):
         if logger_instance:
             self._logger = logger_instance
         else:
-            PyCatsLogger.base_log_dir = self.config_manager.config.global_settings.logdir
+            PyCatsLogger.log_dir = self.config_manager.config.global_settings.session_log_dir
             PyCatsLogger.log_level = self.config_manager.config.global_settings.log_level
             PyCatsLogger.enable_libs_logging = self.config_manager.config.global_settings.enable_libs_logging
             self._logger = PyCatsLogger(logging.getLogger(__name__))

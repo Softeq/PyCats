@@ -1,3 +1,6 @@
+import os
+
+from common._libs.helpers.os_helpers import get_timestamp, create_folder
 from common.config_parser.section.base_section import ConfigSection
 
 
@@ -11,7 +14,14 @@ class BaseGlobalSection:
         self.logdir = 'Logs'
         self.log_level = 'INFO'
         self.enable_libs_logging = False
+        self._session_log_dir = None
         self.sections = []
+
+    @property
+    def session_log_dir(self):
+        if not self._session_log_dir:
+            self._session_log_dir = os.path.join(self.logdir, get_timestamp())
+        return self._session_log_dir
 
     def to_dict(self):
         """Convert to dictionary."""
