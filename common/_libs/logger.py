@@ -1,9 +1,8 @@
-import os
 import logging
 from functools import wraps
 from typing import List
 
-from common._libs.helpers.os_helpers import get_timestamp, create_folder
+from common._libs.helpers.os_helpers import create_folder
 from common._libs.helpers.singleton import Singleton
 from common._libs.helpers.utils import slugify
 

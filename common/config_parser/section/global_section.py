@@ -1,6 +1,6 @@
 import os
 
-from common._libs.helpers.os_helpers import get_timestamp, create_folder
+from common._libs.helpers.os_helpers import get_timestamp
 from common.config_parser.section.base_section import ConfigSection
 
 
