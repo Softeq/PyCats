@@ -1,9 +1,8 @@
-import os
 import logging
 from functools import wraps
 from typing import List
 
-from common._libs.helpers.os_helpers import get_timestamp, create_folder
+from common._libs.helpers.os_helpers import create_folder
 from common._libs.helpers.singleton import Singleton
 from common._libs.helpers.utils import slugify
 
@@ -55,9 +54,7 @@ class Counter(metaclass=Singleton):
 class PyCatsLogger:
     enable_libs_logging = False
     log_level = None
-    base_log_dir = None
-    base_log_path = None
-    time_log_dir = get_timestamp()
+    log_dir = '.'
 
     step_generator = type("StepCounter", (Counter,), {})()
     prec_generator = type("PrecCounter", (Counter,), {})()
@@ -86,17 +83,15 @@ class PyCatsLogger:
 
         logging.basicConfig(level=self.log_level, handlers=[self._stream_handler])
         self._logger_instances.append(self.logger)
+        create_folder(self.log_dir)
 
     def switch_test(self, filename: str):
         filename = slugify(filename)
         if not filename.endswith(".log"):
             filename += ".log"
 
-        self.base_log_path = os.path.join(self.base_log_dir, self.time_log_dir)
-        create_folder(self.base_log_path)
-
         # prepare file handler for new test
-        self._file_handler = logging.FileHandler(f"{self.base_log_path}/{filename}")
+        self._file_handler = logging.FileHandler(f"{self.log_dir}/{filename}")
         self._file_handler.setLevel(self.log_level)
         self._file_handler.setFormatter(logging.Formatter(self.log_format))
 
