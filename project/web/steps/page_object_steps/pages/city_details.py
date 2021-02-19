@@ -6,9 +6,10 @@ class CityDetailsSteps(CityDetailsContainer):
 
     def get_weather_info(self):
         logger.log_title("Get current weather info from city page")
-        self.widget_temperature.wait_element()
+        self.lbl_temperature.wait_element()
         weather_info = {"pressure": self.get_pressure_value(),
                         "humidity": self.get_humidity_value(),
+                        "temperature": self.get_temperature_value()
                         }
         return weather_info
 
