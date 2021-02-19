@@ -23,7 +23,7 @@ def test_weather_api(api_token, city):
 
 
 @pytest.mark.usefixtures("start_mobile_session")
-@pytest.mark.mabile_sample
+@pytest.mark.mobile_sample
 @pytest.mark.parametrize('city', ['San Jose', "Los Angeles"])
 def test_weather_mobile(api_token, city):
     """
@@ -45,4 +45,4 @@ def test_weather_mobile(api_token, city):
     api_result = DailyWeatherEndpointBuilder().get_weather_details(city=city, token=api_token, units='metric')
 
     logger.log_step("Verify current temperature for city - {}".format(city))
-    weather_page.verify_current_temperature(value=str(int(api_result["main"]["temp"])))
+    weather_page.verify_current_temperature(value=int(api_result["main"]["temp"]))

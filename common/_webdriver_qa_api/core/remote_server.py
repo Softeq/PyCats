@@ -25,24 +25,24 @@ class BaseRemoteServer:
         """
         logger.info(f"stop {self.server_type} server on {self.address}:{self.port}")
         for _ in range(5):
-            if self._get_current_sessions() is False:
+            if self._is_session_exist() is False:
                 time.sleep(2)
 
-        if self._get_current_sessions():
+        if self._is_session_exist() is False:
             if self.is_linux:
-                cmd = f"lsof -ti:{self.port} | xargs kill"
+                cmd = f"lsof -i:{self.port} | grep LISTEN | awk '{{print $2}}' | xargs kill"
             else:
                 cmd = f"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr \":{self.port}\"') do taskkill /F /PID %a"
             subprocess_send_command(cmd)
         else:
             logger.info(f"There is no working {self.server_type} server")
 
-    def _get_current_sessions(self):
+    def _is_session_exist(self):
         try:
             response = requests.get(f"http://{self.address}:{self.port}/wd/hub/sessions")
         except requests.exceptions.ConnectionError:
             return False
-        return response.json()["value"]
+        return True if len(response.json()["value"]) > 0 else False
 
 
 class AppiumRemoteServer(BaseRemoteServer):
@@ -58,7 +58,7 @@ class AppiumRemoteServer(BaseRemoteServer):
         Start appium remote server process (for mobile testing)
         """
         logger.info(f"Start Appium Server - {self.address}:{self.port}")
-        if self._get_current_sessions() is False:
+        if self.is_local_server_running() is False:
             server_cmd = list()
             server_cmd.append(self._config.node_executable_path)
             server_cmd.append(self._config.appium_server_path)
@@ -72,7 +72,7 @@ class AppiumRemoteServer(BaseRemoteServer):
             try:
                 self.is_local_server_running()
             except AssertionError:
-                logger.exception(f'Could not start Appium Server. Please check log: {self.log}')
+                logger.exception(f'Could not start Appium Server. Plawsease check log: {self.log}')
                 raise
         else:
             logger.info("Appium Server already running, trying to connect to it")
@@ -82,12 +82,11 @@ class AppiumRemoteServer(BaseRemoteServer):
         Try to get process info and return True if port now used.
         """
         if self.is_linux:
-            cmd = f"lsof -i -n -P | grep {self.port}"
+            cmd = f"lsof -i -P | grep '{self.port} (LISTEN)'"
         else:
             # todo: try on windows (and modify cmd if needed)
             cmd = f"netstat -na | find \"{self.port}\""
-        out, err, rc = subprocess_send_command(cmd)
-        # todo: try on windows (and modify expected command)
+        out, err, rc = subprocess_send_command(cmd, exp_rc=None)
         return bool(out[0] and 'node' in out[0])
 
 
@@ -113,7 +112,7 @@ class SeleniumServer(BaseRemoteServer):
         if os.path.exists(self.log):
             os.remove(self.log)
 
-        if self._get_current_sessions() is False:
+        if self.is_local_server_running() is False:
             server_cmd = list()
             server_cmd.append('java')
             server_cmd.append(f'-Dwebdriver.{self._config.browser}.driver="{self._config.driver_path}"')
@@ -135,8 +134,8 @@ class SeleniumServer(BaseRemoteServer):
         Try to get process info and return True if port now used.
         """
         if self.is_linux:
-            cmd = f"lsof -i -n -P | grep {self.port}"
+            cmd = f"lsof -i -P | grep {self.port}"
         else:
             cmd = f"netstat -na | find \"{self.port}\""
-        out, err, rc = subprocess_send_command(cmd)
+        out, err, rc = subprocess_send_command(cmd, exp_rc=None)
         return True if out[0] and ('LISTENING' or 'java') in out[0] else False

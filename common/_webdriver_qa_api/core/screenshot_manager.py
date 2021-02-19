@@ -11,15 +11,15 @@ from common._webdriver_qa_api.web.web_driver import get_webdriver_session
 
 class ScreenShot:
 
-    BASE_SCREENSHOTS_FOLDER = os.path.join(os.getcwd(), 'temp_screenshots')
+    base_screenshots_folder = os.path.join(os.getcwd(), 'temp_screenshots')
 
     def __init__(self, driver: WebDriver, screen_path: str = None):
         self.driver = driver
-        self.screenshot_folder = screen_path if screen_path else self.BASE_SCREENSHOTS_FOLDER
+        self.screenshot_folder = screen_path if screen_path else self.base_screenshots_folder
 
     def __del__(self, *args, **kwargs):
-        if os.path.exists(self.BASE_SCREENSHOTS_FOLDER):
-            shutil.rmtree(self.BASE_SCREENSHOTS_FOLDER)
+        if os.path.exists(self.base_screenshots_folder):
+            shutil.rmtree(self.base_screenshots_folder)
 
     def save_screenshot(self, screenshot_name: str = None) -> str:
         """

@@ -10,7 +10,7 @@ class MobileSwitch(MobileElement):
 
     # region Actions
 
-    def set_switcher_state(self, checked=True):
+    def set_switcher_state(self, checked: bool = True):
         """
         Changes Switch state
         :param checked: if True sets switch to Checked, otherwise sets switch to Unchecked
