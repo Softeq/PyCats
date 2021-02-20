@@ -3,6 +3,17 @@ The PyCats aims to provide the well-structured framework with libraries created 
 
 It uses the [pytest](https://docs.pytest.org/en/latest/ "pytest") library as a test runner, [Selenium Web Driver](https://www.selenium.dev/projects/ "Selenium Web Driver") for Web UI testing, [Appium](http://appium.io/ "Appium") for mobile testing (Coming Soon), contains wrappers over the Web Driver to simplify its usage, provides layered architecture and recommendations how to organize tests.
 
+### Architecture
+PyCATS is implemented base on the layered architecture approach that allows which allows you to differentiate the functionality of tests and modules into different layers and make the use of the framework simple and understandable.
+
+The following diagram displays how it looks like (you can find the examples of how the tests and layers are organized in the project folder):
+ 
+![PyCATS Layers](.github_static/pycats_layers.png)
+
+The sequence diagram below illustrates how PyCATS performs initial framework initialization based on the pytest hooks
+
+![PyCATS Layers](.github_static/pycats_initialization.png)
+
 ## Getting Started
 
 TBU
