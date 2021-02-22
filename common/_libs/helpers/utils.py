@@ -8,13 +8,25 @@ import string
 import unicodedata
 
 
-def get_modules_list(package_path, glob_expression):
-    paths = glob.glob(os.path.join(package_path, glob_expression), recursive=True)
+def get_modules_list(package_path: str, glob_expression: str):
+    package_modules_paths = {}
     modules = []
-    for file_handler, module, _ in pkgutil.walk_packages(path=paths):
-        packages = ".".join(filter(None, file_handler.path.replace(package_path, '').split(os.sep)))
-        modules.append(".".join(element for element in [pathlib.Path(package_path).name, packages, module] if element))
-    return modules
+    # get all packages and subpackages without modules
+    if not glob_expression.endswith('/'):
+        glob_expression += "/"
+    package_paths = glob.glob(os.path.join(package_path, glob_expression), recursive=True)
+    # create package_paths dict with their path modules as a value.
+    for path in package_paths:
+        package_modules_paths[path] = glob.glob(os.path.join(path, '**'), recursive=False)
+        package_modules_paths[path].append(path)
+    # import packages through walk_packages separately
+    # because walk_packages skips already imported modules even they are located in different packages
+    for key, value in package_modules_paths.items():
+        for file_handler, module, _ in pkgutil.walk_packages(path=value):
+            packages = ".".join(filter(None, file_handler.path.replace(package_path, '').split(os.sep)))
+            modules.append(".".join(element for element in [pathlib.Path(package_path).name, packages, module] if element))
+    # keep order of modules and remove duplications
+    return list(dict.fromkeys(modules))
 
 
 def get_string(length=8, char='lower'):
