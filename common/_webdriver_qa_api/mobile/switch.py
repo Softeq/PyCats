@@ -1,7 +1,7 @@
 import logging
 
-from .mobile_element import MobileElement
-from .utils import get_platform
+from common._webdriver_qa_api.mobile.mobile_element import MobileElement
+from common._webdriver_qa_api.mobile.utils import get_platform
 
 logger = logging.getLogger(__name__)
 

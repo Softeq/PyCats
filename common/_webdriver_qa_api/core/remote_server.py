@@ -35,7 +35,7 @@ class BaseRemoteServer:
                 cmd = f"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr \":{self.port}\"') do taskkill /F /PID %a"
             subprocess_send_command(cmd)
         else:
-            logger.info(f"There is no working {self.server_type} server")
+            logger.info(f"The {self.server_type} server was not stopped because an active session was found")
 
     def _is_session_exist(self):
         try:
@@ -72,7 +72,7 @@ class AppiumRemoteServer(BaseRemoteServer):
             try:
                 self.is_local_server_running()
             except AssertionError:
-                logger.exception(f'Could not start Appium Server. Plawsease check log: {self.log}')
+                logger.exception(f'Could not start Appium Server. Please check log: {self.log}')
                 raise
         else:
             logger.info("Appium Server already running, trying to connect to it")
