@@ -1,22 +1,22 @@
 import logging
 
 from common._libs.helpers.singleton import Singleton, get_singleton_instance, delete_singleton_object
-from common.config_manager import ConfigManager
 
 from selenium import webdriver
 from selenium.webdriver import Remote, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from common.config_parser.config_dto import WebDriverSettingsDTO
 
 logger = logging.getLogger(__name__)
 
 
 class WebDriver(metaclass=Singleton):
 
-    def __init__(self, config: ConfigManager, driver=Remote):
-        self._settings = config.get_webdriver_settings()
-        self.driver = driver(**self._get_driver_settings(self._settings))
-        self.driver.implicitly_wait(self._settings.webdriver_implicit_wait_time)
+    def __init__(self, config: WebDriverSettingsDTO, driver=Remote):
+        self.config = config
+        self.driver = driver(**self._get_driver_settings(self.config))
+        self.driver.implicitly_wait(self.config.implicit_wait_time)
 
         self.action_chains = ActionChains(self.driver)
         self.driver_wait = WebDriverWait
@@ -46,7 +46,7 @@ def get_webdriver_session() -> WebDriver:
     return session
 
 
-def start_webdriver_session(config: ConfigManager):
+def start_webdriver_session(config: WebDriverSettingsDTO):
     """ Create webdriver session and maximize browser window """
     logger.info("Start WebDriver session")
     session = WebDriver(config)

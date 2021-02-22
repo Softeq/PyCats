@@ -24,17 +24,15 @@ class DynamicElement:
                 logger.debug(f"Looking for element {self.__locator}")
                 return self.__driver.find_element(self.__locator_type, self.__locator)
             except NoSuchElementException:
-                logger.exception("An element '{0}' {1}could not be located on the page.".format(
+                raise NoSuchElementException("An element '{0}' {1}could not be located on the page.".format(
                     self.__name, "" if self.__locator == self.__name else "with locator '{}' ".format(self.__locator)))
-                raise NoSuchElementException
         else:
             try:
                 return self.__parent.element().find_element(self.__locator_type, self.__locator)
             except NoSuchElementException:
-                logger.exception("An element '{0}' {1}for __parent '{2}' could not be located on the page.".format(
+                raise NoSuchElementException("An element '{0}' {1}for __parent '{2}' could not be located on the page.".format(
                     self.__name, "" if self.__locator == self.__name else "with locator '{}' ".format(self.__locator),
                     self.__parent.name))
-                raise NoSuchElementException
 
     def __log(self, item, attribute):
         name = object.__getattribute__(self, "name")

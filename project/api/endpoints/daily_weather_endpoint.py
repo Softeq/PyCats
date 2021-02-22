@@ -41,7 +41,7 @@ class DailyWeatherEndpointBuilder:
         custom_checkers = []
 
     _DailyWeatherResponseModel.configure_validator()
-    endpoint = endpoint_factory(raw_config.project_settings.web_api_url, __qualname__,
+    endpoint = endpoint_factory(raw_config.project_settings.web_api_url, __qualname__,  # noqa
                                 _DailyWeatherRequestModel, _DailyWeatherResponseModel)
 
     def get_weather_details(self, city, token, units='imperial'):

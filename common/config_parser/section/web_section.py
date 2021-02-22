@@ -19,8 +19,8 @@ class WebSection(ConfigSection):
     def __init__(self, config, custom_args):
         """Basic initialization."""
         self.webdriver_folder = None
-        self.webdriver_default_wait_time = 20
-        self.webdriver_implicit_wait_time = 30
+        self.default_wait_time = 20
+        self.implicit_wait_time = 30
         self.selenium_server_executable = None
         self.chrome_driver_name = None
         self.firefox_driver_name = None
@@ -43,7 +43,7 @@ class WebSection(ConfigSection):
         self._mandatory_fields = ['webdriver_folder', 'chrome_driver_name']
         self._str_fields = ['webdriver_folder', 'selenium_server_executable', 'chrome_driver_name',
                             'firefox_driver_name', 'browser']
-        self._int_fields = ['webdriver_default_wait_time', 'webdriver_implicit_wait_time']
+        self._int_fields = ['default_wait_time', 'implicit_wait_time']
         self._comma_separated_list_fields = ['chrome_options']
         self._bool_fields = ['stop_server']
         self._settings = self._str_fields + self._int_fields + self._comma_separated_list_fields + self._bool_fields
@@ -57,12 +57,7 @@ class WebSection(ConfigSection):
 
     def _perform_custom_tunings(self):
         """Perform custom tunings for obtained settings."""
-        for setting in self._settings:
-            if setting in self._untuned_settings:
-                setattr(self, setting, self._untuned_settings[setting])
-
-        if self.custom_args is not None:
-            self._tune_custom_args()
+        super()._perform_custom_tunings()
 
     def _check_settings(self):
         """Check if webdriver settings are valid."""

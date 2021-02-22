@@ -1,3 +1,6 @@
+import os
+
+from common._libs.helpers.os_helpers import get_timestamp
 from common.config_parser.section.base_section import ConfigSection
 
 
@@ -11,7 +14,14 @@ class BaseGlobalSection:
         self.logdir = 'Logs'
         self.log_level = 'INFO'
         self.enable_libs_logging = False
+        self._session_log_dir = None
         self.sections = []
+
+    @property
+    def session_log_dir(self):
+        if not self._session_log_dir:
+            self._session_log_dir = os.path.join(self.logdir, get_timestamp())
+        return self._session_log_dir
 
     def to_dict(self):
         """Convert to dictionary."""
@@ -53,9 +63,4 @@ class GlobalSection(ConfigSection, BaseGlobalSection):
 
     def _perform_custom_tunings(self):
         """Perform custom tunings for obtained settings."""
-        for setting in self._settings:
-            if setting in self._untuned_settings:
-                setattr(self, setting, self._untuned_settings[setting])
-
-        if self.custom_args is not None:
-            self._tune_custom_args()
+        super()._perform_custom_tunings()

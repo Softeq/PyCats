@@ -34,8 +34,8 @@ class ResetPasswordForm(SignInPage):
             while time.time() < end_time and not present_status:
                 self.driver.implicitly_wait(1)
                 present_status = BaseElement(self.locator_type, self.locator,
-                                             self.driver, self._config, self.name).is_displayed()
+                                             self.web_driver, self.name).is_displayed()
                 time.sleep(0.1)
         finally:
-            self.driver.implicitly_wait(self._config.get_webdriver_settings().webdriver_implicit_wait_time)
+            self.driver.implicitly_wait(self.config.implicit_wait_time)
         return present_status

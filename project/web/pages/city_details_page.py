@@ -23,4 +23,4 @@ class CityDetailsContainer(WebPage):
 
     def get_temperature_value(self):
         temperature_value = self.lbl_temperature.get_element_text()
-        return re.findall(r'\d+', temperature_value)[0]
+        return int(re.findall(r'\d+', temperature_value)[0])

@@ -3,8 +3,9 @@ import time
 import logging
 from datetime import timedelta
 from operator import gt, lt, eq, ne, le, ge
+from typing import Union
 
-from common.config_parser.config_dto import WebDriverSettingsDTO
+from common.config_parser.config_dto import WebDriverSettingsDTO, MobileDriverSettingsDTO
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,8 @@ def _smart_assert(actual, expected, comp_operator, msg=None, timeout=None, repea
     while time.time() < end_time:
         act = actual() if callable(actual) else actual
         if comp_operator(act, expected):
-            logger.info("\tAssertion passed in {s} seconds".format(s=int(time.time() - start_time)))
+            logger.info("\tAssertion passed in {s} seconds: {act} {op} {exp}".format(
+                s=int(time.time() - start_time), act=act, op=op, exp=expected))
             break
         elif time.time() + sleep_time + 0.5 < end_time:
             logger.info("'{act}' {op} '{exp}', try again in {time} seconds".format(
@@ -228,7 +230,7 @@ def wait_in_seconds(seconds):
     time.sleep(seconds)
 
 
-def get_wait_seconds(seconds, webdriver_settings_config: WebDriverSettingsDTO):
+def get_wait_seconds(seconds, web_driver_config: Union[WebDriverSettingsDTO, MobileDriverSettingsDTO]):
     if seconds:
         return seconds
-    return webdriver_settings_config.webdriver_default_wait_time
+    return web_driver_config.default_wait_time
