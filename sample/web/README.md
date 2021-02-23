@@ -26,10 +26,10 @@ We support 3 layers structure for code base:
  
 The Page object implementation should include following rules:
 
-1. The page class must inherit from [WebPage](../../common/_webdriver_qa_api/web/web_pages.py) class and implement `super` call for __init__ method
-1. All page elements should be defined in __init__ method as [WebElement](../../common/_webdriver_qa_api/web/web_elements.py) related objects
+1. The page class must inherit from [WebPage](../../common/_webdriver_qa_api/web/web_pages.py) class and implement `super` call for `__init__` method
+1. All page elements should be defined in `__init__` method as [WebElement](../../common/_webdriver_qa_api/web/web_elements.py) related objects
 1. All elements variable names starts with element type shortcut: button - `seld.btn_name`, text_box - `self.txb_name` etc
-1. Class methods should implement only actions on the page using elements from __init__ section by `self.` call and methods from `WebElement` / `WebPage` classes
+1. Class methods should implement only actions on the page using elements from `__init__` section by `self.` call and methods from `WebElement` / `WebPage` classes
 
 sample of Page class:
 ```python
@@ -64,7 +64,7 @@ The `navigation` keywords should include following rules:
 1. Navigation function combine actions from: another steps, PO classes, checks
 1. Should return an object of PageStep class
 1. Have a log_title message with action message
-1. Function should be added to __all__ module list 
+1. Function should be added to `__all__` module list 
 
 sample of navigation method:
 ```python
@@ -88,9 +88,9 @@ def navigate_to_sign_in_page():
 The `page steps` keywords should include following rules:
 
 1. The step class must inherit from PO class for same page (e.g. if you have HomePage on PO layer, steps class will be - `class HomePageSteps(HomePage)`)
-1. Step class haven't __init__ section or have a super call of __init__ from PO class
+1. Step class haven't `__init__` section or have a super call of `__init__` from PO class
 1. Class methods should implement steps related with inherited page using: actions from Page class, checks, additional object from Builder layer (e.g. popup's)
-1. Python module should be added to __all__ variable in __init__.py file of pages or subdirectory (e.g. [__init__.py](steps/page_object_steps/pages/__init__.py))
+1. Python module should be added to `__all__` variable in `__init__.py` file of pages or subdirectory (e.g. [\_\_init__.py`](steps/page_object_steps/pages/__init__.py))
 
 sample of page steps implementation:
 ```python
@@ -111,7 +111,7 @@ The `global steps` keywords should include following rules:
 
 1. Function combine actions from: another steps, page steps classes, checks
 1. Have a log_title call with action message
-1. Function should be added to __all__ module list 
+1. Function should be added to `__all__` module list 
 
 sample of steps method:
 ```python

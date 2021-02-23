@@ -27,8 +27,8 @@ We support 3 layers structure for code base:
 The Page object implementation should include following rules:
 
 1. The screen modules should contains Page object implementation class, in format: {screen_name}Page, e.g. `LoginPage`
-1. The page classes must inherit from [MobilePage](../../common/_webdriver_qa_api/mobile/mobile_page.py) class and implement `super` call for __init__ method
-1. All page elements should be defined in __init__ method as [MobileElement](../../common/_webdriver_qa_api/mobile/mobile_element.py) related objects (from common elements types in framework part or [custom elements](src/custom_elements) types in project part)
+1. The page classes must inherit from [MobilePage](../../common/_webdriver_qa_api/mobile/mobile_page.py) class and implement `super` call for `__init__` method
+1. All page elements should be defined in `__init__` method as [MobileElement](../../common/_webdriver_qa_api/mobile/mobile_element.py) related objects (from common elements types in framework part or [custom elements](src/custom_elements) types in project part)
 1. All elements variable names starts with element type shortcut: button - `self.btn_name`, text_box - `self.txb_name` etc
 
 
@@ -65,7 +65,7 @@ class SettingsPage(MobilePage):
 Steps layer - it's a function set that combines Action methods from Builder layer and expands them with test checks.
 This solution helps us to have a clear structure of tests and avoid code duplication (save time on test supporting)
 
-That layer placed in `steps` directory, and divided to 2 main parts:
+That layer placed in `steps` directory, and divided to 3 main parts:
 
 * [Navigation steps](steps/navigation_steps/navigation_steps.py) - function that used for navigation between mobile screens
 * [Global steps](steps/global_steps/global_steps.py) - functions that combine many actions for frequent uses (like login)
@@ -77,7 +77,7 @@ The `navigation` keywords should include following rules:
 1. Navigation function combine actions from: another steps, PO classes, checks
 1. Should return an object of Page class
 1. Have a log_title message with action message
-1. Function should be added to __all__ module list 
+1. Function should be added to `__all__` module list 
 
 sample of navigation method:
 ```python
@@ -114,7 +114,7 @@ The `Global steps` keywords should include following rules:
 
 1. Function combine actions from: another steps, steps classes, checks
 1. Have a log_title call with action message
-1. Function should be added to __all__ module list
+1. Function should be added to `__all__` module list
 
 sample of steps method:
 ```python
@@ -141,7 +141,7 @@ The `Page steps` keywords should include following rules:
 1. The Steps class should inherit from PO class for same screen
 1. Class function combine actions from: Page classes, Steps classes and checks
 1. Have a log_info or log_title call with step message
-1. Function should be added to __all__ module list
+1. Function should be added to `__all__` module list
 
 
 sample of page steps class:

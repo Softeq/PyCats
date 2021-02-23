@@ -68,9 +68,9 @@ validate_is_field_missing = True
 ;Folder where browsers drivers are located
 webdriver_folder = /home/test/web/webdrivers/
 ;Time to wait until element appears on the page. 20 seconds by default
-webdriver_default_wait_time = 20
+default_wait_time = 20
 ;Webdriver implicit wait time. 60 seconds by default
-webdriver_implicit_wait_time = 60
+implicit_wait_time = 60
 ;Folder where selenium server is located
 selenium_server_executable = /home/test/web/webdrivers/selenium-server-standalone-3.141.59.jar
 ;Chrome driver filename
