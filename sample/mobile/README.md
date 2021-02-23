@@ -15,8 +15,8 @@ We support 3 layers structure for code base:
 
 ### Builder layer
  Implementation of Page object pattern based on Page modules (For each mobile screen we have separate class).
- Each page module contain implementation of screen for both platforms and command base class with abstract methods for this screen
- This layer describe mobile screens and actions that we can do on it.
+ Each page module contains implementation of screen for both platforms and command base class with abstract methods for this screen.
+ This layer describes mobile screens and actions that we can do on them.
  
  That layer placed in `src` directory and divided by following object types: 
  
@@ -28,7 +28,7 @@ The Page object implementation should include following rules:
 
 1. The screen modules should contains Page object implementation class, in format: {screen_name}Page, e.g. `LoginPage`
 1. The page classes must inherit from [MobilePage](../../common/_webdriver_qa_api/mobile/mobile_page.py) class and implement `super` call for __init__ method
-1. All page elements should be defined in __init__ method as [MobileElement](../../common/_webdriver_qa_api/mobile/mobile_element.py) related objects (from common elements types in framework part or [custom elements](src/elements) types in project part)
+1. All page elements should be defined in __init__ method as [MobileElement](../../common/_webdriver_qa_api/mobile/mobile_element.py) related objects (from common elements types in framework part or [custom elements](src/custom_elements) types in project part)
 1. All elements variable names starts with element type shortcut: button - `self.btn_name`, text_box - `self.txb_name` etc
 
 
@@ -61,9 +61,9 @@ class SettingsPage(MobilePage):
         self.chb_f_unit.set_switcher_state(checked=True)
 ```
 
-### Steps / Keyword layer
-Steps layer - it's a function set which combine Action methods from Builder layer and expands them with test checks.
-This solution help us to have clear structure of tests and avoid code duplication (save time on test supporting)
+### Steps layer
+Steps layer - it's a function set that combines Action methods from Builder layer and expands them with test checks.
+This solution helps us to have a clear structure of tests and avoid code duplication (save time on test supporting)
 
 That layer placed in `steps` directory, and divided to 2 main parts:
 

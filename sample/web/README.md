@@ -20,7 +20,7 @@ We support 3 layers structure for code base:
 
 ### Builder layer
  Implementation of Page object pattern based on Page classes (For each web page we have separate class).
- This layer describe web interface and Actions that we can do using web interface.
+ This layer describes web interface and Actions that we can do using web interface.
  
  That layer placed in `pages` directory, e.g. for Home Page - [home_page.py](pages/home_page.py).
  
@@ -90,7 +90,7 @@ The `page steps` keywords should include following rules:
 1. The step class must inherit from PO class for same page (e.g. if you have HomePage on PO layer, steps class will be - `class HomePageSteps(HomePage)`)
 1. Step class haven't __init__ section or have a super call of __init__ from PO class
 1. Class methods should implement steps related with inherited page using: actions from Page class, checks, additional object from Builder layer (e.g. popup's)
-1. Python module should be added to __all__ variable in __init__.py file of pages or subdirectory (e.g. for admin portal - [__init__.py](admin_portal/keywords/pages/__init__.py))
+1. Python module should be added to __all__ variable in __init__.py file of pages or subdirectory (e.g. [__init__.py](steps/page_object_steps/pages/__init__.py))
 
 sample of page steps implementation:
 ```python
@@ -122,7 +122,7 @@ sample of steps method:
 Test layer include python modules with tests and pytest fixtures.
 
 That layer placed in `tests` directory that can include subdirectories and modules by test types or target,
- e.g. for Admin Portal - [tests for sign in page](../tests/web_tests/test_sign_in_page.py)
+ e.g. for Sign In page - [tests for sign in page](../tests/web_tests/test_sign_in_page.py)
 
 there are a few rules that we hold:
 
@@ -134,7 +134,7 @@ there are a few rules that we hold:
 1. Place fixture in local python test module/conftest file when fixture used by single test/module
 1. Tests function use actions from: keyword layer calls (page steps, global steps, navigation steps)
  
-Code sample (based on AdminPanel tests):
+Code sample:
 ```python
 import pytest
 
