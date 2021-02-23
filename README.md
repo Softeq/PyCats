@@ -126,7 +126,15 @@ from common.facade import raw_config, logger
 - `logger` -  shortcut to access pycats.logger object from Facade
 
 ## Writing UI tests
-TBU
+UI testing based on separation of test logic, UI actions and checks for different layers and using keywords style.
+The main feature of PyCats is the ability to use custom WebPage / WebElements classes 
+that allow to find element on the page in moment when we need to interact with them 
+and provide a lot of useful functions to work with mobile/web ui interfaces. 
+
+Detailed description and example you can find on sample folder:
+ - [mobile_sample](sample/mobile/README.md)
+ - [web_sample](sample/web/README.md)
+
 
 ## Writing API  tests
 
