@@ -68,9 +68,9 @@ validate_is_field_missing = True
 ;Folder where browsers drivers are located
 webdriver_folder = /home/test/web/webdrivers/
 ;Time to wait until element appears on the page. 20 seconds by default
-webdriver_default_wait_time = 20
+default_wait_time = 20
 ;Webdriver implicit wait time. 60 seconds by default
-webdriver_implicit_wait_time = 60
+implicit_wait_time = 60
 ;Folder where selenium server is located
 selenium_server_executable = /home/test/web/webdrivers/selenium-server-standalone-3.141.59.jar
 ;Chrome driver filename
@@ -79,6 +79,33 @@ chrome_driver_name = chromedriver
 firefox_driver_name = gecodriver
 ;Browser to use in a testing (depending on this field value - appropriate driver name will be looked up in webdriver_folder)
 browser = chrome
+;Swither that allow or forbid teardown of webdriver server after test session
+stop_server = True
+;Chrome browser options (in comma separated list format)
+chrome_options = incognito, disable-extensions, no-sandbox
+
+
+[mobile]
+;Path to appium server executable
+appium_server_path = /Applications/Appium.app/Contents/Resources/app/node_modules/appium/build/lib/main.js
+;Path to node executable
+node_executable_path = node
+;Mobile platform to use in a testing (availible values: android, ios)
+platform = android
+;The uuid of iOS device for tests
+ios_udid = None
+;Path to iOS application file (ipa)
+ipa_path = None
+;The uuid of android device for tests
+android_udid = R58M44XFLNV
+;Package name of android application for test  
+android_package = com.yahoo.mobile.client.android.weather
+;Activity of first screen after app opens
+android_activity = com.yahoo.mobile.client.android.weather.ui.WeatherMainActivity
+;Mobiledriver implicit wait time. 30 seconds by default
+implicit_wait_time=30
+;Time to wait until element appears on the page. 20 seconds by default
+default_wait_time=20
 ```
 
 `global` and `api_validation` sections are optional but you can override their default behaviour in config. 
@@ -126,7 +153,15 @@ from common.facade import raw_config, logger
 - `logger` -  shortcut to access pycats.logger object from Facade
 
 ## Writing UI tests
-TBU
+UI testing based on separation of test logic, UI actions and checks for different layers and using keywords style.
+The main feature of PyCats is the ability to use custom WebPage / WebElements classes 
+that allow to find element on the page in moment when we need to interact with them 
+and provide a lot of useful functions to work with mobile/web ui interfaces. 
+
+Detailed description and example you can find on sample folder:
+ - [mobile_sample](sample/mobile/README.md)
+ - [web_sample](sample/web/README.md)
+
 
 ## Writing API  tests
 
