@@ -1,7 +1,7 @@
 # PyCats (Python Common Automation Test Solution)
 The PyCats aims to provide the well-structured framework with libraries created based on the popular python solutions intended for testing purposes and to make it universal for testing across different domain areas - Web, Mobile, IoT, Embedded.
 
-It uses the [pytest](https://docs.pytest.org/en/latest/ "pytest") library as a test runner, [Selenium Web Driver](https://www.selenium.dev/projects/ "Selenium Web Driver") for Web UI testing, [Appium](http://appium.io/ "Appium") for mobile testing (Coming Soon), contains wrappers over the Web Driver to simplify its usage, provides layered architecture and recommendations how to organize tests.
+It uses the [pytest](https://docs.pytest.org/en/latest/ "pytest") library as a test runner, [Selenium Web Driver](https://www.selenium.dev/projects/ "Selenium Web Driver") for Web UI testing, [Appium](http://appium.io/ "Appium") for mobile testing, contains wrappers over the Web Driver to simplify its usage, provides layered architecture and recommendations how to organize tests.
 
 ### Architecture
 PyCATS is implemented based on the layered architecture approach that allows us to differentiate the functionality of tests and modules into different layers and make the use of the framework simple and understandable.
