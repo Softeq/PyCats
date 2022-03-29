@@ -2,7 +2,7 @@ requests==2.24.0
 pytest==5.4.3
 scp==0.13.2
 selenium==3.141.0
-paramiko==2.7.1
+paramiko==2.10.1
 Appium-Python-Client==1.0.2
 AWSIoTPythonSDK==1.4.9
 pubnub==5.0.0
